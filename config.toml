@@ -1,0 +1,57 @@
+## Basic Configuration
+
+baseurl = "https://wilvk.github.io/"
+builddrafts = false
+canonifyurls = false
+languageCode = "en-US"
+
+contentdir = "content"
+layoutdir = "layouts"
+publishdir = "public"
+
+author = "Will van Ketwich"
+title = "Will van Ketwich"
+
+theme = "hugo-goa"
+
+## Hugo Built-in Features
+disqusShortname = "wilvk-github-io"
+googleAnalytics = "XYZ"
+enableRobotsTXT = true
+
+## Site Settings
+[params]
+author = "Will van Ketwich"
+intro = "Software Dude"
+description = "I'm just a guy who does stuff."
+authorimage = "headshot.jpg"
+dateformat = "Jan 2, 2006"
+
+## Site Meta Settings
+[params.meta]
+description = "Simple minimalist theme"
+keywords = "minimalist,blog,goa,hugo,developer"
+
+## Social Accounts
+[params.social]
+github = "wilvk"
+linkedin = "willvk"
+twitter = "wilvk"
+stackoverflow = "<username>"
+email = "willvk[at]gmail.com"
+
+## Extras
+[params.extra]
+highlightjs = true
+
+## Main Menu
+[[menu.main]]
+    name = "blog"
+    weight = 100
+    identifier = "blog"
+    url = "/posts/"
+[[menu.main]]
+    name = "about"
+    identifier = "about"
+    weight = 200
+    url = "/about/"
