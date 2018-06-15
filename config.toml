@@ -42,6 +42,8 @@ email = "willvk[at]gmail.com"
 
 ## Extras
 [params.extra]
+copyright = "© 2018 - Willem van Ketwich"
+poweredby = false
 highlightjs = true
 
 ## Main Menu
