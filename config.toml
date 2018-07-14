@@ -16,7 +16,7 @@ theme = "hugo-goa"
 
 ## Hugo Built-in Features
 disqusShortname = "wilvk-github-io"
-googleAnalytics = "XYZ"
+googleAnalytics = "UA-122351489-1"
 enableRobotsTXT = true
 
 ## Site Settings
