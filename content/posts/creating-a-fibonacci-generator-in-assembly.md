@@ -66,7 +66,7 @@ Ok, so we have a basis for our algorithm, but how do we implement it in ASM? The
 
 I decided the number of iterations of Fibonacci would be determined from the command line as an argument to the application. It would expect a valid number from the user and convert this from a string to a number.
 
-The Fibonacci algorithm would then have to create an array of lenth n+2 on the stack based on the user input. Another variable (as i shown above) would be used as a counter this counter would likely use the ECX register.
+The Fibonacci algorithm would then have to create an array of lenth n+2 on the stack based on the user input. Another variable (as the variable i shown above) would be used as a counter. This counter would likely use the ECX register.
 
 The first two elements of the array would be pre-populated with 0 and 1 respectively, as all Fibonacci sequences have these numbers and are used when calculating new values.
 
@@ -79,7 +79,7 @@ The final value placed on the stack then needs to be converted to a string and p
 The application then needs to exit gracefully and return control to the shell.
 
 
-# Starting with a framework
+# 1. Starting with a framework
 
 ```
 # framework
@@ -118,7 +118,29 @@ If we were to run `ld -o fib fib.o`, we should now have a new binary application
 
 The linker has other features (which I won't discuss here) that make your life easier as an assembly language programmer.
 
-# Reading from STDIN and converting to a numeric value
+# Reading from the process arguments and converting to a numeric value
+
+The arguments are already placed into the stack for us, along with all the environment variablesof the parent process. All we should have to do is find the value in the stack where the argument is and then convert it to a string and print it to stdout.
+
+The stack is upside down, and so we traverse up the stack to find the first argument. The stack is composed as follows.
+
+< pointer to last string argument >
+...
+< pointer to second string argument >
+< pointer to string that contains the first environment variable >
+< pointer to last string argument >
+...
+ESP + 12 < pointer to second string argument >
+ESP + 8  < pointer to a string that contains the first argument >
+ESP + 4  < pointer to a string containing the name of the application >
+ESP + 0  < number of arguments on command line > <- current position of Stack Pointer ESP
+
+We know that we are just after the first string argument so we can predict that the pointer to the first string argument will be 2 places up the stack from the current value of ESP. We are using 32 bit locations here, where every pointer is 4 bytes ( 4 x 8 bytes = 32 bits). This means that our first command line argument is at the location ESP + 8. This is because the Stack Pointer ESP can directly reference every byte in memory, and we are looking for the location 2 up from it's current location, effectively 2 x 4 bytes.
+
+We want to move this into a register and print it out so we know we have the correct location. This will also show us what we need to do to print the final value.
+
+
+
 
 # Actually implementing the logic
 
