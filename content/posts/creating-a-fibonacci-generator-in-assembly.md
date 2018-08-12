@@ -22,7 +22,7 @@ Other criteria that may also be considered are:
 
 I found a good blog about different approaches to Fibonacci Equations [here](https://www.geeksforgeeks.org/program-for-nth-fibonacci-number/) and armed with the new knowledge from reading a couple of books on the subject I set out to implement this.
 
-## Using some staring knowledge
+## Using some starting knowledge
 
 The basis was decided to be a space optimised method using a dynamic programming approach. This effectively means using an array on the stack to hold our values while giving O(n) time and space complexity.
 
@@ -126,18 +126,21 @@ The arguments are already placed into the stack for us, along with all the envir
 
 The stack is upside down, and so we traverse up the stack to find the first argument. The stack is composed as follows.
 
+Stack |
+--- |
+< pointer to last string argument > |
+... |
+< pointer to second string argument > |
+< pointer to string that contains the first environment variable > |
+< pointer to last string argument > |
+... |
 
-
-< pointer to last string argument >
-...
-< pointer to second string argument >
-< pointer to string that contains the first environment variable >
-< pointer to last string argument >
-...
-ESP + 12 < pointer to second string argument >
-ESP + 8  < pointer to a string that contains the first argument >
-ESP + 4  < pointer to a string containing the name of the application >
-ESP + 0  < number of arguments on command line > <- current position of Stack Pointer ESP
+|Stack   |Data                                                                                |
+|--------|------------------------------------------------------------------------------------|
+|ESP + 12| < pointer to second string argument >                                              |
+|ESP + 8 | < pointer to a string that contains the first argument >                           |
+|ESP + 4 | < pointer to a string containing the name of the application >                     |
+|ESP + 0 | < number of arguments on command line > <- current position of Stack Pointer ESP   |
 
 We know that we are just after the first string argument so we can predict that the pointer to the first string argument will be 2 places up the stack from the current value of ESP. We are using 32 bit locations here, where every pointer is 4 bytes ( 4 x 8 bytes = 32 bits). This means that our first command line argument is at the location ESP + 8. This is because the Stack Pointer ESP can directly reference every byte in memory, and we are looking for the location 2 up from it's current location, effectively 2 x 4 bytes.
 
