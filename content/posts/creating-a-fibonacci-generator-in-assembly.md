@@ -148,7 +148,153 @@ We want to move this into a register and print it out so we know we have the cor
 
 As a final step in obtaining the value from the command line, the system call to write to stdout requires the length of the string that is to be processed.
 
+## Debugging with gdb
 
+It would almost be impossible for a mere mortal to understand what is going on without a debugger. I chose to use GDB as it outputs to gas asm and there is plenty of information on how it works online.
+
+We'll use the following code (as per fib2.s) and load it into gdb with the argument 'test', such that once we've made fib2, we run `gdb --args ./fib2 test`. Gdb will load the binary with the argument specified and wait at it's repl prompt for further instructions.
+
+fib2.s
+```asm
+# stack args example
+.section .text
+.globl _start
+  _start:
+    nop
+    movl %esp, %ebp     # take a copy of the stack pointer esp into ebp
+    addl $8, %ebp       # address of first arg in stack
+    movl (%ebp), %ecx   # move the address of the first arg into ecx
+    movl $4, %edx       # set the length of our string to 4
+    movl $4, %eax       # indicate to int 0x80 that we are doing a write
+    movl $0, %ebx       # indicate to int 0x80 that we are writing to file descriptor 0
+    int $0x80           # call int 0x80 for write
+    movl $1, %eax       # exit gracefully
+    movl $0, %ebx       # with return code 0
+    int $0x80           # call int 0x80 for exit
+```
+
+Gdb is very powerful and has many options that I'm still getting across, but for these examples we will use a small subset of it's functionality to:
+- step through the code
+- inspect memory values
+- inspect registers`
+
+At the gdb prompt, if we enter `list`, we can see the source code for the fib2 app we have loaded with line numbers. We can set a breakpoint for a corresponding line number to start our debugging at by typing `b n` where `n` is our line number. 
+
+
+```
+(gdb) list
+warning: Source file is more recent than executable.
+1       # stack args example
+2       .section .text
+3       .globl _start
+4         _start:
+5           nop
+6           movl %esp, %ebp     # take a copy of the stack pointer esp into ebp
+7           addl $8, %ebp       # address of first arg in stack
+8           movl (%ebp), %ecx   # move the address of the first arg into ecx
+9           movl $4, %edx       # set the length of our string to 4
+10          movl $4, %eax       # indicate to int 0x80 that we are doing a write
+(gdb)
+```
+
+For this example, if we enter `b 5`, a breakpoint will be set at line 5, ready to execute.
+line 5 is a no-operation, which means that it is a filler instruction. Older versions of gdb require this preceeding start, and so I have left it in for these examples. 
+
+```
+(gdb) b 5
+Breakpoint 1 at 0x8048054: file fib2.s, line 5.
+(gdb)
+```
+
+To run the binary up to the breakpoint, we can enter `r` or `run`. This will run through the binary up to but not including line 5.
+
+```
+(gdb) r
+Starting program: /gas-asm-fib/fib2 test
+
+Breakpoint 1, _start () at fib2.s:5
+5           nop
+(gdb)
+
+```
+
+From here, we can step through the remaining instructions, one at a time by entering 'stepi', which will run the current instruction and list the next instruction to be run.
+
+```
+(gdb) stepi
+6           movl %esp, %ebp     # take a copy of the stack pointer esp into ebp
+(gdb) stepi
+
+...
+
+(gdb) stepi
+(gdb) stepi
+(gdb) stepi
+
+...
+
+(gdb) stepi
+10          movl $4, %eax       # indicate to int 0x80 that we are doing a write
+```
+
+Entering `stepi` several times up to line 10, we shoud have the address of the first argument in the register ecx.
+
+To see what all the values of the registers are, we can enter `info registers` or just `info reg`:
+
+```
+gdb) info reg
+eax            0x0      0
+ecx            0x0      0
+edx            0x0      0
+ebx            0x0      0
+esp            0xffffd8c0       0xffffd8c0
+ebp            0xffffd8c8       0xffffd8c8
+esi            0x0      0
+edi            0x0      0
+eip            0x804805a        0x804805a <_start+6>
+eflags         0x282    [ SF IF ]
+cs             0x23     35
+ss             0x2b     43
+ds             0x2b     43
+es             0x2b     43
+fs             0x0      0
+gs             0x0      0
+(gdb)
+```
+ 
+This shows us that the value of ebp is `0xffffd8c8` which corresponds to an address in our stack. This value is very close to that of esp (`0xffffd8c8`), as the two are usually used in conjunction to traverse the stack.
+
+We can see there is also the register eip with the value `0x804805a` at a much lower value. This is the extended instruction pointer, that points to the current instruction that our application is running. By convention on Linux, the stack is at the top of memory and our intructions are close to the bottom of memory. The way this is done is by virtual paging so it appears to the application that it has all of physical memory, but it is only mapped pages that appear, so it is just an illusion until the application needs to read or write from a memory address.
+
+Coming back to the ecx value, we can eXamine what is in memory at the address referenced by ecx using the `x/` notation. 
+The `x/` notation takes up to 3 components. For example, 
+
+`x/5s ($ecx)`
+
+Prints the first 5 strings starting at the address pointed to by the register ecx and will output something similar to the following:
+
+```
+(gdb) x/5s ($ecx)
+0xffffd9d3:     "test"
+0xffffd9d8:     "LESSOPEN=| /usr/bin/lesspipe %s"
+0xffffd9f8:     "HOSTNAME=fc9dd5d874b7"
+0xffffda0e:     "SHLVL=1"
+0xffffda16:     "HOME=/root"
+(gdb)
+```
+
+We can clearly see our first command line argument here "test" followed by some environment variables.
+
+The remainder of the application prints the first 4 characters of the string pointed to by the address in ecx, then exits gracefully. To run the app to completion enter `continue` or just `c`. 
+
+We will see the command line argument printed out followed by the app exiting as below.
+
+```
+(gdb) c
+Continuing.
+test[Inferior 1 (process 24) exited normally]
+(gdb)
+```
 
 # Actually implementing the logic
 
@@ -156,7 +302,6 @@ As a final step in obtaining the value from the command line, the system call to
 
 ## Implementing a for loop in assembly language
 
-## Debugging with gdb
 
 ## Printing our result
 
