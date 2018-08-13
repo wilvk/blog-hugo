@@ -61,6 +61,16 @@ int main ()
 }
 ``` 
 
+# Overview of the implementation
+
+The implementation involved the following functionality:
+
+- Getting the length of the command line argument
+- Converting the command line argument from a string to a long (unsigned 32 bit number)
+- Validating the command line argument
+- Calculating Fibonacci
+- Printing the long as a string to stdout
+
 # Beginning the implementation
 
 Ok, so we have a basis for our algorithm, but how do we implement it in ASM? There are numerous formats of Assembly Language including NASM, GAS and MASM among others. I'm working on a Linux box and so MASM is out of the question. I decided to go with GAS as it is cross-platform and is a good general purpose assembler. This also gives me the ability to cheat in my implementation (which I'm not), as using `gcc`, a valid C application can be converted into intermediate GAS assembly language.
