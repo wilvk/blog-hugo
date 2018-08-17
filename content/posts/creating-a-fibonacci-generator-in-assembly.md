@@ -44,9 +44,8 @@ int fib(int n)
  
   for (i = 2; i <= n; i++)
   {
-      /* Add the previous 2 numbers in the series
-         and store it */
-      f[i] = f[i-1] + f[i-2];
+    /* Add the previous 2 numbers in the series and store it */
+    f[i] = f[i-1] + f[i-2];
   }
  
   return f[n];
@@ -160,7 +159,7 @@ As a final step in obtaining the value from the command line, the system call to
 
 ## Debugging with gdb
 
-It would almost be impossible for a mere mortal to understand what is going on without a debugger. I chose to use GDB as it outputs to gas asm and there is plenty of information on how it works online.
+It would almost be impossible for a mere mortal to understand what is going on without a debugger, and remiss of me to go through this example without explaining some basics of how to use an asm debugger. I chose to use GDB as it outputs to gas asm and there is plenty of information on how it works online.
 
 We'll use the following code (as per fib2.s) and load it into gdb with the argument 'test', such that once we've made fib2, we run `gdb --args ./fib2 test`. Gdb will load the binary with the argument specified and wait at it's repl prompt for further instructions.
 
@@ -306,7 +305,20 @@ test[Inferior 1 (process 24) exited normally]
 (gdb)
 ```
 
-# Actually implementing the logic
+# Fib 3
+
+# Fib 4
+
+# Fib 5
+
+# Fib 6
+
+# Fib 7
+
+# Fib 8
+
+
+---
 
 ## Creating the stack space for our array
 
