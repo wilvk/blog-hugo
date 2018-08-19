@@ -90,7 +90,9 @@ Once the final value is determined, a function is called to convert the number i
 
 The application then needs to exit gracefully and return control to the shell.
 
-# 1. Starting with a framework
+# 1. Building binary files from assembly files
+
+We will start with the following code. This gives us a basis for filling out our application.
 
 *fib1.s*
 ```asm
@@ -129,11 +131,44 @@ If we were to run `ld -o fib fib.o`, we should now have a new binary application
 
 The linker has other features (which I won't discuss here) that make your life easier as an assembly language programmer.
 
+We will be targetting the 32 bit x86 architecture to begin with as it is easier to understand. The following is a bash script for building the binary.
+
+_make-app_
+```
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  app_name=fib
+else
+  app_name=$1
+fi
+
+rm $app_name.o $app_name 2> /dev/null
+
+as --32 -gstabs -o $app_name.o $app_name.s
+ld -m elf_i386 -o $app_name $app_name.o
+
+```
+
+Makefiles are the status-quo for building assembly files, but I'm more used to working with bash scripts so the preceeding is a script that can be used to compile a single assembly file into a binary targetting 32 bit x86. If a name is passed on the commandline, it will attempt to compile the corresponding .s file.
+
+For example:
+
+` ./make-app fib2`
+
+will build a binary called fib2.
+
 # Reading from the process arguments and converting to a numeric value
+
+If we call our binary from the commandline like:
+
+`./fib2 test`
 
 The arguments are already placed into the stack for us, along with all the environment variables of the parent process. All we should have to do is find the value in the stack where the argument is and then convert it to a string and print it to stdout.
 
-The stack is upside down, and so we traverse up the stack to find the first argument. The stack is composed as follows.
+The stack is upside down in memory (with the last addition to the stack at the lower memory address), and so we traverse up the stack to find the first argument.
+
+The stack is composed as follows:
 
 Stack |
 --- |
@@ -151,7 +186,9 @@ Stack |
 |ESP + 4 | < pointer to a string containing the name of the application >                     |
 |ESP + 0 | < number of arguments on command line > <- current position of Stack Pointer ESP   |
 
-We know that we are just after the first string argument so we can predict that the pointer to the first string argument will be 2 places up the stack from the current value of ESP. We are using 32 bit locations here, where every pointer is 4 bytes ( 4 x 8 bytes = 32 bits). This means that our first command line argument is at the location ESP + 8. This is because the Stack Pointer ESP can directly reference every byte in memory, and we are looking for the location 2 up from it's current location, effectively 2 x 4 bytes.
+We know that we are just after the first string argument so we can predict that the pointer to the first string argument will be 2 places up the stack from the current value of ESP. We are using 32 bit locations here, where every pointer is 4 bytes ( 4 x 8 bytes = 32 bits ).
+
+This means that our first command line argument is at the location ESP + 8. This is because the Stack Pointer ESP can directly reference every byte in memory, and we are looking for the location 2 up from it's current location, effectively 2 x 4 bytes.
 
 We want to move this into a register and print it out so we know we have the correct location. This will also show us what we need to do to print the final value.
 
@@ -163,7 +200,7 @@ It would almost be impossible for a mere mortal to understand what is going on w
 
 We'll use the following code (as per fib2.s) and load it into gdb with the argument 'test', such that once we've made fib2, we run `gdb --args ./fib2 test`. Gdb will load the binary with the argument specified and wait at it's repl prompt for further instructions.
 
-fib2.s
+_fib2.s_
 ```asm
 # stack args example
 .section .text
@@ -183,12 +220,14 @@ fib2.s
 ```
 
 Gdb is very powerful and has many options that I'm still getting across, but for these examples we will use a small subset of it's functionality to:
+
 - step through the code
 - inspect memory values
-- inspect registers`
+- inspect registers
 
-At the gdb prompt, if we enter `list`, we can see the source code for the fib2 app we have loaded with line numbers. We can set a breakpoint for a corresponding line number to start our debugging at by typing `b n` where `n` is our line number. 
+At the gdb prompt, if we enter `list`, we can see the start of the source code for the fib2 app we have loaded, including line numbers. We can set a breakpoint for a corresponding line number to start our debugging at by typing `breakpoint n`, or just `b n`, where `n` is our line number. 
 
+For example:
 
 ```
 (gdb) list
@@ -207,7 +246,7 @@ warning: Source file is more recent than executable.
 ```
 
 For this example, if we enter `b 5`, a breakpoint will be set at line 5, ready to execute.
-line 5 is a no-operation, which means that it is a filler instruction. Older versions of gdb require this preceeding start, and so I have left it in for these examples. 
+Line 5 is a no-operation (or noop), which means that it is a filler instruction. Older versions of gdb require this proceeding `_start`, and so I have left it in for these examples. 
 
 ```
 (gdb) b 5
@@ -227,12 +266,11 @@ Breakpoint 1, _start () at fib2.s:5
 
 ```
 
-From here, we can step through the remaining instructions, one at a time by entering 'stepi', which will run the current instruction and list the next instruction to be run.
+From here, we can step through the remaining instructions, one at a time by entering 'stepi', which will run the current instruction and list the next instruction to be run. There is also the `step` instruction, which is used more for higher-level languages and steps over groups of instructions/opcodes for each line of code; but for assembly, we can be more certain that each instruction will get hit if we use `stepi`.
 
 ```
 (gdb) stepi
 6           movl %esp, %ebp     # take a copy of the stack pointer esp into ebp
-(gdb) stepi
 
 ...
 
@@ -275,7 +313,8 @@ This shows us that the value of ebp is `0xffffd8c8` which corresponds to an addr
 
 We can see there is also the register eip with the value `0x804805a` at a much lower value. This is the extended instruction pointer, that points to the current instruction that our application is running. By convention on Linux, the stack is at the top of memory and our intructions are close to the bottom of memory. The way this is done is by virtual paging so it appears to the application that it has all of physical memory, but it is only mapped pages that appear, so it is just an illusion until the application needs to read or write from a memory address.
 
-Coming back to the ecx value, we can eXamine what is in memory at the address referenced by ecx using the `x/` notation. 
+Coming back to the ecx value, we can eXamine what is in memory at the address referenced by ecx using the `x/` notation.
+
 The `x/` notation takes up to 3 components. For example, 
 
 `x/5s ($ecx)`
@@ -305,9 +344,105 @@ test[Inferior 1 (process 24) exited normally]
 (gdb)
 ```
 
-# Fib 3
+# Getting the length of our argument on the command line
 
-# Fib 4
+Up to this point, we should have an app that can read and print the first four characters of the first argument passed on the commandline when our application is called.
+
+The following should work:
+
+```bash
+$ ./fib2 test
+test
+$ 
+```
+
+But what if we were to enter `./fib2 testing`? We'd still just get `test` returned. This is far from ideal for processing our commandline arguments.
+
+What we need is a way of determining the length of the argument in the stack. This is where the instructions `repne scasb` comes in useful.
+
+The following is an implementation of:
+
+- Finding the length of our first argument
+- Printing the string pointed to by the address of the first arument to the length determined
+
+I'll show the code below then describe how it works.
+
+_fib4.s_
+```asm
+# framework - get first argument from the command line and print to stdout
+.section .text
+.globl _start
+_start:
+    nop
+    movl %esp, %ebp     # take a copy of esp to use
+    addl $8, %ebp       # address of first arg in stack
+    movl (%ebp), %edi   # move arg address into esi for scasb
+    push %edi           # store the string address as edi gets clobbered
+
+    movl $50, %ecx      # set ecx counter to a high value
+    movl $0, %eax       # zero al search char
+    movl %ecx, %ebx     # copy our max counter value to edx
+    cld                 # set direction down
+    repne scasb         # iterate until we find the al char
+
+    movl %ecx, %edx     # move count into edx
+    subl %ecx, %ebx     # subtract from our original ecx value
+    dec %ebx            # remove null byte at the end of the string from the count
+    pop %ecx            # restore our string address into ecx
+    mov %ebx, %edx      # move our count value to edx for the int 80 call
+
+    movl $4, %eax       # set eax to 4 for int 80 to write to file
+    movl $0, %ebx       # set ebx for file to write to as stdoout (file descriptor 0)
+    int $0x80           # make it so
+    movl $1, %eax       # set eax for int 80 for system exit
+    movl $0, %ebx       # set ebx for return code 0
+    int $0x80           # make it so again
+
+```
+
+Building and running this from the command line we can see that the full first argument is now displayed:
+
+```
+root@8ec496c15833:/gas-asm-fib# ./make-app fib4
+root@8ec496c15833:/gas-asm-fib# ./fib4 testing
+testingroot@8ec496c15833:/gas-asm-fib#
+```
+
+Excellent, I hear you say, but how does it work? I'm glad you asked.
+
+So what happens from the line `movl $50, %ecx` up to `repne scasb` is that the registers are being set up to run `repne scasb`.
+The instructions/opcodes `repne scasb` work on strings specifically to determine their length. The following is a table of what registers need to be set and what they do:
+
+|Register | Usage |
+|---|---|
+|ecx|A value to count down from for the length of the string. We set this to 50 to assert that we are only taking strings of up to 50 bytes|
+|eax/al|The byte value to search for (in this case it is a null byte (0x00)|
+|ebx|A copy of our counter ecx. This is used later to determine the actual length of the string|
+|edi|A pointer to the start of our sting array|
+
+The register ecx is the defacto count register on the x86 architecture and `repne scasb` uses this register to iterate from the address in edi until either:
+- it finds a byte specified in the al register (in our case 0x00)
+- ecx reaches 0
+
+The opcode `cld` sets the count direction as downward, and so `repne scasb` iterates, starting at the address edi, decrementing ecx, decrementing edi and compoaring the byte poined to by edi to the value stored in al.
+
+For example, if we were to call from the commandline:
+
+`$ ./fib4 testing`
+
+and then inspected our registers after calling `repne scasb`, we should see a value in ecx that is 50 - ( len('testing') + 1 ). Or 42. As `repne scasb` includes the byte it is searching for in the count, we need to subtract that and the count in ecx from our original max length of 50 to find the actual length of the string that we want to print. This is what the following lines do:
+
+```
+    movl %ecx, %edx     # move count into edx
+    subl %ecx, %ebx     # subtract from our original ecx value
+    dec %ebx            # remove null byte at the end of the string from the count
+    pop %ecx            # restore our string address into ecx
+    mov %ebx, %edx      # move our count value to edx for the int 80 call
+```
+ 
+Our string length is placed from ebx into the edx register so that the `int 0x80` call to write to stdout can then be performed to print the correct number of characters to the screen.
+There is also one push and pop instruction in fib4 that firstly stores a copy of the address of our argument in edi then restores it into ecx. This is done as ecx is used for the address of the string to write to stdout, and the `repne scasb` instructions destroys this value in the edi register. Using push and pop we can preserve the address of the string on the stack and restore when we need to use it.
+
 
 # Fib 5
 
