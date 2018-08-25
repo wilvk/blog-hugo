@@ -621,7 +621,7 @@ Another thing to note about this instruction is that we have only copied a singl
 
 Register layout:
 
-<table>
+<table align="center">
   <tr>
     <td colspan="1">bits 56-63</td>
     <td colspan="1">bits 48-55</td>
