@@ -4,6 +4,10 @@ date: 2018-07-18T21:12:38+10:00
 draft: true
 ---
 
+# Contents
+
+# Intro
+
 Stemming from my interest in Assembly Language, I was in search for a practical example to start exploring this language. I thought I'd write a simple ASM application to compute Fibonacci to a given number of iterations. I defined some criteria and restrictions for this little project and came to the following:
 
 - It must take a value from the command line for the number of iterations
@@ -18,11 +22,14 @@ Other criteria that may also be considered are:
 - Equation Optimisation
 - Using extended maths operations
 
+# Following along
+
+
 # A beginning
 
 I found a good blog about different approaches to Fibonacci Equations [here](https://www.geeksforgeeks.org/program-for-nth-fibonacci-number/) and armed with the new knowledge from reading a couple of books on the subject I set out to implement this.
 
-## Using some starting knowledge
+## Some starting knowledge
 
 The basis was decided to be a space optimised method using a dynamic programming approach. This effectively means using an array on the stack to hold our values while giving O(n) time and space complexity.
 
@@ -66,7 +73,6 @@ The implementation involved the following functionality:
 
 - Getting the length of the command line argument
 - Converting the command line argument from a string to a long (unsigned 32 bit number)
-- Validating the command line argument
 - Calculating Fibonacci
 - Printing the long as a string to stdout
 
@@ -646,7 +652,7 @@ Register layout:
   </tr>
 </table>
 
-This type of layout is the same for all other registers, including the general purpose registers `eax`, `ebx`, `ecx`, `edx`, `edi`, `esp`, as well as other registers.`
+This type of layout is the same for all of the general purpose registers including `eax`, `ebx`, `ecx` and `edx`.
 
 Coming back to our function, we then increment the `edi` pointer to point to the next memory location in our string, ready for processing, but continue processing the value in `cl`.
 
@@ -678,8 +684,10 @@ It has been a long time coming to this point where I can actually show you the i
 # output: return our fibonacci result in ebx
 
 fibonacci:
+
     pushl %ebp                    # preserve ebp as we are going to use it to store our stack pointer for the return call
     mov %esp, %ebp                # copy the stack pointer to ebp for use
+
     mov %eax, %ebx                # make a copy of our fib(n) value for allocating an array on the stack
     addl $2, %ebx                 # add 2 extra spaces to the array size in case n=1 or n=0
     shl $2, %ebx                  # multiply by 4 as we are using longs (32 bits)
@@ -689,7 +697,9 @@ fibonacci:
     incl %ecx                     # increase our counter
     movl %ecx, (%esp, %ecx, 4)    # initialise our array with 1 for esp[1]
     incl %ecx                     # our counter/iterator should be at 2 now
+
 .fib_loop:                        # we begin our for loop here
+
     cmp %eax, %ecx                # compare our counter (ecx) to n (eax) if it's greater or equal, we're done
     jge .fib_done
     movl -4(%esp, %ecx, 4), %ebx  # get the value in the stack at esp-1 from our current stack pointer location
@@ -700,8 +710,10 @@ fibonacci:
     jmp .fib_loop                 # loop again
 
 .fib_done:
+
     movl %ebp, %esp               # move our copy of the stack pointer back to esp
     popl %ebp                     # retrieve the original copy of ebp from the stack
+
     ret
 ```
 
@@ -709,18 +721,107 @@ fibonacci:
 
 This function introduces something not shown in the previous sections with how to set up the `esp` and `ebp` registers in order to use a local stack for our function. Up to this point all temporary variables have just been stored in registers. As the Fibonacci sequence uses an array to store results, memory on the stack needs to be allocated and used.
 
-In order to set up our local stack, 
+This is the reason for the following instructions at the start of our function:
 
-## Implementing a for loop in assembly language
+```
+    pushl %ebp                    # preserve ebp as we are going to use it to store our stack pointer for the return call
+    mov %esp, %ebp                # copy the stack pointer to ebp for use
+```
+
+And for these at the end of our function:
+
+```
+    movl %ebp, %esp               # move our copy of the stack pointer back to esp
+    popl %ebp                     # retrieve the original copy of ebp from the stack
+```
+
+In order to set up our local stack, the first thing that is done is that we save a copy of the base pointer `ebp` and copy the value of the stack pointer `esp` into the base pointer so that we have a copy of it and can restore it at the end of our function. At the end of our function we can copy `ebp` back into `esp` and restore the value of `ebp` from the stack as it was at the start of the function.
+
+After the first instructions, we can modify the stack pointer as we like and all changes will only be local to the function and will essentially be destroyed once the function completes.
+
+## The Fibonacci logic in assembly
+
+There are essentially two parts to the logic in this section that can be seen as everythong before the label `.fib_loop` and everything between this label up to `.fib_done``. These are:
+- Setting up our variables
+- Running the loop to completion
+
+### Setting up our variables
+
+Casting our minds back to the original C source code in [#Some starting knowledge](), we would like to design our assembly code to replicate the C code. The C code is similar in design with two sections where a counter and an array are defined, followed by a loop to calculate the Fibonacci number. The function assumes `eax` is set with the value for the number of iterations, _n_ and returns the result in the register `ebx`.
+
+The counter _i_ is relatively simple, and the register `ecx` is used for this purpose.
+
+What is less clear is how the array _f_ is allocated and initialised. The array requires local memory on the stack as there can be more values than can fit in the registers. 
+
+For this we do the following:
+
+- copy our iteration count _n_ in `eax` into `ebx` (as we want to keep `ecx` for counting later in the loop)
+- add two to the value (as we want our array size to be two more than the number of iterations)
+- multiply the value by 4 (as each value is a long that requires 32 bits, or 4 bytes)
+- subtract the result from `esp` to give our new 'top' of the stack. ( I say top, but in actuality the top of the stack is at a lower memory address, hence the subtract)
+
+This can be inferred from the following instructions:
+
+```asm
+    mov %eax, %ebx                # make a copy of our fib(n) value for allocating an array on the stack
+    addl $2, %ebx                 # add 2 extra spaces to the array size in case n=1 or n=0
+    shl $2, %ebx                  # multiply by 4 as we are using longs (32 bits)
+    subl %ebx, %esp               # add the size of our array to the stack to allocate the required space
+```
+
+Once this is done, we zero our `ecx` counter register:
+
+```
+    xor %ecx, %ecx                # set our counter to zero
+```
+
+Then initialise the first two values in the array to 0 and 1 respectively.
+
+```
+    movl %ecx, (%esp, %ecx, 4)    # initialise our array with 0 for esp[0]
+    incl %ecx                     # increase our counter
+    movl %ecx, (%esp, %ecx, 4)    # initialise our array with 1 for esp[1]
+    incl %ecx                     # our counter/iterator should be at 2 now
+```
+
+#### Indexed memory
+
+This format of mov has not been shown previously as we have mainly been working with registers and pointers to strings. This format of `mov` with brackets around the second operand allows us to move the value of a register into an indexed memory location. This allows us to reference a greater number of memory locations than we could otherwise with a single register.
+
+The parenthesis around the second opcode tells the cpu to move the first opcode `ecx` into the memory address pointed to by the indexed location. The indexing between the brackets has the following form:
+
+(offset, index, multiplier)
+
+In practice this means:
+
+- Move the value in `ecx`
+- into the memory location with the value of:
+  - the address pointed to by `esp` + ( the value of `ecx` * 4 )
+
+The multiplier 4 is used as we are working with long value types that are 4 bytes each.
+
+For the first `mov` above, `ecx` is zero and so the value zero is placed into the lowest memory location in our stack (0). As 0 * 4 = 0, the value is just that of `esp`.
+
+Next we increment our counter `ecx` so that it contains 1. The second `mov` above then places the value 1 into the next position up in memory in our stack, 4 bytes up from the previous `mov` instruction. Out `ecx` counter is then incremented again.
+
+This is closely reflects our C code with the lines:
+
+```c
+  f[0] = 0;
+  f[1] = 1;
+```
+
+It is important that the first two values are pre-populated as the loop makes the assumption that the last two values of the Fibonacci sequence already exist.
+
+### Running the loop to completion
+
+
 
 
 ## Printing our result
-
-## Testing the performance of our application
 
 # Conclusion 
 
 ## From here to there - improving performance
 
 ## The limits of our application - very large numbers
-## Better validation
