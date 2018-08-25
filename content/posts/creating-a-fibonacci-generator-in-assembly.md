@@ -664,18 +664,52 @@ After these comparisons, the actual string processing is done as per below:
 At this point it is relatively straight-forward what occurs, but I will describe it here for completeness:
 
 - Our value in `cl` has 48 subtracted from it to convert it to a decimal value.
-- Our existing value in our result register is multiplied by 10 (the first iteration will have no effect as it starts at 0)
+- Our existing value in our result register `eax` is multiplied by 10 (the first iteration will have no effect as it starts at 0)
 - Our decimal value in `cl` is added to our result register `eax`
 - The whole process repeats until the end of the string
 
-# Fib 7
+# The actual Fibonacci algorithm
 
-# Fib 8
+It has been a long time coming to this point where I can actually show you the implementation of Fibonacci being calculated with assembly language. In fib7.s  we implement this logic. I will show a excerpt of it below for brevity and describe how it works.
 
+```asm
+# input: eax holds our fibonacci n
+# processing: iterate the fibonacci sequence n times
+# output: return our fibonacci result in ebx
 
----
+fibonacci:
+    pushl %ebp                    # preserve ebp as we are going to use it to store our stack pointer for the return call
+    mov %esp, %ebp                # copy the stack pointer to ebp for use
+    mov %eax, %ebx                # make a copy of our fib(n) value for allocating an array on the stack
+    addl $2, %ebx                 # add 2 extra spaces to the array size in case n=1 or n=0
+    shl $2, %ebx                  # multiply by 4 as we are using longs (32 bits)
+    subl %ebx, %esp               # add the size of our array to the stack to allocate the required space
+    xor %ecx, %ecx                # set our counter to zero
+    movl %ecx, (%esp, %ecx, 4)    # initialise our array with 0 for esp[0]
+    incl %ecx                     # increase our counter
+    movl %ecx, (%esp, %ecx, 4)    # initialise our array with 1 for esp[1]
+    incl %ecx                     # our counter/iterator should be at 2 now
+.fib_loop:                        # we begin our for loop here
+    cmp %eax, %ecx                # compare our counter (ecx) to n (eax) if it's greater or equal, we're done
+    jge .fib_done
+    movl -4(%esp, %ecx, 4), %ebx  # get the value in the stack at esp-1 from our current stack pointer location
+    movl -8(%esp, %ecx, 4), %edx  # get the value in the stack esp-2 from our current stack pointer location
+    addl %edx, %ebx               # add the values esp-1 and esp-2 together
+    movl %ebx, (%esp, %ecx, 4)    # place the result in the current stack location
+    incl %ecx                     # bump our counter
+    jmp .fib_loop                 # loop again
+
+.fib_done:
+    movl %ebp, %esp               # move our copy of the stack pointer back to esp
+    popl %ebp                     # retrieve the original copy of ebp from the stack
+    ret
+```
 
 ## Creating the stack space for our array
+
+This function introduces something not shown in the previous sections with how to set up the `esp` and `ebp` registers in order to use a local stack for our function. Up to this point all temporary variables have just been stored in registers. As the Fibonacci sequence uses an array to store results, memory on the stack needs to be allocated and used.
+
+In order to set up our local stack, 
 
 ## Implementing a for loop in assembly language
 
