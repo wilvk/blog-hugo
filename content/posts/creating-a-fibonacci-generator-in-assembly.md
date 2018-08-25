@@ -441,12 +441,213 @@ and then inspected our registers after calling `repne scasb`, we should see a va
 ```
  
 Our string length is placed from ebx into the edx register so that the `int 0x80` call to write to stdout can then be performed to print the correct number of characters to the screen.
-There is also one push and pop instruction in fib4 that firstly stores a copy of the address of our argument in edi then restores it into ecx. This is done as ecx is used for the address of the string to write to stdout, and the `repne scasb` instructions destroys this value in the edi register. Using push and pop we can preserve the address of the string on the stack and restore when we need to use it.
+There is also one push and pop instruction in fib4 that firstly stores a copy of the address of our argument in edi then restores it into ecx. This is done as ecx is used for the address of the string to write to stdout, and the `repne scasb` instructions destroys this value in the edi register. Using push and pop we can preserve the address of the string on the stack and restore when we need to use it._
 
 
-# Fib 5
+# Making things easier to understand using function calls
 
-# Fib 6
+Assembly language has the concept of functions that allow for reuse of code. The two instructions invloved with this are `call` and `ret`. What these do is allow jumping to a label in your code with a `call` and then return to the position in the calling code using a `ret`. Each time a `call` is encountered, the current address of the instruction, pointed to by the register `eip` is pushed onto the stack, the stack counter decremented accordingly and the `eip` register is set to the memory address pointed to by the  new instruction of the label specified by the call instruction.
+
+For example, if we had a label somewhere in our code called `print_value:` and somewhere else in the code an instruction such as `call print_value`, this would move execution control of our application to the label specified. We can then do some processing as part of a subroutine and then when we are finished printing a value, for example, we can return control back to the calling code and at the instruction just after the `call print_value` instruction.
+
+The instruction `ret` doesn't take a label as an operand as it just uses the last address on the stack. It is for this reason that it is important to make sure the stack always keeps the return address as the last value placed on the stack when using `call` and `ret`.
+
+It is also for this reason that when using the stack for local variables, that we don't actually use the `esp` register for any operations, but a copy of it in `ebp`. This way we can be certain that the stack pointer (`esp`) is always a correct return address. As our local variables are just that, when we return control to the calling code, the variables we have placed there are no longer considered important and the memory addresses are considered free to be written over.
+
+The following is what we have done so far as being refactored into separate functions.
+
+_fib5.s_
+```asm
+# framework - refactor into separate functions
+.section .text
+.globl _start
+
+# entrypoint of application
+_start:
+    nop
+    movl %esp, %ebp     # take a copy of esp to use
+    addl $8, %ebp       # address of first arg in stack
+    movl (%ebp), %edi   # move arg address into esi for scasb
+    push %edi           # store the string address as edi gets clobbered
+    call get_string_length
+    pop %ecx            # restore our string address into ecx
+    call print_string
+    call exit
+
+# get length of string pointed to by edi and place result in ebx
+get_string_length:
+    movl $50, %ecx      # set ecx counter to a high value
+    movl $0, %eax       # zero al search char
+    movl %ecx, %ebx     # copy our max counter value to edx
+    cld                 # set direction down
+    repne scasb         # iterate until we find the al char
+    movl %ecx, %edx     # move count into edx
+    subl %ecx, %ebx     # subtract from our original ecx value
+    dec %ebx            # remove null byte at the end of the string from the count
+    ret
+
+# print the string in ecx to the length of ebx
+print_string:
+    mov %ebx, %edx      # move our count value to edx for the int 80 call
+    movl $4, %eax       # set eax to 4 for int 80 to write to file
+    movl $0, %ebx       # set ebx for file to write to as stdoout (file descriptor 0)
+    int $0x80           # make it so
+    ret
+
+# exit the application
+exit:
+    movl $1, %eax       # set eax for int 80 for system exit
+    movl $0, %ebx       # set ebx for return code 0
+    int $0x80           # make it so again
+
+```
+
+We can see here that we still have the label `_start` but we also have the additional labels of:
+- get_string_length
+- print_string
+- exit
+
+This helps greatly for readability of our code. We can see that all the calls are done from the `_start` label and each section of code concludes with a `ret` instruction, except for the `exit` label, which exits our application.
+
+When using labels and functions, it helps to add comments at the start of the section of code indicating what the expected state of any registers and memory should be, what is actually done by the code and what is expected to be returned by the code. The comments above are very brief, but we will see later greater use of this method.
+
+Another thing to note is that breaking our code into small, reusable chunks like this allows us to split our code into separate files for reuse across multiple projects thus further enabling reuse and saving time.
+
+# Converting a string to a number
+
+Now that we can read arguments from the commandline and print them, we want to actually start using the command line argument to specify the number of iterations for our Fibonacci sequence. This involves reading the string from the command line and converting it to a number. The input from the command line will be in ASCII format, and so a numeric value in a string is not an actual numeric value for use in our application - hence the conversion.
+
+_fib6.s_
+
+```asm
+# framework - convert string to number
+.section .text
+.globl _start
+
+# entrypoint of application
+_start:
+    nop
+    movl %esp, %ebp     # take a copy of esp to use
+    addl $8, %ebp       # address of first arg in stack
+    movl (%ebp), %edi   # move arg address into esi for scasb
+    push %edi           # store the string address as edi gets clobbered
+    call get_string_length
+    pop %edi             # get edi string addr then push it as we are going to clobber it
+    push %edi
+    call long_from_string
+    cmpl $0, %eax
+    je exit
+    call fibonacci
+    call exit
+
+# using address of string edi
+# use eax register to store our result
+# jump to done if not a number
+# if numeric
+# subtract 48 from the byte to convert it to a number
+# multiply the result by 10 and add the number to eax
+# multiply the result register eax by 10
+# loop until the ecx counter has reached a non-numeric (null byte) and return
+long_from_string:
+    xor %eax, %eax # set eax as our result register
+    xor %ecx, %ecx # set ecx(cl) as our temporary byte register
+.top:
+    movb (%edi), %cl
+    inc %edi
+    # check if we have a valid number in edi
+    cmpb $48, %cl  # check if value in ecx is less than ascii '0'. exit if less
+    jl .done
+    cmpb $57, %cl  # check if value in ecx is greater than ascii '9'. exit if greater
+    jg .done
+    sub $48, %cl
+    imul $10, %eax
+    add %ecx, %eax
+    jmp .top
+.done:
+    ret
+
+fibonacci:
+    ret
+
+# get length of string pointed to by edi and place result in ebx
+get_string_length:
+    movl $50, %ecx      # set ecx counter to a high value
+    movl $0, %eax       # zero al search char
+    movl %ecx, %ebx     # copy our max counter value to edx
+    cld                 # set direction down
+    repne scasb         # iterate until we find the al char
+    movl %ecx, %edx     # move count into edx
+    subl %ecx, %ebx     # subtract from our original ecx value
+    dec %ebx            # remove null byte at the end of the string from the count
+    ret
+
+# print the string in ecx to the length of ebx
+print_string:
+    mov %ebx, %edx      # move our count value to edx for the int 80 call
+    movl $4, %eax       # set eax to 4 for int 80 to write to file
+    movl $0, %ebx       # set ebx for file to write to as stdoout (file descriptor 0)
+    int $0x80           # make it so
+    ret
+
+# exit the application
+exit:
+    movl $1, %eax       # set eax for int 80 for system exit
+    movl $0, %ebx       # set ebx for return code 0
+    int $0x80           # make it so again
+
+```
+
+We can see here that two new functions have been added in the form of `long_from_string` and `fibonacci`. The label `fibonacci` is just a placeholder at the moment, but `long_from_string` has our logic for converting a string into a 32-bit long.
+
+The first thing you may notice is that we now have two extra labels:
+- `.top`
+- `.done`
+
+These labels start with a period (`.`) to indicate to the assembler that they are labels local to the file. This is useful when large amounts of assembly code are compiled so that the compiler doesn't confuse having two labels with the same name.
+
+From a visual inspection of this function, we can see that there are some `cmp` instructions and some instructions staring with a `j` such as `jl`, `jg` and `jmp`. These are jump instructions and are used in conjunction with our labels to tell the `eip` register to jump to a certain location in our code to continue processing. This is not too dissimilar to the `call` instructions described previously, except they don't modify the stack with a return address.
+
+Jump instructions are very useful for loop type logic like `for`, `while` and `do` loops that you may be familiar with from other languages. They can, however have performance impacts for performance-critical sections of code under some circumstances.
+
+When this function is called from the `_start` section, we make the assumption that the address of our string has been placed in the `edi` register, ready for processing. We also assume that the calling function knows that the numeric result will be placed into the `eax` register at completion of the function. It is a convention in assembly language that the result from a function is placed into the `eax` register. For more complex return types, an address that points to an array or struct or some other complex type can be specified in `eax`.
+
+## How the long is calculated from the string
+
+At the very beginning of this function, we use `xor` to zero-out the `eax` and `ecx` registers as these are used for calculating our result. Using `xor` is seen as an efficient way of setting a register to zero. An alternative is to use something like `movl $0, $eax`. The `xor` method under loder processors used less clock-cycles than `mov`. There is probably not much difference between the two these days.
+
+We then enter our loop, starting at '.top', which points to the next instruction, `movb ($edi), $cl`. What this `mov` instruction does is copy the first byte from our string array into the lower part of the `ecx` register. This is in effect the first byte of the first argument from the command line. For example, if the command line were `./fib6 123`, then the `cl` register would now contain the ASCII representation of the character '1'. This ascii representation is not actually the value 1, but the value 49 which represents the character '1'. There are many references online for conversions between ascii representations and their numerical value. There is a (chart here)[https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html] for your convenience.
+
+Another thing to note about this instruction is that we have only copied a single byte (8 bits) into `cl`, and that `cl` actually makes up part of the `ecx` register. There are both `cl` and `ch` registers that are a subset of `ecx` on 32 bit CPU architectures, and all 3 are a subset of `rcx` on 64 bit CPU registers. The following is a diagram of how these fit together:
+
+Register layout:
+
+|----------------|--------|----|----|
+|                 rcx               |
+|----------------|       ecx        |
+|                         | ch | cl |
+|-----------------------------------|
+
+This type of layout is the same for all other registers, including the general purpose registers `eax`, `ebx`, `ecx`, `edx`, `edi`, `esp`, as well as other registers.`
+
+Coming back to our function, we then increment the `edi` pointer to point to the next memory location in our string, ready for processing, but continue processing the value in `cl`.
+
+Next, we compare our value in `cl` to both 48 and 57 and jump to done if the value falls outside of this range. This is done as the string values `0-9` fall in this range of ascii values. After the comparison to 48, if the result is lower than 48, we jump to done (`jl`), and after the comparison to 57, if the result is greater than 57 ('jg') , we also jump to done. As our string is null-terminated (with a value of 0x00 or $0), the usual case would be that we jump to done after all characters have been processed or a non-numeric string character is encountered.
+
+After these comparisons, the actual string processing is done as per below:
+
+```asm
+    sub $48, %cl
+    imul $10, %eax
+    add %ecx, %eax
+    jmp .top
+``` 
+
+At this point it is relatively straight-forward what occurs, but I will describe it here for completeness:
+
+- Our value in `cl` has 48 subtracted from it to convert it to a decimal value.
+- Our existing value in our result register is multiplied by 10 (the first iteration will have no effect as it starts at 0)
+- Our decimal value in `cl` is added to our result register `eax`
+- The whole process repeats until the end of the string
 
 # Fib 7
 
