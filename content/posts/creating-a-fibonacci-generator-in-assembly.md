@@ -621,28 +621,28 @@ Another thing to note about this instruction is that we have only copied a singl
 
 Register layout:
 
-<table align="center">
+<table >
   <tr>
-    <td colspan="1">bits 56-63</td>
-    <td colspan="1">bits 48-55</td>
-    <td colspan="1">bits 40-47</td>
-    <td colspan="1">bits 32-39</td>
-    <td colspan="1">bits 24-31</td>
-    <td colspan="1">bits 16-23</td>
-    <td colspan="1">bits 8-15</td>
-    <td colspan="1">bits 0-7</td>
+    <td colspan="1" align="center">bits 56-63</td>
+    <td colspan="1" align="center">bits 48-55</td>
+    <td colspan="1" align="center">bits 40-47</td>
+    <td colspan="1" align="center">bits 32-39</td>
+    <td colspan="1" align="center">bits 24-31</td>
+    <td colspan="1" align="center">bits 16-23</td>
+    <td colspan="1" align="center">bits 8-15</td>
+    <td colspan="1" align="center">bits 0-7</td>
   </tr>
   <tr>
-    <td colspan="8">rcx</td>
+    <td colspan="8" align="center">rcx</td>
   </tr>
   <tr>
-    <td colspan="4">-</td>
-    <td colspan="4">ecx</td>
+    <td colspan="4" align="center">-</td>
+    <td colspan="4" align="center">ecx</td>
   </tr>
   <tr>
-    <td colspan="6">-</td>
-    <td colspan="1">cl</td>
-    <td colspan="1">ch</td>
+    <td colspan="6" align="center">-</td>
+    <td colspan="1" align="center">cl</td>
+    <td colspan="1" align="center">ch</td>
   </tr>
 </table>
 
