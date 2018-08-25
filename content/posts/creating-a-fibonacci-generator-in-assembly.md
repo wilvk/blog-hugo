@@ -621,11 +621,20 @@ Another thing to note about this instruction is that we have only copied a singl
 
 Register layout:
 
-|----------------|--------|----|----|
-|                 rcx               |
-|----------------|       ecx        |
-|                         | ch | cl |
-|-----------------------------------|
+<table>
+  <tr>
+    <td colspan="4">rcx</td>
+  </tr>
+  <tr>
+    <td colspan="2">-</td>
+    <td colspan="2">ecx</td>
+  </tr>
+  <tr>
+    <td colspan="2">-</td>
+    <td colspan="1">cl</td>
+    <td colspan="1">ch</td>
+  </tr>
+</table>
 
 This type of layout is the same for all other registers, including the general purpose registers `eax`, `ebx`, `ecx`, `edx`, `edi`, `esp`, as well as other registers.`
 
