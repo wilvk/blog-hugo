@@ -652,13 +652,13 @@ When the function `long_from_string` is called from the `_start` section, we mak
 
 ## How the long number is calculated from the string in memory
 
-### zeroing registers
+### Zeroing registers
 
 At the very beginning of this function, we use `xor` to zero-out the `eax` and `ecx` registers as these are used for calculating our result. Using `xor` is seen as an efficient way of setting a register to zero. An alternative is to use something like `movl $0, $eax`. The `xor` method under older processors used less clock-cycles than `mov`. There is probably not much difference between the two these days.
 
 We then enter our loop, starting at '.top', which points to the next instruction, `movb ($edi), $cl`. What this `mov` instruction does is copy the first byte from our string array into the lower part of the `ecx` register, or `cl`. This is in effect the first byte of the first argument from the command line.
 
-For example, if the command line were `./fib6 123`, then the `cl` register would now contain the ASCII representation of the character '1'. This ASCII representation is not actually the value 1, but the decimal value 49 which represents the ASCII character '1'. There are many references online for conversions between ASCII representations and their numerical value. There is a (chart here)[https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html] for your convenience.
+For example, if the command line were `./fib6 123`, then the `cl` register would now contain the ASCII representation of the character '1'. This ASCII representation is not actually the value 1, but the decimal value 49 which represents the ASCII character '1'. There are many references online for conversions between ASCII representations and their numerical value. There is a [chart here](https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html) for your convenience.
 
 Another thing to note about this instruction is that we have only copied a single byte (8 bits) into `cl`, and that `cl` actually makes up part of the `ecx` register. There are both `cl` and `ch` registers that are a subset of `ecx` on 32 bit CPU architectures, and all 3 are a subset of `rcx` on 64 bit CPU registers. The following is a diagram of how these fit together:
 
@@ -691,7 +691,7 @@ Register layout:
 
 This type of layout is the same for all of the general purpose registers including `eax`, `ebx`, `ecx` and `edx`.
 
-There is a good diagram and reference of these registers (here)[http://flint.cs.yale.edu/cs421/papers/x86-asm/asm.html].
+There is a good diagram and reference of these registers [here](http://flint.cs.yale.edu/cs421/papers/x86-asm/asm.html).
 
 ### Processing the string
 
@@ -759,9 +759,14 @@ fibonacci:
     ret
 ```
 
+The first thing to note is that the comments as the top of the function specify `input`, `processing` and `output`. I find this a good habbit for functions as it makes explicit:
+- what the function expects
+- what the function does
+- what is expected at completion of the function
+
 ## Creating the stack space for our array
 
-This function introduces something not shown in the previous sections with how to set up the `esp` and `ebp` registers in order to use a local stack for our function. Up to this point all temporary variables have just been stored in registers. As the Fibonacci sequence uses an array to store results, memory on the stack needs to be allocated and used.
+The `fibonacci` function introduces something not shown in the previous sections with how to set up the `esp` and `ebp` registers in order to use a local stack for our function. Up to this point most temporary variables have just been stored in registers (with the exception of the `push` and `pop` instructions). As the Fibonacci sequence uses an array to store results, memory on the stack needs to be allocated and used for this purpose.
 
 This is the reason for the following instructions at the start of our function:
 
@@ -779,25 +784,23 @@ And for these at the end of our function:
 
 In order to set up our local stack, the first thing that is done is that we save a copy of the base pointer `ebp` on the stack and copy the value of the stack pointer `esp` into the base pointer so that we have a copy of it and can restore it at the end of our function. At the end of our function we can copy `ebp` back into `esp` and restore the value of `ebp` from the stack as it was at the start of the function.
 
-After the first instructions, we can modify the stack pointer as we like and all changes will only be local to the function and will essentially be destroyed once the function completes. Using this approach to the stack pointer with functions is somewhat of a convention in assembly language.
+After the first instructions, we can modify the stack pointer as we like and all changes will only be local to the function and will essentially be destroyed, for all intents and purposes, once the function completes. Using this approach to the stack pointer with functions is somewhat of a convention in assembly language.
 
 ## The Fibonacci logic in assembly
 
-There are essentially two parts to the logic in this section that can be seen as everythong before the label `.fib_loop` and everything between this label up to `.fib_done`.
-
-These are:
-- Setting up our variables
-- Running the loop to completion
+There are essentially two parts to the logic in this section that can be seen as:
+- everything before the label `.fib_loop`, which sets up our variable
+- everything between the label `.fib_loop` up to `.fib_done`, which runs our loop to completion
 
 ### Setting up our variables
 
 Casting our minds back to the original C source code in [#Some starting knowledge](), we would like to design our assembly code to replicate the C code. The C code is similar in design with two sections where a counter and an array are defined, followed by a loop to calculate the Fibonacci number. The function assumes `eax` is set with the value for the number of iterations, _n_ and returns the result in the register `ebx`.
 
-The counter _i_ is relatively simple, and the register `ecx` is used for this purpose.
+The counter _i_ is relatively simple and the register `ecx` is used for this purpose.
 
-What is less clear is how the array _f_ is allocated and initialised. The array requires local memory on the stack as there can be more values than can fit in the registers. 
+What is less clear is how the array _f_ is allocated and initialised. The array requires local memory on the stack as there can be more values than can fit in the registers. As a side-note, f the C code were to use `malloc()` to create the array, this would be a slightly different implementation and would allocate space on the heap, and not the stack.
 
-For this we do the following:
+For the array memory allocation, we do the following:
 
 - copy our iteration count _n_ in `eax` into `ebx` (as we want to keep `ecx` for counting later in the loop)
 - add two to the value (as we want our array size to be two more than the number of iterations)
@@ -813,13 +816,15 @@ This can be inferred from the following instructions:
     subl %ebx, %esp               # add the size of our array to the stack to allocate the required space
 ```
 
+It is important to note that the `shl` instruction is actually a shift-left of the value in the `ebx` register, which in effect multiplies the value in `ecx` by 2^2, or 4. This could also be achieved by the instruction `imul $4, $ebx`, but as the multiplication is a power of 2, it takes less cpu cycles if we use `shl`. 
+
 Once this is done, we zero our `ecx` counter register:
 
 ```
     xor %ecx, %ecx                # set our counter to zero
 ```
 
-Then initialise the first two values in the array to 0 and 1 respectively.
+Then initialise the first two values in the array to 0 and 1 respectively, while incrementing our `ecx` register.
 
 ```
     movl %ecx, (%esp, %ecx, 4)    # initialise our array with 0 for esp[0]
@@ -830,7 +835,7 @@ Then initialise the first two values in the array to 0 and 1 respectively.
 
 #### Indexed memory
 
-This format of mov has not been shown previously as we have mainly been working with registers and pointers to strings. This format of `mov` with brackets around the second operand allows us to move the value of a register into an indexed memory location. This allows us to reference a greater number of memory locations than we could otherwise with a single register.
+The format of `mov` shown above has not been shown previously as we have mainly been working with registers and pointers to count strings. This format of `mov` with brackets around the second operand allows us to move the value of a register into an indexed memory location. This allows us to reference a greater number of memory locations than we could otherwise with a single register.
 
 The parenthesis around the second opcode tells the cpu to move the first opcode `ecx` into the memory address pointed to by the indexed location. The indexing between the brackets has the following form:
 
