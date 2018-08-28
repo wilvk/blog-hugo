@@ -770,14 +770,14 @@ The `fibonacci` function introduces something not shown in the previous sections
 
 This is the reason for the following instructions at the start of our function:
 
-```
+```asm
     pushl %ebp                    # preserve ebp as we are going to use it to store our stack pointer for the return call
     mov %esp, %ebp                # copy the stack pointer to ebp for use
 ```
 
 And for these at the end of our function:
 
-```
+```asm
     movl %ebp, %esp               # move our copy of the stack pointer back to esp
     popl %ebp                     # retrieve the original copy of ebp from the stack
 ```
@@ -789,14 +789,16 @@ After the first instructions, we can modify the stack pointer as we like and all
 ## The Fibonacci logic in assembly
 
 There are essentially two parts to the logic in this section that can be seen as:
-- everything before the label `.fib_loop`, which sets up our variable
-- everything between the label `.fib_loop` up to `.fib_done`, which runs our loop to completion
+- everything between the start of the function up to `.fib_loop`, which sets up our variables
+- everything between the label `.fib_loop` up to `.fib_done`, which processes the Fibonacci sequence in a loop
 
 ### Setting up our variables
 
 Casting our minds back to the original C source code in [#Some starting knowledge](), we would like to design our assembly code to replicate the C code. The C code is similar in design with two sections where a counter and an array are defined, followed by a loop to calculate the Fibonacci number. The function assumes `eax` is set with the value for the number of iterations, _n_ and returns the result in the register `ebx`.
 
 The counter _i_ is relatively simple and the register `ecx` is used for this purpose.
+
+#### Array memory allocation
 
 What is less clear is how the array _f_ is allocated and initialised. The array requires local memory on the stack as there can be more values than can fit in the registers. As a side-note, f the C code were to use `malloc()` to create the array, this would be a slightly different implementation and would allocate space on the heap, and not the stack.
 
@@ -818,6 +820,8 @@ This can be inferred from the following instructions:
 
 It is important to note that the `shl` instruction is actually a shift-left of the value in the `ebx` register, which in effect multiplies the value in `ecx` by 2^2, or 4. This could also be achieved by the instruction `imul $4, $ebx`, but as the multiplication is a power of 2, it takes less cpu cycles if we use `shl`. 
 
+#### Variable initialisation
+
 Once this is done, we zero our `ecx` counter register:
 
 ```
@@ -835,23 +839,23 @@ Then initialise the first two values in the array to 0 and 1 respectively, while
 
 #### Indexed memory
 
-The format of `mov` shown above has not been shown previously as we have mainly been working with registers and pointers to count strings. This format of `mov` with brackets around the second operand allows us to move the value of a register into an indexed memory location. This allows us to reference a greater number of memory locations than we could otherwise with a single register.
+The format of `mov` above has not been shown previously as we have mainly been working with registers and pointers for counting strings. The format of `mov` with brackets around the second operand allows us to move, or copy the value of a register into an indexed memory location. This allows us to reference a greater number of memory locations than we could otherwise with a single register. This is mainly used when writing to memory as opposed to just reading from it.
 
-The parenthesis around the second opcode tells the cpu to move the first opcode `ecx` into the memory address pointed to by the indexed location. The indexing between the brackets has the following form:
+The parenthesis around the second opcode tells the cpu to move the value in first opcode `ecx` into the memory address pointed to by the indexed location. The indexing between the brackets has the following form:
 
-*(offset, index, multiplier)*
+**(offset, index, multiplier)**
 
 In practice this means:
 
-- Move the value in `ecx`
+- move the value in `ecx`
 - into the memory location with the value of:
   - the address pointed to by `esp` + ( the value of `ecx` * 4 )
 
-The multiplier 4 is used as we are working with long value types that are 4 bytes each.
+The multiplier 4 is used as we are working with long value types that are 4 bytes in length each.
 
-For the first `mov` above, `ecx` is zero and so the value zero is placed into the lowest memory location in our stack (0). As 0 * 4 = 0, the value is just that of `esp`.
+For the first `mov` above, `ecx` is zero and so the value zero is placed into the lowest memory location in our stack `f[0]`. As **0 * 4 = 0**, the value of the first iteration is just that of `esp`.
 
-Next we increment our counter `ecx` so that it contains 1. The second `mov` above then places the value 1 into the next position up in memory in our stack, 4 bytes up from the previous `mov` instruction. Out `ecx` counter is then incremented again.
+Next we increment our counter `ecx` so that it contains 1. The second `mov` then places the value 1 into the next position up in memory in our stack, 4 bytes up from the previous `mov` instruction. Our `ecx` counter is then incremented again.
 
 This is closely reflects our C code with the lines:
 
@@ -864,8 +868,31 @@ It is important that the first two values are pre-populated as the loop makes th
 
 ### Running the loop to completion
 
+The logic below shows the heart of our Fibonacci implementation:
 
+```
+.fib_loop:                        # we begin our for loop here
+    cmp %eax, %ecx                # compare our counter (ecx) to n (eax) if it's greater or equal, we're done
+    jge .fib_done
+    movl -4(%esp, %ecx, 4), %ebx  # get the value in the stack at esp-1 from our current stack pointer location
+    movl -8(%esp, %ecx, 4), %edx  # get the value in the stack esp-2 from our current stack pointer location
+    addl %edx, %ebx               # add the values esp-1 and esp-2 together
+    movl %ebx, (%esp, %ecx, 4)    # place the result in the current stack location
+    incl %ecx                     # bump our counter
+    jmp .fib_loop                 # loop again
+```
 
+In effect, it repeats the loop for the number of times specified on the coommand line (which we have previously placed in `eax`) and jumps to `.fib_done` if it has been reached, otherwise calculates the next number in the sequence.
+
+#### Calculating the sequence
+
+As we have already initialised our array with the values 0 and 1 for `f[0]` and `f[1]` respectively, our loop will always be able to calculate the next number in the sequence. The line `movl -4(%esp, %ecx, 4), %ebx` shows another variation of indexing into memory with the `-4` out the front indicating a second, relative offset to the address within the parenthesis. What this does in effect is get the value 4 bytes down in memory (up the stack) from the current location of (esp + ecx * 4). This corresponds to the value in our C code of `f[i-1]`. The value in memory is placed into the ebx register for calculating the next value in the sequence.
+
+The same is true of the line `movl -8(%esp, %ecx, 4), %edx`, however it represents the value `f[i-2]` in the array and is placed into the `edx` register.
+
+The `ebx` and `edx` registers are then added together and the result placed into the array in the position `f[i]`. Our counter is then incremented and the loop repeats.
+
+The register `ecx` can thus be seen as our index into the array throughout this process. Once the loop is complete we will have our value at the highest address in our stack, pointed to by `esp` which we can use to print to stdout as our result.
 
 ## Printing our result
 
