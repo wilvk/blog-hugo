@@ -824,13 +824,13 @@ It is important to note that the `shl` instruction is actually a shift-left of t
 
 Once this is done, we zero our `ecx` counter register:
 
-```
+```asm
     xor %ecx, %ecx                # set our counter to zero
 ```
 
 Then initialise the first two values in the array to 0 and 1 respectively, while incrementing our `ecx` register.
 
-```
+```asm
     movl %ecx, (%esp, %ecx, 4)    # initialise our array with 0 for esp[0]
     incl %ecx                     # increase our counter
     movl %ecx, (%esp, %ecx, 4)    # initialise our array with 1 for esp[1]
@@ -870,7 +870,7 @@ It is important that the first two values are pre-populated as the loop makes th
 
 The logic below shows the heart of our Fibonacci implementation:
 
-```
+```asm
 .fib_loop:                        # we begin our for loop here
     cmp %eax, %ecx                # compare our counter (ecx) to n (eax) if it's greater or equal, we're done
     jge .fib_done
@@ -886,7 +886,13 @@ In effect, it repeats the loop for the number of times specified on the coommand
 
 #### Calculating the sequence
 
-As we have already initialised our array with the values 0 and 1 for `f[0]` and `f[1]` respectively, our loop will always be able to calculate the next number in the sequence. The line `movl -4(%esp, %ecx, 4), %ebx` shows another variation of indexing into memory with the `-4` out the front indicating a second, relative offset to the address within the parenthesis. What this does in effect is get the value 4 bytes down in memory (up the stack) from the current location of (esp + ecx * 4). This corresponds to the value in our C code of `f[i-1]`. The value in memory is placed into the ebx register for calculating the next value in the sequence.
+As we have already initialised our array with the values 0 and 1 for `f[0]` and `f[1]` respectively, our loop will always be able to calculate the next number in the sequence. The line `movl -4(%esp, %ecx, 4), %ebx` shows another variation of indexing into memory with the `-4` out the front indicating a second, relative offset to the address within the parenthesis. What this does in effect is get the value 4 bytes down in memory (up the stack) from the current location of (esp + ecx * 4). 
+
+The format of this `mov` address reference is:
+
+**relative\_offset(absolute\_offset, index, size)**
+
+This corresponds to the value in our C code of `f[i-1]`. The value in memory is placed into the `ebx` register for calculating the next value in the sequence.
 
 The same is true of the line `movl -8(%esp, %ecx, 4), %edx`, however it represents the value `f[i-2]` in the array and is placed into the `edx` register.
 
