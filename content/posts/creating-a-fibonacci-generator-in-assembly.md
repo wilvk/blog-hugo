@@ -213,7 +213,7 @@ As a final step in obtaining the value from the command line, the system call (a
 
 It would almost be impossible for a mere mortal to understand what is going on without a debugger, and remiss of me to go through this example without explaining some basics of how to use an asm debugger. I chose to use GDB as it outputs to GAS assembly and there is plenty of information on how it works online.
 
-We'll use the following code (as per `fib2.s`) and load it into GDB with the command line argument 'test', such that once we've made `fib2`, we can run `gdb --args ./fib2 test`. Gdb will load the binary with the argument specified and wait at it's (REPL)[https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop] prompt for further instructions.
+We'll use the following code (as per `fib2.s`) and load it into GDB with the command line argument 'test', such that once we've made `fib2`, we can run `gdb --args ./fib2 test`. Gdb will load the binary with the argument specified and wait at it's [REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop) prompt for further instructions.
 
 _fib2.s_
 ```asm
@@ -234,7 +234,7 @@ _fib2.s_
     int $0x80           # call int 0x80 for exit
 ```
 
-Gdb is very powerful and has many options that I'm still getting across, but for these examples we will use a small subset of it's functionality to:
+Gdb is a very powerful debugger and has many options that I'm still getting across, but for these examples we will use a small subset of it's functionality to:
 
 - step through our code
 - inspect memory values
@@ -327,7 +327,7 @@ This shows us that the value of ebp is `0xffffd8c8` which corresponds to an addr
 
 We can see there is also the register `eip` with the value `0x804805a` at a much lower value. This is the extended instruction pointer that points to the current instruction that our application is running. The application's instructions reside in an area of memory referenced in our assembly code as the `.text` section. 
 
-Ry convention on Linux, the stack is at the top of memory and our intructions are close to the bottom of memory. The way this is done is by virtual paging so it appears to the application that it has all of physical memory, but it is only mapped pages that appear, so it is just an illusion until the application needs to read or write from a memory address. The size of virtual memory is all of the addressable memory space, can be many times larger than the physical memory space, and appears to the application that it is exclusively owend by the application.
+Ry convention on Linux, the stack is at the top of memory and our intructions are close to the bottom of memory. The way this is done is by virtual paging so it appears to the application that it has all of physical memory, but it is only mapped pages that appear, so it is just an illusion until the application needs to read or write from a memory address. The size of virtual memory is all of the addressable memory space, can be many times larger than the physical memory space, and appears to the application that it is exclusively owned by the application.
 
 Coming back to the `ecx` register, we can eXamine what is in memory at the address referenced by `ecx` using the `x/` notation.
 
@@ -352,11 +352,13 @@ and will output something similar to the following:
 (gdb)
 ```
 
-Many other formats can be printed including *c*har, *b*yte and *w*ord among others. For more information on this, enter `help x` from the GDB REPL.
+Many other formats can be printed including (c)har (d)ecimal and (t)binary among others. For more information on this, enter `help x` from the GDB REPL.
 
 We can clearly see our first command line argument here, "test" followed by some environment variables.
 
-The remainder of the application prints the first 4 characters of the string pointed to by the address in `ecx`, then exits gracefully. To run the app to completion enter `continue` or just `c`. 
+The remainder of the application prints the first 4 characters of the string pointed to by the address in `ecx`, then exits gracefully. The parenthesis around the register indicates we are interested in examining the address pointed to by the register and not the value of the register itself. From the GDB REPL, when referencing registers, you may have noticed that they are referenced with a dollar sign (`$`) instead of the percentage sign (`$`) used in our assembly code. This is a small but important difference to note.
+
+To run the app to completion enter `continue` or just `c`. 
 
 We will see the command line argument printed out followed by the app exiting as below.
 
@@ -376,13 +378,12 @@ Up to this point, we should have an app that can read and print the first four c
 Using our `docker-shell` environment, the following should work:
 
 ```bash
+root@9a172ec363ca:/gas-asm-fib# ./make-app fib2
 root@9a172ec363ca:/gas-asm-fib# ./fib2 test
 testroot@9a172ec363ca:/gas-asm-fib#
 ```
 
-But what if we were to enter `./fib2 testing`? We'd still just get `test` returned, or worse still, if we enter less than 4 characters we get garbage printed from memory to make up the 4 characters.
-
-This is far from ideal for processing our commandline arguments.
+But what if we were to enter `./fib2 testing`? We'd still just get `test` returned. Or worse still, if we enter less than 4 characters we get garbage printed from memory to make up the 4 characters. This is far from ideal for processing our commandline arguments.
 
 What we need is a way of determining the length of the argument in the stack. This is where the instruction pair `repne scasb` comes in useful.
 
@@ -437,20 +438,20 @@ testingroot@8ec496c15833:/gas-asm-fib#
 
 Excellent, I hear you say, but how does it work? I'm glad you asked.
 
-So what happens from the line `movl $50, %ecx` up to `repne scasb` is that the registers are being set up to run `repne scasb`.
-The instructions `repne scasb` work on strings specifically to determine their length.
+So what happens from the line `movl $50, %ecx` up to `repne scasb`, the registers are being set up to run `repne scasb`.
+The instructions `repne scasb` work on strings specifically to determine their length. It iterates through memory starting at the address pointed to by `edi` and compares each byte to the byte stored in the lower byte of `eax`.
 
 The following is a table of what registers need to be set and what they do:
 
 |Register | Usage |
 |---|---|
 |`ecx`|A value to count down from for the length of the string. We set this to 50 to assert that we are only taking strings of up to 50 bytes|
-|`eax`|The byte value to search for placed in the lower byte of the register (in this case it is a null byte (`0x00`)|
+|`eax`|The byte value to search for placed in the lower byte of the register, `al` (in this case we are searching for a null byte (`0x00`)|
 |`ebx`|A copy of our counter `ecx`. This is used later to determine the actual length of the string|
 |`edi`|A pointer to the start of our sting array|
 
 The register `ecx` is considered the defacto count register on the x86 architecture and `repne scasb` implicitly uses this register to iterate, starting from the address in the `edi` register until either:
-- it finds a byte in memory specified in the lower byte of the `eax` register (in our case 0x00)
+- it finds a byte in memory specified in the lower byte of the `eax` register (in our case `0x00`)
 - the `ecx` register reaches 0
 
 The opcode `cld` sets a flag for the count direction as downward.
@@ -465,9 +466,9 @@ For example, if we were to call from the commandline:
 
 `$ ./fib4 testing`
 
-and then we inspect our registers after calling `repne scasb`, we should see a value in `ecx` that is *50 - ( len('testing\0') - 1 )*. Which effectively equals 42. As `repne scasb` includes the byte it is searching for in the count, we need to subtract 1 from the length of our string. Then we subtract the result in `ecx` from our original maximum length of 50 to find the actual length of the string that we want to print.
+and then we inspect our registers after stepping past `repne scasb`, we should see a value in `ecx` that is *50 - ( len('testing\0') - 1 )*. Which effectively equals 42. As `repne scasb` includes the byte it is searching for in the count, we need to subtract 1 from the length of our string. We then subtract the result in `ecx` from our original maximum length of 50 to find the actual length of the string that we want to print.
 
-This gives 50 - 43 = 7 and is what the following lines do:
+This gives **50 - 43 = 7** and is what the following lines do:
 
 ```asm
     movl %ecx, %edx     # move count into edx
@@ -478,13 +479,13 @@ This gives 50 - 43 = 7 and is what the following lines do:
 ```
  
 Our string length is copied from `ebx` into the `edx` register so that the `int 0x80` call to write to stdout can then be performed to print the correct number of characters to the screen.
-There is also a `push` and `pop` instruction in `fib4.s` that firstly stores a copy of the address of our argument in `edi` then restores it into `ecx`. This is done as `ecx` is used for the address of the string to write to stdout, and the `repne scasb` instructions destroys this value in the `edi` register. Using `push` and `pop`, we can preserve the address of the string on the stack from `edi` and restore it into `ecx` when we need to use it later on._
+There is also a `push` and `pop` instruction in `fib4.s` that firstly stores a copy of the address of our argument in `edi` then restores it into `ecx`. This is done as `ecx` is used for the address of the string to write to stdout, and the `repne scasb` instruction loop destroys this value in the `edi` register. Using `push` and `pop`, we can preserve the address of the string on the stack from `edi` and restore it into `ecx` when we need to use it later on._
 
 ## Making things easier to understand using function calls
 
 Assembly language has the concept of functions that allow for reuse of code. The two instructions invloved with this are `call` and `ret`. What these do is allow jumping to a label in your code with a `call` and then return to the position in the calling code using a `ret`. Each time a `call` is encountered, the current address of the instruction, pointed to by the register `eip` is pushed onto the stack, the stack counter is decremented accordingly and the `eip` register is set to the memory address pointed to by the  new instruction of the label specified by the call instruction.
 
-For example, if we had a label somewhere in our code called `print_value:` and somewhere else in the code an instruction such as `call print_value`, this would move execution control of our application to the label specified. We can then do some processing as part of a subroutine and then when we are finished printing a value, for example, we can return control back to the calling code and at the instruction just after the `call print_value` instruction.
+For example, if we had a label somewhere in our code called `print_value:` and somewhere else in the code an instruction such as `call print_value`, this would move execution control of our application to the label specified. We can then do some processing as part of a subroutine and when we are finished printing a value, for example, we can return control back to the calling code and at the instruction just after the `call print_value` instruction.
 
 The instruction `ret` doesn't take a label as an operand as it just uses the last address on the stack. It is for this reason that it is important to make sure the stack always keeps the return address as the last value placed on the stack when using `call` and `ret`.
 
@@ -583,6 +584,7 @@ _start:
 # multiply the result by 10 and add the number to eax
 # multiply the result register eax by 10
 # loop until the ecx counter has reached a non-numeric (null byte) and return
+
 long_from_string:
     xor %eax, %eax # set eax as our result register
     xor %ecx, %ecx # set ecx(cl) as our temporary byte register
@@ -605,6 +607,7 @@ fibonacci:
     ret
 
 # get length of string pointed to by edi and place result in ebx
+
 get_string_length:
     movl $50, %ecx      # set ecx counter to a high value
     movl $0, %eax       # zero al search char
@@ -617,6 +620,7 @@ get_string_length:
     ret
 
 # print the string in ecx to the length of ebx
+
 print_string:
     mov %ebx, %edx      # move our count value to edx for the int 80 call
     movl $4, %eax       # set eax to 4 for int 80 to write to file
@@ -625,11 +629,11 @@ print_string:
     ret
 
 # exit the application
+
 exit:
     movl $1, %eax       # set eax for int 80 for system exit
     movl $0, %ebx       # set ebx for return code 0
     int $0x80           # make it so again
-
 ```
 
 This is quite a bit more code than before. We'll go though it in detail now so it all makes sense.
@@ -660,9 +664,11 @@ We then enter our loop, starting at '.top', which points to the next instruction
 
 For example, if the command line were `./fib6 123`, then the `cl` register would now contain the ASCII representation of the character '1'. This ASCII representation is not actually the value 1, but the decimal value 49 which represents the ASCII character '1'. There are many references online for conversions between ASCII representations and their numerical value. There is a [chart here](https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html) for your convenience.
 
-Another thing to note about this instruction is that we have only copied a single byte (8 bits) into `cl`, and that `cl` actually makes up part of the `ecx` register. There are both `cl` and `ch` registers that are a subset of `ecx` on 32 bit CPU architectures, and all 3 are a subset of `rcx` on 64 bit CPU registers. The following is a diagram of how these fit together:
+### Register sizes and layout
 
-Register layout:
+Another thing to note about this instruction is that we have only copied a single byte (8 bits) into `cl`, and that `cl` actually makes up part of the `ecx` register. There are both `cl` and `ch` registers that are a subset of `ecx` on 32 bit CPU architectures, and all 3 are a subset of `rcx` on 64 bit CPU registers.
+
+The following is a diagram of how these fit together:
 
 <table >
   <tr>
@@ -697,9 +703,14 @@ There is a good diagram and reference of these registers [here](http://flint.cs.
 
 Coming back to our function, we then increment the `edi` pointer to point to the next memory location in our string, ready for processing, but continue processing the value in `cl`.
 
-Next, we compare our value in `cl` to both 48 and 57 and jump to `.done` if the value falls outside of this range. This is done as the string values `0-9` fall in this range of ASCII values. After the comparison to 48, if the result is lower than 48, we jump to `.done` with `jl`, or jump if lower. After the comparison to 57, if the result is greater than 57, 'jg', we also jump to `.done`.
+Next, we compare our value in `cl` to both 48 and 57 and jump to `.done` if the value falls outside of this range. This is done as the ASCII string values `0-9` fall in this range of decimal values 48-57. 
 
-As our string is null-terminated (with a value of 0x00 or `$0`), the usual case would be that we jump to `.done` after all characters have been processed or a non-numeric string character is encountered.
+Our conditions for exiting the loop on an invalid input are thus:
+
+- After the comparison to 48, if the result is lower than 48, we jump to `.done` with `jl`, or jump if lower.
+- After the comparison to 57, if the result is greater than 57, with 'jg', we also jump to `.done`.
+
+As our string is null-terminated (with a value of 0x00 or `$0`), the usual case would be that we jump to `.done` after all characters have been processed or a non-numeric string character is encountered as the value 0 is outside the range of 48-57.
 
 After these comparisons, the actual string processing is done as per below:
 
@@ -716,6 +727,8 @@ At this point it is relatively straight-forward what occurs, but I will describe
 - Our existing value in our result register `eax` is multiplied by 10 (the first iteration will have no effect as it starts at 0)
 - Our decimal value in `cl` is added to our result register `eax`
 - The whole process repeats until the end of the string
+
+One thing to note about `imul` is that it multiplies a register (e.g. `eax`) by a value (e.g. `$10`) and places the result in the same register (e.g. `eax`). This is considered a destructive operation as the initial value is not preserved.
 
 # The actual Fibonacci algorithm
 
@@ -821,7 +834,7 @@ This can be inferred from the following instructions:
     subl %ebx, %esp               # add the size of our array to the stack to allocate the required space
 ```
 
-It is important to note that the `shl` instruction is actually a shift-left of the value in the `ebx` register, which in effect multiplies the value in `ecx` by 2^2, or 4. This could also be achieved by the instruction `imul $4, $ebx`, but as the multiplication is a power of 2, it takes less cpu cycles if we use `shl`. 
+It is important to note that the `shl` instruction is actually a shift-left of the value in the `ebx` register, which in effect multiplies the value in `ecx` by 2^2, or 4 by shifting all the 1 bits in the register to the left. This could have also been achieved by the instruction `imul $4, $ebx`, but as the multiplication is a power of 2, it takes less cpu cycles if we use `shl`. 
 
 #### Variable initialisation
 
