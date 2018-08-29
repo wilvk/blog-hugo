@@ -740,6 +740,7 @@ fibonacci:
     incl %ecx                     # increase our counter
     movl %ecx, (%esp, %ecx, 4)    # initialise our array with 1 for esp[1]
     incl %ecx                     # our counter/iterator should be at 2 now
+    addl $2, %eax                 # increment our number of iterations by two as our ecx counter will be two higher from initialising our array
 
 .fib_loop:                        # we begin our for loop here
 
@@ -794,9 +795,11 @@ There are essentially two parts to the logic in this section that can be seen as
 
 ### Setting up our variables
 
-Casting our minds back to the original C source code in [#Some starting knowledge](), we would like to design our assembly code to replicate the C code. The C code is similar in design with two sections where a counter and an array are defined, followed by a loop to calculate the Fibonacci number. The function assumes `eax` is set with the value for the number of iterations, _n_ and returns the result in the register `ebx`.
+Casting our minds back to the original C source code in [#Some starting knowledge](), we would like to design our assembly code to replicate the C code. The C code is similar in design with two sections where a counter and an array are defined, followed by a loop to calculate the Fibonacci number. The function assumes `eax` is set with the value for the number of iterations, _n_ (plus 2), and returns the result in the register `ebx`.
 
 The counter _i_ is relatively simple and the register `ecx` is used for this purpose.
+
+The addition of 2 to `eax` is done so that the number of iterations matches what the expected number in the sequence is. Our counter is the count of the index in our array, and not the number of iterations of the sequence. By adding 2 to `eax`, our `ecx` counter can remain our array index and we can compare it to `eax` to get the correct number of iterations. This is similar (but not the same as) the C code where the for loop is initialised to `i=2`.
 
 #### Array memory allocation
 
@@ -843,7 +846,7 @@ The format of `mov` above has not been shown previously as we have mainly been w
 
 The parenthesis around the second opcode tells the cpu to move the value in first opcode `ecx` into the memory address pointed to by the indexed location. The indexing between the brackets has the following form:
 
-**(offset, index, multiplier)**
+  **(offset, index, multiplier)**
 
 In practice this means:
 
@@ -888,13 +891,13 @@ In effect, it repeats the loop for the number of times specified on the coommand
 
 As we have already initialised our array with the values 0 and 1 for `f[0]` and `f[1]` respectively, our loop will always be able to calculate the next number in the sequence. The line `movl -4(%esp, %ecx, 4), %ebx` shows another variation of indexing into memory with the `-4` out the front indicating a second, relative offset to the address within the parenthesis. What this does in effect is get the value 4 bytes down in memory (up the stack) from the current location of (esp + ecx * 4). 
 
-The format of this `mov` address reference is:
-
-**relative\_offset(absolute\_offset, index, size)**
-
 This corresponds to the value in our C code of `f[i-1]`. The value in memory is placed into the `ebx` register for calculating the next value in the sequence.
 
 The same is true of the line `movl -8(%esp, %ecx, 4), %edx`, however it represents the value `f[i-2]` in the array and is placed into the `edx` register.
+
+The format of these `mov` instructions can be summarised as:
+
+  **relative\_offset(absolute\_offset, index, size)**
 
 The `ebx` and `edx` registers are then added together and the result placed into the array in the position `f[i]`. Our counter is then incremented and the loop repeats.
 
@@ -902,8 +905,112 @@ The register `ecx` can thus be seen as our index into the array throughout this 
 
 ## Printing our result
 
+The final piece in the puzzle for putting together our program is almost the reciprocal for one of the functions we created earlier, namely the `get_long_from_string`. The following is the function `print_long`, which takes a 32-bit integer (long), converts it to a string then prints the string to stdout.
+
+```
+# print a 32-bit long integer
+# input: ebx contains the long value we wish to print
+# process:
+#  check our value is not zero, and handle the special case and print '0' if so
+#  set a counter for the number of digits to 0
+#  start a loop and check if value is zero - jump to done if so
+#  divide the number by 10 and take the remainder as the first digit
+#  add 48 to the number to make it an ascii value
+#  store the byte in the address esp + ecx
+#  increment the counter
+#  jump to start of loop
+# output: no output registers
+
+print_long:
+
+    push %ebp
+    mov %esp, %ebp              # copy the stack pointer to ebp for use
+    add $10, %esp               # add 10 to esp to make space for our string
+    mov $10, %ecx               # set our counter to the end of the stack space allocated (higher)
+    mov %ebx, %eax              # our value ebx is placed into eax for division
+
+.loop_pl:
+
+    xor %edx, %edx              # clear edx for the dividend
+    mov $10, %ebx               # ebx is our divisor so we set it to divide by 10
+    div %ebx                    # do the division
+    addb $48, %dl               # convert the quotient to ascii
+    movb %dl, (%esp, %ecx, 1)   # place the string byte into memory
+    dec %ecx                    # decrease our counter (as we are working backwards through the number)
+    cmp $0, %ax                 # exit if the remainder is 0
+    je .done_pl
+    jmp .loop_pl                # loop again if necessary
+
+.done_pl:
+
+    addl %ecx, %esp             # shift our stack pointer up to the start of the buffer
+    incl %esp                   # add 1 to the stack pointer for the actual first string byte
+    sub $10, %ecx               # as we are counting down, we subtract 10 from ecx to give the actual number of digits
+    neg %ecx                    # convert to a positive value
+    mov %ecx, %edx              # move our count value to edx for the int 80 call
+
+    mov %esp, %ecx              # move our string start address into ecx
+    movl $4, %eax               # set eax to 4 for int 80 to write to file
+    movl $0, %ebx               # set ebx for file to write to as stdoout (file descriptor 0)
+    int $0x80                   # make it so
+
+    movl %ebp, %esp             # move our copy of the stack pointer back to esp
+    popl %ebp                   # retrieve the original copy of ebp from the stack
+    ret
+```
+
+We can see the same `esp` and `ebp` store and retrieve pattern at the start and end of the function as described earlier. Additionally, there is another local loop present  in the form of `.loop_pl` and `.done_pl` for iterating the value we are printing.
+
+The way this function works is by dividing our number by 10, taking the remainder of the division as a digit, converting it to an ASCII representation, then placing this value into our stack for printing further down in the function. The string does not need to be null-terminated with a 0x00 byte as the syscall (`int 0x80`) to print the value uses the length of the string.
+
+After saving the stack pointer, the stack pointer is increased by 10 bytes to allow enough space for the string we would like to print. As the long value stores up to 32 bits, this means our number can be anything up to the value 4,294,967,296, which is 10 digits long.
+
+Our value in `ebx` is then copied into `eax` ready for operating on.
+
+The loop then begins where the heart of the transformation occurs. The key instruction here is the line `div %ebx` which both takes a bit of setting up and post-processing. This instruction implicitly takes the value in `eax`, divides it by the value specified in the operand (in our case `ebx`), then places the result in `eax` and the remainder in `edx`. This is why `edx` is `xor`ed at the start of the loop.
+
+As we are only dividing by 10, we can be certain that our result is in the lower byte of `edx` (as 8 bytes can have a value between 0 and 255), and so we move this lower byte `dl` into the indexed stack pointer location `(%esp, %ecx, 1)`. Following this, we decrement our `ecx` counter and compare the quotient of our division to 0. If the quotient equals 0, we know there are no digits to calculate and we can jump to `.done_pl`.
+
+The five lines after `.jump_pl` involve getting the correct count of the digits processed. 
+
+```asm
+    addl %ecx, %esp             # shift our stack pointer up to the start of the buffer
+    incl %esp                   # add 1 to the stack pointer for the actual first string byte
+    sub $10, %ecx               # as we are counting down, we subtract 10 from ecx to give the actual number of digits
+    neg %ecx                    # convert to a positive value
+    mov %ecx, %edx              # move our count value to edx for the int 80 call
+```
+
+By subtracting our result with the `sub` instruction then using `neg` to convert the negative number to a positive one, we will have the actual 
+ count of digits to print and can place it in the `edx` register for the syscall.
+
+There is a bit of arithmetic here as our `ecx` was being decremented by 1 from 10 for each digit, and so the actual count is **-1 * ( count - 10 )**. This is a rather rountabout way of doing this calculation and it would have actually been simpler to just count up. However this way afforded me the opportunity to introduce the `neg` instruction which takes a 2's compliment of the value in the specified register and is essentially multiplying the register by -1.
+
 # Conclusion 
 
-## From here to there - improving performance
+If you have followed along, congratulations! This is a rather lengthy tutorial but you should now at least know some of the basics of assembly language and how processing is done very close to the CPU. This can have all sorts of uses from optimising higher-level code to debugging complex multi-threaded applications and everything in-between.
 
-## The limits of our application - very large numbers
+If you have compiled the _fib8.s_ code, you should be able to see the sequence in the `docker-shell` environment similar to below:
+
+```bash
+root@608eb3f49ac5:/gas-asm-fib# ./fib8 0
+root@608eb3f49ac5:/gas-asm-fib# ./fib8 1
+1root@608eb3f49ac5:/gas-asm-fib# ./fib8 2
+2root@608eb3f49ac5:/gas-asm-fib# ./fib8 3
+3root@608eb3f49ac5:/gas-asm-fib# ./fib8 4
+5root@608eb3f49ac5:/gas-asm-fib# ./fib8 5
+8root@608eb3f49ac5:/gas-asm-fib# ./fib8 6
+13root@608eb3f49ac5:/gas-asm-fib#
+```
+
+## From here to there - improving the code
+
+This is by no means the ultimate Fibonacci sequence generator (or even a sequence generator at all - it only prints the last value in the sequence, after all), and there are many tricks and tips to making this faster, more robust and more extensible both in design and application.
+
+A follow on blog from this may include:
+- Optimising calculations using an alternative Fibonacci alogrithm implementation with the corresponding performance comparison
+- Optimising calculations using the FPU math coprocessor, MMX, XMM, or SIMD instructions
+- Handling of a higher range of numbers
+- Designing for reuse with multiple files
+
+Until next time, happy coding!
