@@ -23,7 +23,7 @@ enableRobotsTXT = true
 
 ## Site Settings
 [params]
-author = "Will van Ketwich"
+author = "Willem van Ketwich"
 intro = "Software Dude"
 description = "I'm just a guy who does stuff. Mostly with computers."
 authorimage = "headshot.jpg"

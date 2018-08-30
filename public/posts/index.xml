@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Will van Ketwich</title>
+    <title>Posts on Willem van Ketwich</title>
     <link>https://wilvk.github.io/posts/</link>
-    <description>Recent content in Posts on Will van Ketwich</description>
+    <description>Recent content in Posts on Willem van Ketwich</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Fri, 15 Jun 2018 21:49:30 +1000</lastBuildDate>
+    <lastBuildDate>Wed, 18 Jul 2018 21:12:38 +1000</lastBuildDate>
     
 	<atom:link href="https://wilvk.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Creating a Fibonacci Generator in Assembly</title>
+      <link>https://wilvk.github.io/posts/creating-a-fibonacci-generator-in-assembly/</link>
+      <pubDate>Wed, 18 Jul 2018 21:12:38 +1000</pubDate>
+      
+      <guid>https://wilvk.github.io/posts/creating-a-fibonacci-generator-in-assembly/</guid>
+      <description>Contents  Intro  Following along at home A beginning Some starting knowledge Overview of the implementation  Beginning the implementation  Building binary files from assembly files The structure of a gas assembly file Instructions and opcodes The application entry-point and labels Compiling our code Reading from the process arguments and converting to a numeric value Debugging with GDB  Getting the length of our argument on the command line  Making things easier to understand using function calls  Converting a string to a number  Some new functions Zeroing registers Register sizes and layout Processing the string  The actual Fibonacci algorithm  Creating the stack space for our array The Fibonacci logic in assembly Setting up our variables Array memory allocation Variable initialisation Indexed memory Running the loop to completion Calculating the sequence  Printing our result  Doing things the hard way  Conclusion  From here to there - improving the code   Intro Stemming from my interest in Assembly Language, I was in search of a practical example to start exploring this subterranean wilderland.</description>
+    </item>
     
     <item>
       <title>First Post</title>
