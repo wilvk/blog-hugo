@@ -1,7 +1,6 @@
 ## Basic Configuration
 
-baseurl = "https://wilvk.github.io/"
-baseURL = "https://wilvk.github.io/"
+baseURL = "https://blog.seso.io/"
 builddrafts = false
 canonifyurls = false
 languageCode = "en-US"
@@ -17,7 +16,7 @@ theme = "cocoa-hugo-theme"
 
 ## Hugo Built-in Features
 disqusShortname = "wilvk-github-io"
-googleAnalytics = "UA-122351489-1"
+googleAnalytics = "UA-122351489-2"
 enableRobotsTXT = true
 
 ## Site Settings
