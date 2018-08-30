@@ -12,6 +12,6 @@ cd ./public
 git pull
 git add -A
 git commit -m "build release"
-git push
+git push --set-upstream origin master
 cd ..
 
