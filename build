@@ -3,7 +3,7 @@
 mv ./public/.git ./_git
 rm -rf ./public
 rm -rf ./static
-mv ./_git ./public/.git
+mv _git public/.git
 hugo
 cd ./public
 git pull
