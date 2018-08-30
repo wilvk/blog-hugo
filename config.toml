@@ -9,10 +9,12 @@ contentdir = "content"
 layoutdir = "layouts"
 publishdir = "public"
 
-author = "Will van Ketwich"
-title = "Will van Ketwich"
+author = "Willem van Ketwich"
+title = "Willem van Ketwich"
 
-theme = "hugo-goa"
+#theme = "hugo-goa"
+theme = "hyde"
+
 
 ## Hugo Built-in Features
 disqusShortname = "wilvk-github-io"
@@ -23,9 +25,10 @@ enableRobotsTXT = true
 [params]
 author = "Will van Ketwich"
 intro = "Software Dude"
-description = "I'm just a guy who does stuff."
+description = "I'm just a guy who does stuff. Mostly with computers."
 authorimage = "headshot.jpg"
 dateformat = "Jan 2, 2006"
+themeColor = "theme-base-08"
 
 ## Site Meta Settings
 [params.meta]
