@@ -4,10 +4,8 @@ set -x
 
 rm -rf ./public
 rm -rf ./static
+git clone https://github.com/wilvk/wilvk.github.io public
 hugo
-cd ./public
-git remote add origin https://github.com/wilvk/wilvk.github.io
-cd ..
 cd ./public
 git pull
 git add -A
