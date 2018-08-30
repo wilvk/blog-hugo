@@ -12,7 +12,7 @@ publishdir = "public"
 author = "Willem van Ketwich"
 title = "Willem van Ketwich"
 
-theme = "cocoa-hugo-theme"
+theme = "bleak"
 
 ## Hugo Built-in Features
 disqusShortname = "wilvk-github-io"
@@ -21,7 +21,7 @@ enableRobotsTXT = true
 
 ## Site Settings
 [params]
-author = "Willem van Ketwich"
+#author = "Willem van Ketwich"
 intro = "Software Dude"
 description = "I'm just a guy who does stuff. Mostly with computers."
 authorimage = "headshot.jpg"
@@ -60,3 +60,18 @@ highlightjs = true
     identifier = "about"
     weight = 200
     url = "/about/"
+
+
+ [params.author]
+    firstName = "Willem"
+    lastName = "van Ketwich"
+    gender = "male"
+    userName = "wilvk"
+#    image = "//www.gravatar.com/avatar/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.png"
+    website = "http://blog.seso.io"
+    twitter = "wilvk"
+    github = "wilvk"
+#    facebook = "xxxxxxxxx"
+#    linkedin = "xxxxxxxxx"
+#    gplus = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#    gravatarHash = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
