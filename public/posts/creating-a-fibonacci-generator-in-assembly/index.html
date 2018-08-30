@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Simple minimalist theme">
+<meta name="keywords" content="minimalist,blog,goa,hugo,developer">
+
+<base href="https://wilvk.github.io/">
+
+<title>Will van Ketwich</title>
+
+<meta name="generator" content="Hugo 0.42.1" />
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400|Roboto+Slab:400,700|Roboto:300,300i,400,400i,500,500i,700,700i">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://wilvk.github.io/css/main.css">
+
+
+
+
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+
+</head>
+<body lang="en-US">
+<div class="container">
+
+
+<header class="row text-left title">
+  <h1 class="title">Creating a Fibonacci Generator in Assembly</h1>
+</header>
+<section id="category-pane" class="row meta">
+  
+  <div class="col-md-12">
+    <h6 class="text-left meta">
+        PUBLISHED ON JUL 18, 2018 
+      
+    </h6>
+  </div>
+  
+</section>
+<section id="content-pane" class="row">
+  <div class="col-md-12 text-justify content">
+    
+
+<h1 id="contents">Contents</h1>
+
+<ul>
+<li><a href="#intro">Intro</a>
+
+<ul>
+<li><a href="#following-along-at-home">Following along at home</a></li>
+<li><a href="#a-beginning">A beginning</a></li>
+<li><a href="#some-starting-knowledge">Some starting knowledge</a></li>
+<li><a href="#overview-of-the-implementation">Overview of the implementation</a></li>
+</ul></li>
+<li><a href="#beginning-the-implementation">Beginning the implementation</a>
+
+<ul>
+<li><a href="#building-binary-files-from-assembly-files">Building binary files from assembly files</a></li>
+<li><a href="#the-structure-of-a-gas-assembly-file">The structure of a gas assembly file</a></li>
+<li><a href="#instructions-and-opcodes">Instructions and opcodes</a></li>
+<li><a href="#the-application-entry--point-and-labels">The application entry-point and labels</a></li>
+<li><a href="#compiling-our-code">Compiling our code</a></li>
+<li><a href="#reading-from-the-process-arguments-and-converting-to-a-numeric-value">Reading from the process arguments and converting to a numeric value</a></li>
+<li><a href="#debugging-with-gdb">Debugging with GDB</a></li>
+</ul></li>
+<li><a href="#getting-the-length-of-our-argument-on-the-command-line">Getting the length of our argument on the command line</a>
+
+<ul>
+<li><a href="#making-things-easier-to-understand-using-function-calls">Making things easier to understand using function calls</a></li>
+</ul></li>
+<li><a href="#converting-a-string-to-a-number">Converting a string to a number</a>
+
+<ul>
+<li><a href="#some-new-functions">Some new functions</a></li>
+<li><a href="#zeroing-registers">Zeroing registers</a></li>
+<li><a href="#register-sizes-and-layout">Register sizes and layout</a></li>
+<li><a href="#processing-the-string">Processing the string</a></li>
+</ul></li>
+<li><a href="#the-actual-fibonacci-algorithm">The actual Fibonacci algorithm</a>
+
+<ul>
+<li><a href="#creating-the-stack-space-for-our-array">Creating the stack space for our array</a></li>
+<li><a href="#the-fibonacci-logic-in-assembly">The Fibonacci logic in assembly</a></li>
+<li><a href="#setting-up-our-variables">Setting up our variables</a></li>
+<li><a href="#array-memory-allocation">Array memory allocation</a></li>
+<li><a href="#variable-initialisation">Variable initialisation</a></li>
+<li><a href="#indexed-memory">Indexed memory</a></li>
+<li><a href="#running-the-loop-to-completion">Running the loop to completion</a></li>
+<li><a href="#calculating-the-sequence">Calculating the sequence</a></li>
+</ul></li>
+<li><a href="#printing-our-result">Printing our result</a>
+
+<ul>
+<li><a href="#doing-things-the-hard-way">Doing things the hard way</a></li>
+</ul></li>
+<li><a href="#conclusion">Conclusion</a>
+
+<ul>
+<li><a href="#from-here-to-there---improving-the-code">From here to there - improving the code</a></li>
+</ul></li>
+</ul>
+
+<h1 id="intro">Intro</h1>
+
+<p>Stemming from my interest in Assembly Language, I was in search of a practical example to start exploring this subterranean wilderland. I thought I&rsquo;d write a simple ASM application to compute Fibonacci to a given number of iterations.</p>
+
+<p>I had a think about some criteria and restrictions for this little project and came up with the following:</p>
+
+<ul>
+<li>It must take a value from the command line for the number of iterations</li>
+<li>It must not use the glibc standard library</li>
+<li>It must print the final value in the sequence to the screen</li>
+</ul>
+
+<p>The command line was decided to be used for the number of iterations as it is easily accessible for beginners and had less overhead in setting up. The glibc library was decided to be excluded as I wanted to get down to the nuts and bolts of printing and manipulating strings. The requirement to only print the final value in the sequence was more to keep the logic of the application simple enough to express the features of assembly without unnecessarily complicating things.</p>
+
+<h2 id="following-along-at-home">Following along at home</h2>
+
+<p>The source code for what I describe here can be found in <a href="https://github.com/wilvk/gas-asm-fib">a repository</a> I have created that contains all the examples described. It also has shell scripts for:</p>
+
+<ul>
+<li>Running the scripts in a Docker container with all the required tools installed (<code>docker-shell</code>)</li>
+<li>Compiling the examples (<code>make-app</code>)</li>
+</ul>
+
+<h2 id="a-beginning">A beginning</h2>
+
+<p>I found a good blog about different approaches to Fibonacci Equations <a href="https://www.geeksforgeeks.org/program-for-nth-fibonacci-number/">here</a> and armed with the new knowledge from reading a couple of books on the subject (specifically, <a href="https://www.amazon.com/Assembly-Language-Step-Step-Programming/dp/0470497025">Assembly Language Step-by-Step</a> and <a href="https://www.amazon.com.au/Professional-Assembly-Language-Richard-Blum-ebook/dp/B000Q7ZETY">Professional Assembly Language</a>) I set out to implement this.</p>
+
+<h3 id="some-starting-knowledge">Some starting knowledge</h3>
+
+<p>The basis of the algorithm to use was decided to be a space-optimised method using a dynamic programming approach. This effectively means using an array on the stack to hold our values while giving <strong>O(n)</strong> time and space complexity.</p>
+
+<p>The code used as a basis is shown below:</p>
+
+<pre><code class="language-c">//Fibonacci Series using Dynamic Programming
+#include&lt;stdio.h&gt;
+ 
+int fib(int n)
+{
+  /* Declare an array to store Fibonacci numbers. */
+  int f[n+2];   // 1 extra to handle case, n = 0
+  int i;
+ 
+  /* 0th and 1st number of the series are 0 and 1*/
+  f[0] = 0;
+  f[1] = 1;
+ 
+  for (i = 2; i &lt;= n; i++)
+  {
+    /* Add the previous 2 numbers in the series and store it */
+    f[i] = f[i-1] + f[i-2];
+  }
+ 
+  return f[n];
+}
+ 
+int main ()
+{
+  int n = 9;
+  printf(&quot;%d&quot;, fib(n));
+  getchar();
+  return 0;
+}
+</code></pre>
+
+<h2 id="overview-of-the-implementation">Overview of the implementation</h2>
+
+<p>The implementation involved the following functionality:</p>
+
+<ul>
+<li>Getting the length of the command line argument</li>
+<li>Converting the command line argument from a string to a long (unsigned 32-bit number)</li>
+<li>Calculating Fibonacci</li>
+<li>Printing the long as a string to stdout</li>
+</ul>
+
+<h2 id="beginning-the-implementation">Beginning the implementation</h2>
+
+<p>Ok, so at this point we have the basis for an algorithm in assembly based on our C code but how can this be implemented in ASM?</p>
+
+<p>There are numerous formats of Assembly Language including NASM, GAS and MASM among others. I&rsquo;m working on a Linux box and so MASM was out of the question as it is the Microsoft Assembler.</p>
+
+<p>I decided to go with GAS, the GNU Assembler, as it is cross-platform and is a good general purpose assembler. This also gave me the ability to cheat in my implementation (which I didn&rsquo;t), as using <code>gcc</code>, a valid C application can be converted into intermediate GAS assembly language.</p>
+
+<p>I decided the number of iterations of Fibonacci would be determined from the command line as an argument to the application. It would expect a valid number from the user and convert this from a string to a number. The Fibonaci sequence would then be iterated <em>n</em> number of times.</p>
+
+<p>The Fibonacci algorithm would have to create an array of lenth <em>n+2</em> on the stack based on the user input. Another variable (as the variable <em>i</em> shown above) would be used as a counter.</p>
+
+<p>The first two elements of the array would be pre-populated with 0 and 1 respectively, as at least these two numbers are used when calculating new values. This can be considered a type of &lsquo;seed&rsquo; for our algorithm.</p>
+
+<p>A loop is then started with the counter set to 2 that iterates until the counter is greater than or equal to the number of iterations, <em>n</em>, and where the counter is increased by 1 on each iteration.</p>
+
+<p>Inside the loop, for the array position in the stack, and based on the counter value, the <em>i-1</em> value is added to the <em>i-2</em> value on the stack and the result is placed on the stack at the current location allowing it to be used for the next iteration.</p>
+
+<p>Once the final value of Fibonacci is determined, a function is called to convert the number into a string and print it to stdout.</p>
+
+<p>The application then needs to exit gracefully and return control to the shell.</p>
+
+<h2 id="building-binary-files-from-assembly-files">Building binary files from assembly files</h2>
+
+<p>We will start with the following assembly code. This gives us a basis for filling out our application:</p>
+
+<p><em>fib1.s</em></p>
+
+<pre><code class="language-asm"># framework
+.section .text
+.globl _start
+  _start:
+    nop
+    # the rest of our program goes here
+    movl $1, %eax
+    movl $0, %ebx
+    int $0x80
+</code></pre>
+
+<h2 id="the-structure-of-a-gas-assembly-file">The structure of a gas assembly file</h2>
+
+<p>The code above introduces some of the syntax of a GAS assembly file (<code>.s</code>). The first thing to note is that comments begin with a hash (<code>#</code>) and can be at the start of a line or after an instruction/opcode. An instruction/opcode is essentially an instruction for the CPU to process. Examples of intructions in <strong>fib1.s</strong> above include <code>nop</code>, <code>movl $1 %eax</code>, <code>movl $0, %ebx</code>, and <code>int $0x80</code>.</p>
+
+<h2 id="instructions-and-opcodes">Instructions and opcodes</h2>
+
+<p>I will use the terms instruction and opcode interchangeably, but they are essentially a mnemonic in assembly language that tells the CPU what to do. Opcodes/instructions can also have one or many operands depending on what the opcode does. Operands are the values that the opcode act upon and specify what the opcode does.</p>
+
+<p>For some context from the example above, we can see the following delineation:</p>
+
+<table>
+<thead>
+<tr>
+<th>Full Instruction</th>
+<th>Opcode/instruction</th>
+<th>Operand(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>nop</td>
+<td>nop</td>
+<td></td>
+<td>no-operation</td>
+</tr>
+
+<tr>
+<td>movl $1, %eax</td>
+<td>movl</td>
+<td>$1, %eax</td>
+<td>copy the value 0 into the register eax</td>
+</tr>
+
+<tr>
+<td>movl $0, %ebx</td>
+<td>movl</td>
+<td>$0, %ebx</td>
+<td>copy the value 1 into the register ebx</td>
+</tr>
+
+<tr>
+<td>int $0x80</td>
+<td>int</td>
+<td>$0x80</td>
+<td>call the interrupt numbered 0x80</td>
+</tr>
+</tbody>
+</table>
+
+<p>The first <code>movl</code> instruction copies a long (4-byte) value of 0 into the register <code>eax</code>. The second does the same with 1 and the register <code>ebx</code> respectively. There are a few different variations of the <code>mov</code> command for copying values to and from registers. These are namely:
+- <code>movl</code> - copy a long, 4-byte value (32-bits)
+- <code>movw</code> - copy a word, 2-byte value (16-bits)
+- <code>movb</code> - copy a byte, 1-byte value (8-bits)</p>
+
+<p>It is important to know what type of <code>mov</code> instruction to use as there are times when you will want to move just a single byte, a word, a long (or double-word), or some other length. Larger lengths will usually require a loop or some other method when working on a 32-bit x86 architecture.</p>
+
+<p>A few extra things to note about the above instructions are:</p>
+
+<ul>
+<li>The <code>$1</code> and <code>$0</code> operands are called immediate values and are an exact value specified.</li>
+<li>Registers are prefixed with a percentge sign (<code>%</code>).</li>
+<li>A Value starting with a <code>0x</code> is a hexadecimal number and includes values 0-9 and a-f.</li>
+</ul>
+
+<h2 id="the-application-entry-point-and-labels">The application entry-point and labels</h2>
+
+<p>For Linux applications, the <code>_start:</code> label is required by the assembler to define the entry point to the binary application. All labels finish with a colon (<code>:</code>) to indicate that it is a label. The assembler also requires the entrypoint to be made &lsquo;global&rsquo; so that other binaries, and the operating system knows that the label has been exposed by the binary. This is the reason for the line <code>.globl _start</code> preceeding the label <code>_start</code> and is used more when working with multiple assembly files that need to be compiled together.</p>
+
+<h2 id="compiling-our-code">Compiling our code</h2>
+
+<p>We&rsquo;re working backwards a bit here as we&rsquo;ve implemented our entrypoint (_start) and our syscall to exit first. The syscall using <code>eax=1</code> and <code>ebx=0</code> with <code>int 0x80</code> allows our program to exit gracefully. As noted by the comment, we shall fill in the logic from the middle as we progress.</p>
+
+<p>Ok, so we&rsquo;ve got a framework of GAS assembly to build on, but how do we convert this into an application?</p>
+
+<p>Well, it&rsquo;s easy. I&rsquo;m glad you asked.</p>
+
+<p>Firstly we need to make sure our gas assembler is installed. I&rsquo;m on Fedora, so the command is <code>sudo dnf install binutils</code>. From the supplementary <a href="https://github.com/wilvk/gas-asm-fib">repository</a>, the <code>docker-shell</code> application can spin you up an environment with the required tools already installed.</p>
+
+<p>Then we create a small shell script to run the gas assembler (as) and the linker (ld) on the output of the assembler.</p>
+
+<p>Say for example we call our assembly code file fib1.s, to run the assembler we would run <code>as -gstabs -o fib.o fib.s</code></p>
+
+<ul>
+<li><code>-gstabs</code> adds debugging info</li>
+<li><code>-o fib.o</code> specifies our object file</li>
+<li><code>fib.s</code> is our source code</li>
+</ul>
+
+<p>The object file is a binary with all the symbols and source included, which included the raw machine code to run.
+We then link the resultant object file to convert our object file into a binary application. The linker also converts our symbolic references (such as <code>\_start</code> in our case) to relative numeric references to where the symbols will reside in memory when the binary is run as an application.</p>
+
+<p>If we were to run <code>ld -o fib fib.o</code>, we should now have a new binary application with the permissions 0755 set. If you run the application it will do nothing. But more importantly, it won&rsquo;t segfault, which is a good thing and indicates the application has exited gracefully.</p>
+
+<ul>
+<li><code>-o fib</code> specifies the output application name.</li>
+<li><code>fib.o</code> specifies the object file to use.</li>
+</ul>
+
+<p>The linker has other features (which I won&rsquo;t discuss here) that make your life easier as an assembly language programmer.</p>
+
+<p>We will be targetting the 32 bit x86 architecture to begin with as it is easier to understand. The following is a bash script for building the binary (also in the supplementary repo as <code>make-app</code>).</p>
+
+<p><em>make-app</em></p>
+
+<pre><code>#!/bin/bash
+
+if [ -z &quot;$1&quot; ]; then
+  app_name=fib
+else
+  app_name=$1
+fi
+
+rm $app_name.o $app_name 2&gt; /dev/null
+
+as --32 -gstabs -o $app_name.o $app_name.s
+ld -m elf_i386 -o $app_name $app_name.o
+
+</code></pre>
+
+<p>Makefiles are the status-quo for building assembly files, but I&rsquo;m more used to working with bash scripts so the preceeding is a script that can be used to compile a single assembly file into a binary targetting 32 bit x86, and as we are working with a small number of files, we do not need some of te more advanced features of make anyway.</p>
+
+<p>If a name is passed on the commandline, it will attempt to compile the corresponding .s file.</p>
+
+<p>For example:</p>
+
+<p><code>./make-app fib2</code></p>
+
+<p>will build a binary called fib2.</p>
+
+<h2 id="reading-from-the-process-arguments-and-converting-to-a-numeric-value">Reading from the process arguments and converting to a numeric value</h2>
+
+<p>If we call our binary from the commandline like:</p>
+
+<p><code>./fib2 test</code></p>
+
+<p>The arguments are already placed into the stack for us, courtesy of the Linux kernel, along with all the environment variables of the parent process. All we should have to do, to begin with, is find the value in the stack where the argument is and then convert it to a string and print it to stdout.</p>
+
+<p>The stack is upside down in memory (with the last addition to the stack at the lower memory address), and so we traverse up the stack to find the first argument.</p>
+
+<p>The stack is composed as follows:</p>
+
+<table>
+<thead>
+<tr>
+<th>Stack</th>
+<th>Data</th>
+<th>Notes</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>&hellip;</td>
+<td></td>
+<td></td>
+</tr>
+
+<tr>
+<td>ESP + n+8</td>
+<td>&lt; pointer to second environment variable &gt;</td>
+<td></td>
+</tr>
+
+<tr>
+<td>ESP + n+4</td>
+<td>&lt; pointer to first environment variable &gt;</td>
+<td></td>
+</tr>
+
+<tr>
+<td>ESP + n</td>
+<td>&lt; pointer to last string argument &gt;</td>
+<td></td>
+</tr>
+
+<tr>
+<td>&hellip;</td>
+<td></td>
+<td></td>
+</tr>
+
+<tr>
+<td>ESP + 12</td>
+<td>&lt; pointer to second string argument &gt;</td>
+<td></td>
+</tr>
+
+<tr>
+<td>ESP + 8</td>
+<td>&lt; pointer to a string that contains the first argument &gt;</td>
+<td></td>
+</tr>
+
+<tr>
+<td>ESP + 4</td>
+<td>&lt; pointer to a string containing the name of the application &gt;</td>
+<td></td>
+</tr>
+
+<tr>
+<td>ESP + 0</td>
+<td>&lt; number of arguments on command line &gt;</td>
+<td>&lt;- current position of Stack Pointer ESP</td>
+</tr>
+</tbody>
+</table>
+
+<p>We know that we are just after the first string argument so we can predict that the pointer to the first string argument will be 2 places up the stack from the current value of ESP. We are using 32 bit locations here, where every pointer is 4 bytes ( 4 x 8 bytes = 32 bits ).</p>
+
+<p>This means that our first command line argument is at the location ESP + 8. This is because the Stack Pointer ESP can directly reference every byte in memory, and we are looking for the location 2 up from it&rsquo;s current location, effectively 2 x 4 bytes.</p>
+
+<p>We want to move this into a register and print it out so we know we have the correct location. This will also show us what we need to do to print the final value.</p>
+
+<p>As a final step in obtaining the value from the command line, the system call (also known as a software interrupt, as <code>int 0x80</code>) to write to stdout requires the length of the string that is to be processed.</p>
+
+<h2 id="debugging-with-gdb">Debugging with GDB</h2>
+
+<p>It would almost be impossible for a mere mortal to understand what is going on without a debugger, and remiss of me to go through this example without explaining some basics of how to use an asm debugger. I chose to use GDB as it outputs to GAS assembly and there is plenty of information on how it works online.</p>
+
+<p>We&rsquo;ll use the following code (as per <code>fib2.s</code>) and load it into GDB with the command line argument &lsquo;test&rsquo;, such that once we&rsquo;ve made <code>fib2</code>, we can run <code>gdb --args ./fib2 test</code>. Gdb will load the binary with the argument specified and wait at it&rsquo;s <a href="https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a> prompt for further instructions.</p>
+
+<p><em>fib2.s</em></p>
+
+<pre><code class="language-asm"># stack args example
+.section .text
+.globl _start
+  _start:
+    nop
+    movl %esp, %ebp     # take a copy of the stack pointer esp into ebp
+    addl $8, %ebp       # address of first arg in stack
+    movl (%ebp), %ecx   # move the address of the first arg into ecx
+    movl $4, %edx       # set the length of our string to 4
+    movl $4, %eax       # indicate to int 0x80 that we are doing a write
+    movl $0, %ebx       # indicate to int 0x80 that we are writing to file descriptor 0
+    int $0x80           # call int 0x80 for write
+    movl $1, %eax       # exit gracefully
+    movl $0, %ebx       # with return code 0
+    int $0x80           # call int 0x80 for exit
+</code></pre>
+
+<p>Gdb is a very powerful debugger and has many options that I&rsquo;m still getting across, but for these examples we will use a small subset of it&rsquo;s functionality to:</p>
+
+<ul>
+<li>step through our code</li>
+<li>inspect memory values</li>
+<li>inspect registers</li>
+</ul>
+
+<p>At the GDB prompt, if we enter the command <code>list</code> we can see the start of the source code for the <code>fib2</code> app we have loaded, including line numbers. We can set a breakpoint for a corresponding line number to start our debugging at by typing <code>breakpoint n</code>, or just <code>b n</code>, where <code>n</code> is our line number.</p>
+
+<p>For example:</p>
+
+<pre><code>(gdb) list
+1       # stack args example
+2       .section .text
+3       .globl _start
+4         _start:
+5           nop
+6           movl %esp, %ebp     # take a copy of the stack pointer esp into ebp
+7           addl $8, %ebp       # address of first arg in stack
+8           movl (%ebp), %ecx   # move the address of the first arg into ecx
+9           movl $4, %edx       # set the length of our string to 4
+10          movl $4, %eax       # indicate to int 0x80 that we are doing a write
+(gdb)
+</code></pre>
+
+<p>For this example, if we enter <code>b 5</code>, a breakpoint will be set at line 5, ready to be executed.
+Line 5 is a no-operation (or noop), which means that it is a filler instruction and doesn&rsquo;t actually do anything but take up a CPU clock cycle. Older versions of gdb require this proceeding <code>_start</code>, and so I have left it in for these examples.</p>
+
+<pre><code>(gdb) b 5
+Breakpoint 1 at 0x8048054: file fib2.s, line 5.
+(gdb)
+</code></pre>
+
+<p>To run the binary up to the breakpoint, we can enter <code>r</code> or <code>run</code>. This will run through the binary up to but not including line 5.</p>
+
+<pre><code>(gdb) r
+Starting program: /gas-asm-fib/fib2 test
+
+Breakpoint 1, _start () at fib2.s:5
+5           nop
+(gdb)
+
+</code></pre>
+
+<p>From here, we can step through the remaining instructions, one at a time by entering &lsquo;stepi&rsquo;, which will run the current instruction and list the next instruction to be run. There is also the <code>step</code> instruction which is used more for high-level languages and steps over groups of instructions for each line of code; but for assembly, we can be more certain that each instruction will get hit if we use <code>stepi</code>.</p>
+
+<pre><code>(gdb) stepi
+6           movl %esp, %ebp     # take a copy of the stack pointer esp into ebp
+...
+(gdb) stepi
+(gdb) stepi
+(gdb) stepi
+...
+(gdb) stepi
+10          movl $4, %eax       # indicate to int 0x80 that we are doing a write
+</code></pre>
+
+<p>Entering <code>stepi</code> several times up to line 10, we shoud have the address of the first argument in the register ecx. The preceeding instruction <code>mov</code>es, or copes the decimal value 4 into the register <code>eax</code>.</p>
+
+<p>To see what all the values of the registers are, we can enter <code>info registers</code> or just <code>info reg</code>:</p>
+
+<pre><code>gdb) info reg
+eax            0x0      0
+ecx            0x0      0
+edx            0x0      0
+ebx            0x0      0
+esp            0xffffd8c0       0xffffd8c0
+ebp            0xffffd8c8       0xffffd8c8
+esi            0x0      0
+edi            0x0      0
+eip            0x804805a        0x804805a &lt;_start+6&gt;
+eflags         0x282    [ SF IF ]
+cs             0x23     35
+ss             0x2b     43
+ds             0x2b     43
+es             0x2b     43
+fs             0x0      0
+gs             0x0      0
+(gdb)
+</code></pre>
+
+<p>This shows us that the value of ebp is <code>0xffffd8c8</code> which corresponds to an address in our stack. This value is very close to that of esp (<code>0xffffd8c8</code>), as the two are usually used in conjunction to traverse the stack.</p>
+
+<p>We can see there is also the register <code>eip</code> with the value <code>0x804805a</code> at a much lower value. This is the extended instruction pointer that points to the current instruction that our application is running. The application&rsquo;s instructions reside in an area of memory referenced in our assembly code as the <code>.text</code> section.</p>
+
+<p>Ry convention on Linux, the stack is at the top of memory and our intructions are close to the bottom of memory. The way this is done is by virtual paging so it appears to the application that it has all of physical memory, but it is only mapped pages that appear, so it is just an illusion until the application needs to read or write from a memory address. The size of virtual memory is all of the addressable memory space, can be many times larger than the physical memory space, and appears to the application that it is exclusively owned by the application.</p>
+
+<p>Coming back to the <code>ecx</code> register, we can eXamine what is in memory at the address referenced by <code>ecx</code> using the <code>x/</code> notation.</p>
+
+<p>The <code>x/</code> notation takes up to three components. For example:</p>
+
+<p><code>x/5s ($ecx)</code></p>
+
+<p>Examines:
+- the first 5
+- strings
+- starting at the address pointed to by the register <code>ecx</code></p>
+
+<p>and will output something similar to the following:</p>
+
+<pre><code>(gdb) x/5s ($ecx)
+0xffffd9d3:     &quot;test&quot;
+0xffffd9d8:     &quot;LESSOPEN=| /usr/bin/lesspipe %s&quot;
+0xffffd9f8:     &quot;HOSTNAME=fc9dd5d874b7&quot;
+0xffffda0e:     &quot;SHLVL=1&quot;
+0xffffda16:     &quot;HOME=/root&quot;
+(gdb)
+</code></pre>
+
+<p>Many other formats can be printed including &copy;har (d)ecimal and (t)binary among others. For more information on this, enter <code>help x</code> from the GDB REPL.</p>
+
+<p>We can clearly see our first command line argument here, &ldquo;test&rdquo; followed by some environment variables.</p>
+
+<p>The remainder of the application prints the first 4 characters of the string pointed to by the address in <code>ecx</code>, then exits gracefully. The parenthesis around the register indicates we are interested in examining the address pointed to by the register and not the value of the register itself. From the GDB REPL, when referencing registers, you may have noticed that they are referenced with a dollar sign (<code>$</code>) instead of the percentage sign (<code>$</code>) used in our assembly code. This is a small but important difference to note.</p>
+
+<p>To run the app to completion enter <code>continue</code> or just <code>c</code>.</p>
+
+<p>We will see the command line argument printed out followed by the app exiting as below.</p>
+
+<pre><code>(gdb) c
+Continuing.
+test[Inferior 1 (process 24) exited normally]
+(gdb)
+</code></pre>
+
+<p>Notice that there is a message directly after our string. This is because the command line argument did not have a newline character (<code>\n</code>) and so the GDB message was printed immediately after it.</p>
+
+<h1 id="getting-the-length-of-our-argument-on-the-command-line">Getting the length of our argument on the command line</h1>
+
+<p>Up to this point, we should have an app that can read and print the first four characters of the first argument passed on the commandline when our application is called.</p>
+
+<p>Using our <code>docker-shell</code> environment, the following should work:</p>
+
+<pre><code class="language-bash">root@9a172ec363ca:/gas-asm-fib# ./make-app fib2
+root@9a172ec363ca:/gas-asm-fib# ./fib2 test
+testroot@9a172ec363ca:/gas-asm-fib#
+</code></pre>
+
+<p>But what if we were to enter <code>./fib2 testing</code>? We&rsquo;d still just get <code>test</code> returned. Or worse still, if we enter less than 4 characters we get garbage printed from memory to make up the 4 characters. This is far from ideal for processing our commandline arguments.</p>
+
+<p>What we need is a way of determining the length of the argument in the stack. This is where the instruction pair <code>repne scasb</code> comes in useful.</p>
+
+<p>The following is an implementation of:</p>
+
+<ul>
+<li>Finding the length of our first argument</li>
+<li>Printing the string pointed to by the address of the first argument to the length determined</li>
+</ul>
+
+<p>I&rsquo;ll show the code below then describe how it works.</p>
+
+<p><em>fib3.s</em></p>
+
+<pre><code class="language-asm"># framework - get first argument from the command line and print to stdout
+.section .text
+.globl _start
+_start:
+    nop
+    movl %esp, %ebp     # take a copy of esp to use
+    addl $8, %ebp       # address of first arg in stack
+    movl (%ebp), %edi   # move arg address into esi for scasb
+    push %edi           # store the string address as edi gets clobbered
+
+    movl $50, %ecx      # set ecx counter to a high value
+    movl $0, %eax       # zero al search char
+    movl %ecx, %ebx     # copy our max counter value to edx
+    cld                 # set direction down
+    repne scasb         # iterate until we find the al char
+
+    movl %ecx, %edx     # move count into edx
+    subl %ecx, %ebx     # subtract from our original ecx value
+    dec %ebx            # remove null byte at the end of the string from the count
+    pop %ecx            # restore our string address into ecx
+    mov %ebx, %edx      # move our count value to edx for the int 80 call
+
+    movl $4, %eax       # set eax to 4 for int 80 to write to file
+    movl $0, %ebx       # set ebx for file to write to as stdoout (file descriptor 0)
+    int $0x80           # make it so
+    movl $1, %eax       # set eax for int 80 for system exit
+    movl $0, %ebx       # set ebx for return code 0
+    int $0x80           # make it so again
+</code></pre>
+
+<p>Building and running this from the <code>docker-shell</code> we can see that the full first argument is now displayed:</p>
+
+<pre><code>root@8ec496c15833:/gas-asm-fib# ./make-app fib3
+root@8ec496c15833:/gas-asm-fib# ./fib3 testing
+testingroot@8ec496c15833:/gas-asm-fib#
+</code></pre>
+
+<p>Excellent, I hear you say, but how does it work? I&rsquo;m glad you asked.</p>
+
+<p>So what happens from the line <code>movl $50, %ecx</code> up to <code>repne scasb</code>, the registers are being set up to run <code>repne scasb</code>.
+The instructions <code>repne scasb</code> work on strings specifically to determine their length. It iterates through memory starting at the address pointed to by <code>edi</code> and compares each byte to the byte stored in the lower byte of <code>eax</code>.</p>
+
+<p>The following is a table of what registers need to be set and what they do:</p>
+
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Usage</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>ecx</code></td>
+<td>A value to count down from for the length of the string. We set this to 50 to assert that we are only taking strings of up to 50 bytes</td>
+</tr>
+
+<tr>
+<td><code>eax</code></td>
+<td>The byte value to search for placed in the lower byte of the register, <code>al</code> (in this case we are searching for a null byte (<code>0x00</code>)</td>
+</tr>
+
+<tr>
+<td><code>ebx</code></td>
+<td>A copy of our counter <code>ecx</code>. This is used later to determine the actual length of the string</td>
+</tr>
+
+<tr>
+<td><code>edi</code></td>
+<td>A pointer to the start of our sting array</td>
+</tr>
+</tbody>
+</table>
+
+<p>The register <code>ecx</code> is considered the defacto count register on the x86 architecture and <code>repne scasb</code> implicitly uses this register to iterate, starting from the address in the <code>edi</code> register until either:
+- it finds a byte in memory specified in the lower byte of the <code>eax</code> register (in our case <code>0x00</code>)
+- the <code>ecx</code> register reaches 0</p>
+
+<p>The opcode <code>cld</code> sets a flag for the count direction as downward.</p>
+
+<p>And so <code>repne scasb</code> iterates, doing the following:
+- starting at the address <code>edi</code>
+- decrementing <code>ecx</code> by 1
+- incrementing <code>edi</code>
+- comparing the byte poined to by the new location of <code>edi</code> to the value stored in the lower byte of <code>eax</code>.</p>
+
+<p>For example, if we were to call from the commandline:</p>
+
+<p><code>$ ./fib3 testing</code></p>
+
+<p>and then we inspect our registers after stepping past <code>repne scasb</code>, we should see a value in <code>ecx</code> that is <em>50 - ( len(&lsquo;testing\0&rsquo;) - 1 )</em>. Which effectively equals 42. As <code>repne scasb</code> includes the byte it is searching for in the count, we need to subtract 1 from the length of our string. We then subtract the result in <code>ecx</code> from our original maximum length of 50 to find the actual length of the string that we want to print.</p>
+
+<p>This gives <strong>50 - 43 = 7</strong> and is what the following lines do:</p>
+
+<pre><code class="language-asm">    movl %ecx, %edx     # move count into edx
+    subl %ecx, %ebx     # subtract from our original ecx value
+    dec %ebx            # remove null byte at the end of the string from the count
+    pop %ecx            # restore our string address into ecx
+    mov %ebx, %edx      # move our count value to edx for the int 80 call
+</code></pre>
+
+<p>Our string length is copied from <code>ebx</code> into the <code>edx</code> register so that the <code>int 0x80</code> call to write to stdout can then be performed to print the correct number of characters to the screen.
+There is also a <code>push</code> and <code>pop</code> instruction in <code>fib3.s</code> that firstly stores a copy of the address of our argument in <code>edi</code> then restores it into <code>ecx</code>. This is done as <code>ecx</code> is used for the address of the string to write to stdout, and the <code>repne scasb</code> instruction loop destroys this value in the <code>edi</code> register. Using <code>push</code> and <code>pop</code>, we can preserve the address of the string on the stack from <code>edi</code> and restore it into <code>ecx</code> when we need to use it later on._</p>
+
+<h1 id="making-things-easier-to-understand-using-function-calls">Making things easier to understand using function calls</h1>
+
+<p>Assembly language has the concept of functions that allow for reuse of code. The two instructions invloved with this are <code>call</code> and <code>ret</code>. What these do is allow jumping to a label in your code with a <code>call</code> and then return to the position in the calling code using a <code>ret</code>. Each time a <code>call</code> is encountered, the current address of the instruction, pointed to by the register <code>eip</code> is pushed onto the stack, the stack counter is decremented accordingly and the <code>eip</code> register is set to the memory address pointed to by the  new instruction of the label specified by the call instruction.</p>
+
+<p>For example, if we had a label somewhere in our code called <code>print_value:</code> and somewhere else in the code an instruction such as <code>call print_value</code>, this would move execution control of our application to the label specified. We can then do some processing as part of a subroutine and when we are finished printing a value, for example, we can return control back to the calling code and at the instruction just after the <code>call print_value</code> instruction.</p>
+
+<p>The instruction <code>ret</code> doesn&rsquo;t take a label as an operand as it just uses the last address on the stack. It is for this reason that it is important to make sure the stack always keeps the return address as the last value placed on the stack when using <code>call</code> and <code>ret</code>.</p>
+
+<p>It is also for this reason that when using the stack for local variables, that we don&rsquo;t actually use the <code>esp</code> register for any operations, but a copy of it in <code>ebp</code>. This way we can be certain that the stack pointer (<code>esp</code>) is always a correct return address. As our local variables are just that, when we return control to the calling code, the variables we have placed there are no longer considered important and the memory addresses are considered free to be written over.</p>
+
+<p>The following is what we have done so far as being refactored into separate functions.</p>
+
+<p><em>fib4.s</em></p>
+
+<pre><code class="language-asm"># framework - refactor into separate functions
+.section .text
+.globl _start
+
+# entrypoint of application
+_start:
+    nop
+    movl %esp, %ebp     # take a copy of esp to use
+    addl $8, %ebp       # address of first arg in stack
+    movl (%ebp), %edi   # move arg address into esi for scasb
+    push %edi           # store the string address as edi gets clobbered
+    call get_string_length
+    pop %ecx            # restore our string address into ecx
+    call print_string
+    call exit
+
+# get length of string pointed to by edi and place result in ebx
+get_string_length:
+    movl $50, %ecx      # set ecx counter to a high value
+    movl $0, %eax       # zero al search char
+    movl %ecx, %ebx     # copy our max counter value to edx
+    cld                 # set direction down
+    repne scasb         # iterate until we find the al char
+    movl %ecx, %edx     # move count into edx
+    subl %ecx, %ebx     # subtract from our original ecx value
+    dec %ebx            # remove null byte at the end of the string from the count
+    ret
+
+# print the string in ecx to the length of ebx
+print_string:
+    mov %ebx, %edx      # move our count value to edx for the int 80 call
+    movl $4, %eax       # set eax to 4 for int 80 to write to file
+    movl $0, %ebx       # set ebx for file to write to as stdoout (file descriptor 0)
+    int $0x80           # make it so
+    ret
+
+# exit the application
+exit:
+    movl $1, %eax       # set eax for int 80 for system exit
+    movl $0, %ebx       # set ebx for return code 0
+    int $0x80           # make it so again
+
+</code></pre>
+
+<p>We can see here that we still have the label <code>_start</code> but we also have the additional labels of:
+- get_string_length
+- print_string
+- exit</p>
+
+<p>This helps greatly for the readability of our code. We can see that all the calls are done from the <code>_start</code> label and each section of code concludes with a <code>ret</code> instruction, except for the <code>exit</code> label, which exits our application.</p>
+
+<p>When using labels and functions, it helps to add comments at the start of the section of code indicating what the expected state of any registers and memory should be, what is actually done by the code and what is expected to be returned by the code. The comments above are very brief, but we will see later greater use of this approach.</p>
+
+<p>Another thing to note is that breaking our code into small, reusable chunks like this allows us to split our code into separate files for reuse across multiple projects which further enables reuse.</p>
+
+<h1 id="converting-a-string-to-a-number">Converting a string to a number</h1>
+
+<p>Now that we can read arguments from the command line and print them to the screen (sdout), we want to actually start using the command line argument to specify the number of iterations for our Fibonacci sequence. This involves reading the string from the command line and converting it to a number. The input from the command line will be in ASCII format, and so a numeric value in a string is not an actual numeric value for use in our application - hence the conversion.</p>
+
+<p><em>fib5.s</em></p>
+
+<pre><code class="language-asm"># framework - convert string to number
+.section .text
+.globl _start
+
+# entrypoint of application
+_start:
+    nop
+    movl %esp, %ebp     # take a copy of esp to use
+    addl $8, %ebp       # address of first arg in stack
+    movl (%ebp), %edi   # move arg address into esi for scasb
+    push %edi           # store the string address as edi gets clobbered
+    call get_string_length
+    pop %edi             # get edi string addr then push it as we are going to clobber it
+    push %edi
+    call long_from_string
+    cmpl $0, %eax
+    je exit
+    call fibonacci
+    call exit
+
+# using address of string edi
+# use eax register to store our result
+# jump to done if not a number
+# if numeric
+# subtract 48 from the byte to convert it to a number
+# multiply the result by 10 and add the number to eax
+# multiply the result register eax by 10
+# loop until the ecx counter has reached a non-numeric (null byte) and return
+
+long_from_string:
+    xor %eax, %eax # set eax as our result register
+    xor %ecx, %ecx # set ecx(cl) as our temporary byte register
+.top:
+    movb (%edi), %cl
+    inc %edi
+    # check if we have a valid number in edi
+    cmpb $48, %cl  # check if value in ecx is less than ascii '0'. exit if less
+    jl .done
+    cmpb $57, %cl  # check if value in ecx is greater than ascii '9'. exit if greater
+    jg .done
+    sub $48, %cl
+    imul $10, %eax
+    add %ecx, %eax
+    jmp .top
+.done:
+    ret
+
+fibonacci:
+    ret
+
+# get length of string pointed to by edi and place result in ebx
+
+get_string_length:
+    movl $50, %ecx      # set ecx counter to a high value
+    movl $0, %eax       # zero al search char
+    movl %ecx, %ebx     # copy our max counter value to edx
+    cld                 # set direction down
+    repne scasb         # iterate until we find the al char
+    movl %ecx, %edx     # move count into edx
+    subl %ecx, %ebx     # subtract from our original ecx value
+    dec %ebx            # remove null byte at the end of the string from the count
+    ret
+
+# print the string in ecx to the length of ebx
+
+print_string:
+    mov %ebx, %edx      # move our count value to edx for the int 80 call
+    movl $4, %eax       # set eax to 4 for int 80 to write to file
+    movl $0, %ebx       # set ebx for file to write to as stdoout (file descriptor 0)
+    int $0x80           # make it so
+    ret
+
+# exit the application
+
+exit:
+    movl $1, %eax       # set eax for int 80 for system exit
+    movl $0, %ebx       # set ebx for return code 0
+    int $0x80           # make it so again
+</code></pre>
+
+<p>This is quite a bit more code than before. We&rsquo;ll go though it in detail now so it all makes sense.</p>
+
+<h2 id="some-new-functions">Some new functions</h2>
+
+<p>We can see here that two new functions have been added in the form of <code>long_from_string</code> and <code>fibonacci</code>. The label <code>fibonacci</code> is just a placeholder at the moment, but <code>long_from_string</code> has our logic for converting a string into a 32-bit long.</p>
+
+<p>The first thing you may notice in <code>long_from_string</code> is that we now have two extra labels:
+- <code>.top</code>
+- <code>.done</code></p>
+
+<p>These labels start with a period (<code>.</code>) to indicate to the assembler that they are labels local to the file. This is useful when large amounts of assembly code are compiled so that the compiler doesn&rsquo;t confuse having two labels with the same name.</p>
+
+<p>From a visual inspection of this function, we can see that there are some <code>cmp</code> instructions and some instructions staring with a <code>j</code> such as <code>jl</code>, <code>jg</code> and <code>jmp</code>. These are jump instructions and are used in conjunction with our labels to tell the <code>eip</code> register to jump to a certain location in our code to continue running. This is not too dissimilar to the <code>call</code> instructions described previously, except they don&rsquo;t modify the stack with a return address.</p>
+
+<p>Jump instructions are very useful for loop type logic such as <code>for</code>, <code>while</code> and <code>do</code> loops, and even conditional statements like <code>if</code> and <code>case</code> that you may be familiar with from other languages. They can, however have performance impacts for performance-critical sections of code under some circumstances.</p>
+
+<p>When the function <code>long_from_string</code> is called from the <code>_start</code> section, we make the assumption that the address of our string has been placed in the <code>edi</code> register, ready for processing. We also assume that the calling function knows that the numeric result will be placed into the <code>eax</code> register at completion of the function. It is a convention in assembly language that the result from a function is placed into the <code>eax</code> register. For more complex return types, an address that points to an array or struct or some other complex type can be specified in <code>eax</code>. This same convention is used in the C language for returning values from functions.</p>
+
+<h2 id="zeroing-registers">Zeroing registers</h2>
+
+<p>At the very beginning of this function, we use <code>xor</code> to zero-out the <code>eax</code> and <code>ecx</code> registers as these are used for calculating our result. Using <code>xor</code> is seen as an efficient way of setting a register to zero. An alternative is to use something like <code>movl $0, $eax</code>. The <code>xor</code> method under older processors used less clock-cycles than <code>mov</code>. There is probably not much difference between the two these days.</p>
+
+<p>We then enter our loop, starting at &lsquo;.top&rsquo;, which points to the next instruction, <code>movb ($edi), $cl</code>. What this <code>mov</code> instruction does is copy the first byte from our string array into the lower part of the <code>ecx</code> register, or <code>cl</code>. This is in effect the first byte of the first argument from the command line.</p>
+
+<p>For example, if the command line were <code>./fib5 123</code>, then the <code>cl</code> register would now contain the ASCII representation of the character &lsquo;1&rsquo;. This ASCII representation is not actually the value 1, but the decimal value 49 which represents the ASCII character &lsquo;1&rsquo;. There are many references online for conversions between ASCII representations and their numerical value. There is a <a href="https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html">chart here</a> for your convenience.</p>
+
+<h2 id="register-sizes-and-layout">Register sizes and layout</h2>
+
+<p>Another thing to note about this instruction is that we have only copied a single byte (8 bits) into <code>cl</code>, and that <code>cl</code> actually makes up part of the <code>ecx</code> register. There are both <code>cl</code> and <code>ch</code> registers that are a subset of <code>ecx</code> on 32 bit CPU architectures, and all 3 are a subset of <code>rcx</code> on 64 bit CPU registers.</p>
+
+<p>The following is a diagram of how these fit together:</p>
+
+<table >
+  <tr>
+    <td colspan="1" align="center">bits 56-63</td>
+    <td colspan="1" align="center">bits 48-55</td>
+    <td colspan="1" align="center">bits 40-47</td>
+    <td colspan="1" align="center">bits 32-39</td>
+    <td colspan="1" align="center">bits 24-31</td>
+    <td colspan="1" align="center">bits 16-23</td>
+    <td colspan="1" align="center">bits 8-15</td>
+    <td colspan="1" align="center">bits 0-7</td>
+  </tr>
+  <tr>
+    <td colspan="8" align="center">rcx</td>
+  </tr>
+  <tr>
+    <td colspan="4" align="center">-</td>
+    <td colspan="4" align="center">ecx</td>
+  </tr>
+  <tr>
+    <td colspan="6" align="center">-</td>
+    <td colspan="1" align="center">cl</td>
+    <td colspan="1" align="center">ch</td>
+  </tr>
+</table>
+
+<p>This type of layout is the same for all of the general purpose registers including <code>eax</code>, <code>ebx</code>, <code>ecx</code> and <code>edx</code>.</p>
+
+<p>There is a good diagram and reference of these registers <a href="http://flint.cs.yale.edu/cs421/papers/x86-asm/asm.html">here</a>.</p>
+
+<h2 id="processing-the-string">Processing the string</h2>
+
+<p>Coming back to our function, we then increment the <code>edi</code> pointer to point to the next memory location in our string, ready for processing, but continue processing the value in <code>cl</code>.</p>
+
+<p>Next, we compare our value in <code>cl</code> to both 48 and 57 and jump to <code>.done</code> if the value falls outside of this range. This is done as the ASCII string values <code>0-9</code> fall in this range of decimal values 48-57.</p>
+
+<p>Our conditions for exiting the loop on an invalid input are thus:</p>
+
+<ul>
+<li>After the comparison to 48, if the result is lower than 48, we jump to <code>.done</code> with <code>jl</code>, or jump if lower.</li>
+<li>After the comparison to 57, if the result is greater than 57, with &lsquo;jg&rsquo;, we also jump to <code>.done</code>.</li>
+</ul>
+
+<p>As our string is null-terminated (with a value of 0x00 or <code>$0</code>), the usual case would be that we jump to <code>.done</code> after all characters have been processed or a non-numeric string character is encountered as the value 0 is outside the range of 48-57.</p>
+
+<p>After these comparisons, the actual string processing is done as per below:</p>
+
+<pre><code class="language-asm">    sub $48, %cl
+    imul $10, %eax
+    add %ecx, %eax
+    jmp .top
+</code></pre>
+
+<p>At this point it is relatively straight-forward what occurs, but I will describe it here for completeness:</p>
+
+<ul>
+<li>Our value in <code>cl</code> has 48 subtracted from it to convert it to a decimal value.</li>
+<li>Our existing value in our result register <code>eax</code> is multiplied by 10 (the first iteration will have no effect as it starts at 0)</li>
+<li>Our decimal value in <code>cl</code> is added to our result register <code>eax</code></li>
+<li>The whole process repeats until the end of the string</li>
+</ul>
+
+<p>One thing to note about <code>imul</code> is that it multiplies a register (e.g. <code>eax</code>) by a value (e.g. <code>$10</code>) and places the result in the same register (e.g. <code>eax</code>). This is considered a destructive operation as the initial value is not preserved.</p>
+
+<h1 id="the-actual-fibonacci-algorithm">The actual Fibonacci algorithm</h1>
+
+<p>It has been a long time coming to this point where I can actually show you the implementation of Fibonacci being calculated with assembly language. In <em>fib6.s</em> we implement this logic. I will show an excerpt of it below for brevity and describe how it works.</p>
+
+<pre><code class="language-asm"># input: eax holds our fibonacci n
+# processing: iterate the fibonacci sequence n times
+# output: return our fibonacci result in ebx
+
+fibonacci:
+
+    pushl %ebp                    # preserve ebp as we are going to use it to store our stack pointer for the return call
+    mov %esp, %ebp                # copy the stack pointer to ebp for use
+
+    mov %eax, %ebx                # make a copy of our fib(n) value for allocating an array on the stack
+    addl $2, %ebx                 # add 2 extra spaces to the array size in case n=1 or n=0
+    shl $2, %ebx                  # multiply by 4 as we are using longs (32 bits)
+    subl %ebx, %esp               # add the size of our array to the stack to allocate the required space
+    xor %ecx, %ecx                # set our counter to zero
+    movl %ecx, (%esp, %ecx, 4)    # initialise our array with 0 for esp[0]
+    incl %ecx                     # increase our counter
+    movl %ecx, (%esp, %ecx, 4)    # initialise our array with 1 for esp[1]
+    incl %ecx                     # our counter/iterator should be at 2 now
+    addl $2, %eax                 # increment our number of iterations by two as our ecx counter will be two higher from initialising our array
+
+.fib_loop:                        # we begin our for loop here
+
+    cmp %eax, %ecx                # compare our counter (ecx) to n (eax) if it's greater or equal, we're done
+    jge .fib_done
+    movl -4(%esp, %ecx, 4), %ebx  # get the value in the stack at esp-1 from our current stack pointer location
+    movl -8(%esp, %ecx, 4), %edx  # get the value in the stack esp-2 from our current stack pointer location
+    addl %edx, %ebx               # add the values esp-1 and esp-2 together
+    movl %ebx, (%esp, %ecx, 4)    # place the result in the current stack location
+    incl %ecx                     # bump our counter
+    jmp .fib_loop                 # loop again
+
+.fib_done:
+
+    movl %ebp, %esp               # move our copy of the stack pointer back to esp
+    popl %ebp                     # retrieve the original copy of ebp from the stack
+    ret
+</code></pre>
+
+<p>The first thing to note is that the comments as the top of the function specify <code>input</code>, <code>processing</code> and <code>output</code>. I find this a good habbit for functions as it makes explicit:
+- what the function expects
+- what the function does
+- what is expected at completion of the function</p>
+
+<h2 id="creating-the-stack-space-for-our-array">Creating the stack space for our array</h2>
+
+<p>The <code>fibonacci</code> function introduces something not shown in the previous sections with how to set up the <code>esp</code> and <code>ebp</code> registers in order to use a local stack for our function. Up to this point most temporary variables have just been stored in registers (with the exception of the <code>push</code> and <code>pop</code> instructions). As the Fibonacci sequence uses an array to store results, memory on the stack needs to be allocated and used for this purpose.</p>
+
+<p>This is the reason for the following instructions at the start of our function:</p>
+
+<pre><code class="language-asm">    pushl %ebp                    # preserve ebp as we are going to use it to store our stack pointer for the return call
+    mov %esp, %ebp                # copy the stack pointer to ebp for use
+</code></pre>
+
+<p>And for these at the end of our function:</p>
+
+<pre><code class="language-asm">    movl %ebp, %esp               # move our copy of the stack pointer back to esp
+    popl %ebp                     # retrieve the original copy of ebp from the stack
+</code></pre>
+
+<p>In order to set up our local stack, the first thing that is done is that we save a copy of the base pointer <code>ebp</code> on the stack and copy the value of the stack pointer <code>esp</code> into the base pointer so that we have a copy of it and can restore it at the end of our function. At the end of our function we can copy <code>ebp</code> back into <code>esp</code> and restore the value of <code>ebp</code> from the stack as it was at the start of the function.</p>
+
+<p>After the first instructions, we can modify the stack pointer as we like and all changes will only be local to the function and will essentially be destroyed, for all intents and purposes, once the function completes. Using this approach to the stack pointer with functions is somewhat of a convention in assembly language.</p>
+
+<h2 id="the-fibonacci-logic-in-assembly">The Fibonacci logic in assembly</h2>
+
+<p>There are essentially two parts to the logic in this section that can be seen as:
+- everything between the start of the function up to <code>.fib_loop</code>, which sets up our variables
+- everything between the label <code>.fib_loop</code> up to <code>.fib_done</code>, which processes the Fibonacci sequence in a loop</p>
+
+<h2 id="setting-up-our-variables">Setting up our variables</h2>
+
+<p>Casting our minds back to the original C source code in [#Some starting knowledge](), we would like to design our assembly code to replicate the C code. The C code is similar in design with two sections where a counter and an array are defined, followed by a loop to calculate the Fibonacci number. The function assumes <code>eax</code> is set with the value for the number of iterations, <em>n</em> (plus 2), and returns the result in the register <code>ebx</code>.</p>
+
+<p>The counter <em>i</em> is relatively simple and the register <code>ecx</code> is used for this purpose.</p>
+
+<p>The addition of 2 to <code>eax</code> is done so that the number of iterations matches what the expected number in the sequence is. Our counter is the count of the index in our array, and not the number of iterations of the sequence. By adding 2 to <code>eax</code>, our <code>ecx</code> counter can remain our array index and we can compare it to <code>eax</code> to get the correct number of iterations. This is similar (but not the same as) the C code where the for loop is initialised to <code>i=2</code>.</p>
+
+<h2 id="array-memory-allocation">Array memory allocation</h2>
+
+<p>What is less clear is how the array <em>f</em> is allocated and initialised. The array requires local memory on the stack as there can be more values than can fit in the registers. As a side-note, f the C code were to use <code>malloc()</code> to create the array, this would be a slightly different implementation and would allocate space on the heap, and not the stack.</p>
+
+<p>For the array memory allocation, we do the following:</p>
+
+<ul>
+<li>copy our iteration count <em>n</em> in <code>eax</code> into <code>ebx</code> (as we want to keep <code>ecx</code> for counting later in the loop)</li>
+<li>add two to the value (as we want our array size to be two more than the number of iterations)</li>
+<li>multiply the value by 4 (as each value is a long that requires 32 bits, or 4 bytes)</li>
+<li>subtract the result from <code>esp</code> to give our new &lsquo;top&rsquo; of the stack. ( I say top, but in actuality the top of the stack is at a lower memory address, hence the subtract)</li>
+</ul>
+
+<p>This can be inferred from the following instructions:</p>
+
+<pre><code class="language-asm">    mov %eax, %ebx                # make a copy of our fib(n) value for allocating an array on the stack
+    addl $2, %ebx                 # add 2 extra spaces to the array size in case n=1 or n=0
+    shl $2, %ebx                  # multiply by 4 as we are using longs (32 bits)
+    subl %ebx, %esp               # add the size of our array to the stack to allocate the required space
+</code></pre>
+
+<p>It is important to note that the <code>shl</code> instruction is actually a shift-left of the value in the <code>ebx</code> register, which in effect multiplies the value in <code>ecx</code> by 2^2, or 4 by shifting all the 1 bits in the register to the left. This could have also been achieved by the instruction <code>imul $4, $ebx</code>, but as the multiplication is a power of 2, it takes less cpu cycles if we use <code>shl</code>.</p>
+
+<h2 id="variable-initialisation">Variable initialisation</h2>
+
+<p>Once this is done, we zero our <code>ecx</code> counter register:</p>
+
+<pre><code class="language-asm">    xor %ecx, %ecx                # set our counter to zero
+</code></pre>
+
+<p>Then initialise the first two values in the array to 0 and 1 respectively, while incrementing our <code>ecx</code> register.</p>
+
+<pre><code class="language-asm">    movl %ecx, (%esp, %ecx, 4)    # initialise our array with 0 for esp[0]
+    incl %ecx                     # increase our counter
+    movl %ecx, (%esp, %ecx, 4)    # initialise our array with 1 for esp[1]
+    incl %ecx                     # our counter/iterator should be at 2 now
+</code></pre>
+
+<h2 id="indexed-memory">Indexed memory</h2>
+
+<p>The format of <code>mov</code> above has not been shown previously as we have mainly been working with registers and pointers for counting strings. The format of <code>mov</code> with brackets around the second operand allows us to move, or copy the value of a register into an indexed memory location. This allows us to reference a greater number of memory locations than we could otherwise with a single register. This is mainly used when writing to memory as opposed to just reading from it.</p>
+
+<p>The parenthesis around the second opcode tells the cpu to move the value in first opcode <code>ecx</code> into the memory address pointed to by the indexed location. The indexing between the brackets has the following form:</p>
+
+<p>&nbsp;&nbsp; <strong>(offset, index, multiplier)</strong></p>
+
+<p>In practice this means:</p>
+
+<ul>
+<li>move the value in <code>ecx</code></li>
+<li>into the memory location with the value of:
+
+<ul>
+<li>the address pointed to by <code>esp</code> + ( the value of <code>ecx</code> * 4 )</li>
+</ul></li>
+</ul>
+
+<p>The multiplier 4 is used as we are working with long value types that are 4 bytes in length each.</p>
+
+<p>For the first <code>mov</code> above, <code>ecx</code> is zero and so the value zero is placed into the lowest memory location in our stack <code>f[0]</code>. As <strong>0 * 4 = 0</strong>, the value of the first iteration is just that of <code>esp</code>.</p>
+
+<p>Next we increment our counter <code>ecx</code> so that it contains 1. The second <code>mov</code> then places the value 1 into the next position up in memory in our stack, 4 bytes up from the previous <code>mov</code> instruction. Our <code>ecx</code> counter is then incremented again.</p>
+
+<p>This is closely reflects our C code with the lines:</p>
+
+<pre><code class="language-c">  f[0] = 0;
+  f[1] = 1;
+</code></pre>
+
+<p>It is important that the first two values are pre-populated as the loop makes the assumption that the last two values of the Fibonacci sequence already exist.</p>
+
+<h2 id="running-the-loop-to-completion">Running the loop to completion</h2>
+
+<p>The logic below shows the heart of our Fibonacci implementation:</p>
+
+<pre><code class="language-asm">.fib_loop:                        # we begin our for loop here
+    cmp %eax, %ecx                # compare our counter (ecx) to n (eax) if it's greater or equal, we're done
+    jge .fib_done
+    movl -4(%esp, %ecx, 4), %ebx  # get the value in the stack at esp-1 from our current stack pointer location
+    movl -8(%esp, %ecx, 4), %edx  # get the value in the stack esp-2 from our current stack pointer location
+    addl %edx, %ebx               # add the values esp-1 and esp-2 together
+    movl %ebx, (%esp, %ecx, 4)    # place the result in the current stack location
+    incl %ecx                     # bump our counter
+    jmp .fib_loop                 # loop again
+</code></pre>
+
+<p>In effect, it repeats the loop for the number of times specified on the coommand line (which we have previously placed in <code>eax</code>) and jumps to <code>.fib_done</code> if it has been reached, otherwise calculates the next number in the sequence.</p>
+
+<h2 id="calculating-the-sequence">Calculating the sequence</h2>
+
+<p>As we have already initialised our array with the values 0 and 1 for <code>f[0]</code> and <code>f[1]</code> respectively, our loop will always be able to calculate the next number in the sequence. The line <code>movl -4(%esp, %ecx, 4), %ebx</code> shows another variation of indexing into memory with the <code>-4</code> out the front indicating a second, relative offset to the address within the parenthesis. What this does in effect is get the value 4 bytes down in memory (up the stack) from the current location of (esp + ecx * 4).</p>
+
+<p>This corresponds to the value in our C code of <code>f[i-1]</code>. The value in memory is placed into the <code>ebx</code> register for calculating the next value in the sequence.</p>
+
+<p>The same is true of the line <code>movl -8(%esp, %ecx, 4), %edx</code>, however it represents the value <code>f[i-2]</code> in the array and is placed into the <code>edx</code> register.</p>
+
+<p>The format of these <code>mov</code> instructions can be summarised as:</p>
+
+<p>&nbsp;&nbsp; <strong>relative_offset(absolute_offset, index, size)</strong></p>
+
+<p>The <code>ebx</code> and <code>edx</code> registers are then added together and the result placed into the array in the position <code>f[i]</code>. Our counter is then incremented and the loop repeats.</p>
+
+<p>The register <code>ecx</code> can thus be seen as our index into the array throughout this process. Once the loop is complete we will have our value at the highest address in our stack, pointed to by <code>esp</code> which we can use to print to stdout as our result.</p>
+
+<h2 id="printing-our-result">Printing our result</h2>
+
+<p>The final piece in the puzzle for putting together our program is almost the reciprocal for one of the functions we created earlier, namely <code>get_long_from_string</code>. The following is the function <code>print_long</code>, from <em>fib7.s</em> which takes an unsigned long, converts it to a string then prints the string to stdout.</p>
+
+<pre><code class="language-asm"># print a 32-bit long integer
+# input: ebx contains the long value we wish to print
+# process:
+#  set a counter for the number of digits to 0
+#  start a loop and check if value is zero - jump to done if so
+#  divide the number by 10 and take the remainder as the first digit
+#  add 48 to the number to make it an ascii value
+#  store the byte in the address esp + ecx
+#  increment the counter
+#  jump to start of loop
+# output: no output registers
+
+print_long:
+
+    push %ebp
+    mov %esp, %ebp              # copy the stack pointer to ebp for use
+    add $10, %esp               # add 10 to esp to make space for our string
+    mov $10, %ecx               # set our counter to the end of the stack space allocated (higher)
+    mov %ebx, %eax              # our value ebx is placed into eax for division
+
+.loop_pl:
+
+    xor %edx, %edx              # clear edx for the dividend
+    mov $10, %ebx               # ebx is our divisor so we set it to divide by 10
+    div %ebx                    # do the division
+    addb $48, %dl               # convert the quotient to ascii
+    movb %dl, (%esp, %ecx, 1)   # place the string byte into memory
+    dec %ecx                    # decrease our counter (as we are working backwards through the number)
+    cmp $0, %ax                 # exit if the remainder is 0
+    je .done_pl
+    jmp .loop_pl                # loop again if necessary
+
+.done_pl:
+
+    addl %ecx, %esp             # shift our stack pointer up to the start of the buffer
+    incl %esp                   # add 1 to the stack pointer for the actual first string byte
+    sub $10, %ecx               # as we are counting down, we subtract 10 from ecx to give the actual number of digits
+    neg %ecx                    # convert to a positive value
+    mov %ecx, %edx              # move our count value to edx for the int 80 call
+
+    mov %esp, %ecx              # move our string start address into ecx
+    movl $4, %eax               # set eax to 4 for int 80 to write to file
+    movl $0, %ebx               # set ebx for file to write to as stdoout (file descriptor 0)
+    int $0x80                   # make it so
+
+    movl %ebp, %esp             # move our copy of the stack pointer back to esp
+    popl %ebp                   # retrieve the original copy of ebp from the stack
+    ret
+</code></pre>
+
+<p>We can see the same <code>esp</code> and <code>ebp</code> store and retrieve pattern at the start and end of the function as described earlier. Additionally, there is another local loop present  in the form of <code>.loop_pl</code> and <code>.done_pl</code> for iterating the value we are printing.</p>
+
+<p>The way this function works is by dividing our number by 10, taking the remainder of the division as a digit, converting it to an ASCII representation, then placing this value into our stack for printing further down in the function. The string does not need to be null-terminated with a 0x00 byte as the syscall (<code>int 0x80</code>) to print the value uses the length of the string.</p>
+
+<p>After saving the stack pointer, the stack pointer is increased by 10 bytes to allow enough space for the string we would like to print. As the long value stores up to 32 bits, this means our number can be anything up to the value 4,294,967,296, which is 10 digits long.</p>
+
+<p>Our value in <code>ebx</code> is then copied into <code>eax</code> ready for operating on.</p>
+
+<p>The loop then begins where the heart of the transformation occurs. The key instruction here is the line <code>div %ebx</code> which both takes a bit of setting up and post-processing. This instruction implicitly takes the value in <code>eax</code>, divides it by the value specified in the operand (in our case <code>ebx</code>), then places the result in <code>eax</code> and the remainder in <code>edx</code>. This is why <code>edx</code> is <code>xor</code>ed at the start of the loop.</p>
+
+<p>As we are only dividing by 10, we can be certain that our result is in the lower byte of <code>edx</code> (as 8 bytes can have a value between 0 and 255), and so we move this lower byte <code>dl</code> into the indexed stack pointer location <code>(%esp, %ecx, 1)</code>. Following this, we decrement our <code>ecx</code> counter and compare the quotient of our division to 0. If the quotient equals 0, we know there are no digits to calculate and we can jump to <code>.done_pl</code>.</p>
+
+<h2 id="doing-things-the-hard-way">Doing things the hard way</h2>
+
+<p>The five lines after <code>.jump_pl</code> involve getting the correct count of the digits processed.</p>
+
+<pre><code class="language-asm">    addl %ecx, %esp             # shift our stack pointer up to the start of the buffer
+    incl %esp                   # add 1 to the stack pointer for the actual first string byte
+    sub $10, %ecx               # as we are counting down, we subtract 10 from ecx to give the actual number of digits
+    neg %ecx                    # convert to a positive value
+    mov %ecx, %edx              # move our count value to edx for the int 80 call
+</code></pre>
+
+<p>By subtracting our result with the <code>sub</code> instruction then using <code>neg</code> to convert the negative number to a positive one, we will have the actual
+ count of digits to print and can place it in the <code>edx</code> register for the syscall.</p>
+
+<p>There is a bit of arithmetic here as our <code>ecx</code> was being decremented by 1 from 10 for each digit, and so the actual count is <strong>-1 * ( count - 10 )</strong>. This is a rather rountabout way of doing this calculation and it would have actually been simpler to just count up. However this way afforded me the opportunity to introduce the <code>neg</code> instruction which takes a 2&rsquo;s compliment of the value in the specified register and is essentially multiplying the register by -1.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>If you have followed along, congratulations! This is a rather lengthy tutorial but you should now at least know some of the basics of assembly language and how processing is done very close to the CPU. This can have all sorts of uses from optimising higher-level code to debugging complex multi-threaded applications and everything in-between.</p>
+
+<p>If you have compiled the <em>fib7.s</em> code, you should be able to see the sequence in the <code>docker-shell</code> environment similar to below:</p>
+
+<pre><code class="language-bash">root@608eb3f49ac5:/gas-asm-fib# ./fib7 0
+root@608eb3f49ac5:/gas-asm-fib# ./fib7 1
+1root@608eb3f49ac5:/gas-asm-fib# ./fib7 2
+2root@608eb3f49ac5:/gas-asm-fib# ./fib7 3
+3root@608eb3f49ac5:/gas-asm-fib# ./fib7 4
+5root@608eb3f49ac5:/gas-asm-fib# ./fib7 5
+8root@608eb3f49ac5:/gas-asm-fib# ./fib7 6
+13root@608eb3f49ac5:/gas-asm-fib#
+</code></pre>
+
+<h2 id="from-here-to-there-improving-the-code">From here to there - improving the code</h2>
+
+<p>This is by no means the ultimate Fibonacci sequence generator (or even a sequence generator at all - it only prints the last value in the sequence, after all), and there are many tricks and tips to making this faster, more robust and more extensible both in design and application.</p>
+
+<p>A follow on blog from this may include:
+- Optimising calculations using an alternative Fibonacci alogrithm implementation with the corresponding performance comparison
+- Optimising calculations using the FPU math coprocessor, MMX, XMM, or SIMD instructions
+- Handling of a higher range of numbers
+- Designing for reuse with multiple files</p>
+
+<p>Until next time, happy coding!</p>
+
+  </div>
+</section>
+<section id="tag-pane" class="row meta">
+  
+  <div class="col-md-12">
+    <h6 class="text-right meta">
+      
+    </h6>
+  </div>
+  
+</section>
+
+
+
+
+<div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "wilvk-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+<section id="menu-pane" class="row menu text-center">
+  
+  
+  <span><a class="menu-item" href="https://wilvk.github.io/posts/first-post/">&lt; prev | </a></span>
+  
+  
+  <span><a class="menu-item" href="/posts">posts</a></span>
+  
+  
+  
+  <h4 class="text-center"><a class="menu-item" href="https://wilvk.github.io/">home</a></h4>
+</section>
+
+
+
+<footer class="row text-center footer">
+  <hr />
+  
+  <h6 class="text-center copyright">© 2018 - Willem van Ketwich</h6>
+  
+  
+</footer>
+
+</div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  
+
+<script type="text/javascript">
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-122351489-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
+
+
