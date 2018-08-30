@@ -42,19 +42,15 @@ draft: true
 
 # Intro
 
-Stemming from my interest in Assembly Language, I was in search of a practical example to start exploring this subterranean wilderland. I thought I'd write a simple ASM application to compute Fibonacci to a given number of iterations. I defined some criteria and restrictions for this little project and came to the following:
+Stemming from my interest in Assembly Language, I was in search of a practical example to start exploring this subterranean wilderland. I thought I'd write a simple ASM application to compute Fibonacci to a given number of iterations.
+
+I had a think about some criteria and restrictions for this little project and came up with the following:
 
 - It must take a value from the command line for the number of iterations
 - It must not use the glibc standard library
-- It must print the final output on the screen
+- It must print the final value in the sequence to the screen
 
-Other criteria that may also be considered are:
-
-- Input validation
-- Error Checking
-- Calculating for very large numbers
-- Equation Optimisation
-- Using extended maths operations
+The command line was decided to be used for the number of iterations as it is easily accessible for beginners and had less overhead in setting up. The glibc library was decided to be excluded as I wanted to get down to the nuts and bolts of printing and manipulating strings. The requirement to only print the final value in the sequence was more to keep the logic of the application simple enough to express the features of assembly without unnecessarily complicating things.
 
 ## Following along at home
 
@@ -457,7 +453,7 @@ The following is an implementation of:
 
 I'll show the code below then describe how it works.
 
-_fib4.s_
+_fib3.s_
 ```asm
 # framework - get first argument from the command line and print to stdout
 .section .text
@@ -492,8 +488,8 @@ _start:
 Building and running this from the `docker-shell` we can see that the full first argument is now displayed:
 
 ```
-root@8ec496c15833:/gas-asm-fib# ./make-app fib4
-root@8ec496c15833:/gas-asm-fib# ./fib4 testing
+root@8ec496c15833:/gas-asm-fib# ./make-app fib3
+root@8ec496c15833:/gas-asm-fib# ./fib3 testing
 testingroot@8ec496c15833:/gas-asm-fib#
 ```
 
@@ -525,7 +521,7 @@ And so `repne scasb` iterates, doing the following:
 
 For example, if we were to call from the commandline:
 
-`$ ./fib4 testing`
+`$ ./fib3 testing`
 
 and then we inspect our registers after stepping past `repne scasb`, we should see a value in `ecx` that is *50 - ( len('testing\0') - 1 )*. Which effectively equals 42. As `repne scasb` includes the byte it is searching for in the count, we need to subtract 1 from the length of our string. We then subtract the result in `ecx` from our original maximum length of 50 to find the actual length of the string that we want to print.
 
@@ -540,7 +536,7 @@ This gives **50 - 43 = 7** and is what the following lines do:
 ```
  
 Our string length is copied from `ebx` into the `edx` register so that the `int 0x80` call to write to stdout can then be performed to print the correct number of characters to the screen.
-There is also a `push` and `pop` instruction in `fib4.s` that firstly stores a copy of the address of our argument in `edi` then restores it into `ecx`. This is done as `ecx` is used for the address of the string to write to stdout, and the `repne scasb` instruction loop destroys this value in the `edi` register. Using `push` and `pop`, we can preserve the address of the string on the stack from `edi` and restore it into `ecx` when we need to use it later on._
+There is also a `push` and `pop` instruction in `fib3.s` that firstly stores a copy of the address of our argument in `edi` then restores it into `ecx`. This is done as `ecx` is used for the address of the string to write to stdout, and the `repne scasb` instruction loop destroys this value in the `edi` register. Using `push` and `pop`, we can preserve the address of the string on the stack from `edi` and restore it into `ecx` when we need to use it later on._
 
 # Making things easier to understand using function calls
 
@@ -554,7 +550,7 @@ It is also for this reason that when using the stack for local variables, that w
 
 The following is what we have done so far as being refactored into separate functions.
 
-_fib5.s_
+_fib4.s_
 ```asm
 # framework - refactor into separate functions
 .section .text
@@ -615,7 +611,7 @@ Another thing to note is that breaking our code into small, reusable chunks like
 
 Now that we can read arguments from the command line and print them to the screen (sdout), we want to actually start using the command line argument to specify the number of iterations for our Fibonacci sequence. This involves reading the string from the command line and converting it to a number. The input from the command line will be in ASCII format, and so a numeric value in a string is not an actual numeric value for use in our application - hence the conversion.
 
-_fib6.s_
+_fib5.s_
 ```asm
 # framework - convert string to number
 .section .text
@@ -721,7 +717,7 @@ At the very beginning of this function, we use `xor` to zero-out the `eax` and `
 
 We then enter our loop, starting at '.top', which points to the next instruction, `movb ($edi), $cl`. What this `mov` instruction does is copy the first byte from our string array into the lower part of the `ecx` register, or `cl`. This is in effect the first byte of the first argument from the command line.
 
-For example, if the command line were `./fib6 123`, then the `cl` register would now contain the ASCII representation of the character '1'. This ASCII representation is not actually the value 1, but the decimal value 49 which represents the ASCII character '1'. There are many references online for conversions between ASCII representations and their numerical value. There is a [chart here](https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html) for your convenience.
+For example, if the command line were `./fib5 123`, then the `cl` register would now contain the ASCII representation of the character '1'. This ASCII representation is not actually the value 1, but the decimal value 49 which represents the ASCII character '1'. There are many references online for conversions between ASCII representations and their numerical value. There is a [chart here](https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html) for your convenience.
 
 ## Register sizes and layout
 
@@ -791,7 +787,7 @@ One thing to note about `imul` is that it multiplies a register (e.g. `eax`) by 
 
 # The actual Fibonacci algorithm
 
-It has been a long time coming to this point where I can actually show you the implementation of Fibonacci being calculated with assembly language. In _fib7.s_ we implement this logic. I will show an excerpt of it below for brevity and describe how it works.
+It has been a long time coming to this point where I can actually show you the implementation of Fibonacci being calculated with assembly language. In _fib6.s_ we implement this logic. I will show an excerpt of it below for brevity and describe how it works.
 
 ```asm
 # input: eax holds our fibonacci n
@@ -977,13 +973,12 @@ The register `ecx` can thus be seen as our index into the array throughout this 
 
 ## Printing our result
 
-The final piece in the puzzle for putting together our program is almost the reciprocal for one of the functions we created earlier, namely the `get_long_from_string`. The following is the function `print_long`, which takes a 32-bit integer (long), converts it to a string then prints the string to stdout.
+The final piece in the puzzle for putting together our program is almost the reciprocal for one of the functions we created earlier, namely `get_long_from_string`. The following is the function `print_long`, from _fib7.s_ which takes an unsigned long, converts it to a string then prints the string to stdout.
 
 ```asm
 # print a 32-bit long integer
 # input: ebx contains the long value we wish to print
 # process:
-#  check our value is not zero, and handle the special case and print '0' if so
 #  set a counter for the number of digits to 0
 #  start a loop and check if value is zero - jump to done if so
 #  divide the number by 10 and take the remainder as the first digit
@@ -1064,16 +1059,16 @@ There is a bit of arithmetic here as our `ecx` was being decremented by 1 from 1
 
 If you have followed along, congratulations! This is a rather lengthy tutorial but you should now at least know some of the basics of assembly language and how processing is done very close to the CPU. This can have all sorts of uses from optimising higher-level code to debugging complex multi-threaded applications and everything in-between.
 
-If you have compiled the _fib8.s_ code, you should be able to see the sequence in the `docker-shell` environment similar to below:
+If you have compiled the _fib7.s_ code, you should be able to see the sequence in the `docker-shell` environment similar to below:
 
 ```bash
-root@608eb3f49ac5:/gas-asm-fib# ./fib8 0
-root@608eb3f49ac5:/gas-asm-fib# ./fib8 1
-1root@608eb3f49ac5:/gas-asm-fib# ./fib8 2
-2root@608eb3f49ac5:/gas-asm-fib# ./fib8 3
-3root@608eb3f49ac5:/gas-asm-fib# ./fib8 4
-5root@608eb3f49ac5:/gas-asm-fib# ./fib8 5
-8root@608eb3f49ac5:/gas-asm-fib# ./fib8 6
+root@608eb3f49ac5:/gas-asm-fib# ./fib7 0
+root@608eb3f49ac5:/gas-asm-fib# ./fib7 1
+1root@608eb3f49ac5:/gas-asm-fib# ./fib7 2
+2root@608eb3f49ac5:/gas-asm-fib# ./fib7 3
+3root@608eb3f49ac5:/gas-asm-fib# ./fib7 4
+5root@608eb3f49ac5:/gas-asm-fib# ./fib7 5
+8root@608eb3f49ac5:/gas-asm-fib# ./fib7 6
 13root@608eb3f49ac5:/gas-asm-fib#
 ```
 
