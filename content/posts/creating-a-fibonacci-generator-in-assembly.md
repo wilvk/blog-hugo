@@ -6,6 +6,40 @@ draft: true
 
 # Contents
 
+[Intro]()
+&nbsp;&nbsp;[Following along at home]()
+&nbsp;&nbsp;[A beginning]()
+&nbsp;&nbsp;[Some starting knowledge]()
+&nbsp;&nbsp;[Overview of the implementation]()
+[Beginning the implementation]()
+&nbsp;&nbsp;[Building binary files from assembly files]()
+&nbsp;&nbsp;[The structure of a gas assembly file]()
+&nbsp;&nbsp;[Instructions and opcodes]()
+&nbsp;&nbsp;[The application entry-point and labels]()
+&nbsp;&nbsp;[Compiling our code]()
+&nbsp;&nbsp;[Reading from the process arguments and converting to a numeric value]()
+&nbsp;&nbsp;[Debugging with GDB]()
+[Getting the length of our argument on the command line]()
+&nbsp;&nbsp;[Making things easier to understand using function calls]()
+&nbsp;&nbsp;[Converting a string to a number]()
+&nbsp;&nbsp;[Some new functions]()
+&nbsp;&nbsp;[How the long number is calculated from the string in memory]()
+&nbsp;&nbsp;[Zeroing registers]()
+&nbsp;&nbsp;[Register sizes and layout]()
+&nbsp;&nbsp;[Processing the string]()
+[The actual Fibonacci algorithm]()
+&nbsp;&nbsp;[Creating the stack space for our array]()
+&nbsp;&nbsp;[The Fibonacci logic in assembly]()
+&nbsp;&nbsp;[Setting up our variables]()
+&nbsp;&nbsp;[Array memory allocation]()
+&nbsp;&nbsp;[Variable initialisation]()
+&nbsp;&nbsp;[Indexed memory]()
+&nbsp;&nbsp;[Running the loop to completion]()
+&nbsp;&nbsp;[Calculating the sequence]()
+[Printing our result]()
+[Conclusion]()
+&nbsp;&nbsp;[From here to there - improving the code]()
+
 # Intro
 
 Stemming from my interest in Assembly Language, I was in search of a practical example to start exploring this subterranean wilderland. I thought I'd write a simple ASM application to compute Fibonacci to a given number of iterations. I defined some criteria and restrictions for this little project and came to the following:
