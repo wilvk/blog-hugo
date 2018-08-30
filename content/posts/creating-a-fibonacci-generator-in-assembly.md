@@ -151,9 +151,11 @@ We will start with the following assembly code. This gives us a basis for fillin
 
 ## The structure of a gas assembly file 
 
-The code above introduces some of the syntax of a GAS assembly file (`.s`). The first thing to note is that comments begin with a hash (`#`) and can be at the start of a line or after an instruction/opcode. An instruction/opcode is essentially an instruction for the CPU to process. Examples of intructions in __fib1.s__ above include `nop`, `movl $1 %eax`, `movl $0, %ebx`, and `int $0x80`.
+The code above introduces some of the syntax of a GAS assembly file (`.s`). The first thing to note is that comments begin with a hash (`#`) and can be at the start of a line or after an instruction/opcode. 
 
 ## Instructions and opcodes
+
+An instruction/opcode is essentially an instruction for the CPU to process. Examples of intructions in __fib1.s__ above include `nop`, `movl $1 %eax`, `movl $0, %ebx`, and `int $0x80`.
 
 I will use the terms instruction and opcode interchangeably, but they are essentially a mnemonic in assembly language that tells the CPU what to do. Opcodes/instructions can also have one or many operands depending on what the opcode does. Operands are the values that the opcode act upon and specify what the opcode does.
 
