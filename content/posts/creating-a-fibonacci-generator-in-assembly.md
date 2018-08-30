@@ -888,7 +888,7 @@ The format of `mov` above has not been shown previously as we have mainly been w
 
 The parenthesis around the second opcode tells the cpu to move the value in first opcode `ecx` into the memory address pointed to by the indexed location. The indexing between the brackets has the following form:
 
-  **(offset, index, multiplier)**
+&nbsp;&nbsp; **(offset, index, multiplier)**
 
 In practice this means:
 
@@ -939,7 +939,7 @@ The same is true of the line `movl -8(%esp, %ecx, 4), %edx`, however it represen
 
 The format of these `mov` instructions can be summarised as:
 
-  **relative\_offset(absolute\_offset, index, size)**
+&nbsp;&nbsp; **relative\_offset(absolute\_offset, index, size)**
 
 The `ebx` and `edx` registers are then added together and the result placed into the array in the position `f[i]`. Our counter is then incremented and the loop repeats.
 
@@ -949,7 +949,7 @@ The register `ecx` can thus be seen as our index into the array throughout this 
 
 The final piece in the puzzle for putting together our program is almost the reciprocal for one of the functions we created earlier, namely the `get_long_from_string`. The following is the function `print_long`, which takes a 32-bit integer (long), converts it to a string then prints the string to stdout.
 
-```
+```asm
 # print a 32-bit long integer
 # input: ebx contains the long value we wish to print
 # process:
