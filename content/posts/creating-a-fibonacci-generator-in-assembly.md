@@ -6,39 +6,39 @@ draft: true
 
 # Contents
 
-[Intro]()
-&nbsp;&nbsp;[Following along at home]()
-&nbsp;&nbsp;[A beginning]()
-&nbsp;&nbsp;[Some starting knowledge]()
-&nbsp;&nbsp;[Overview of the implementation]()
-[Beginning the implementation]()
-&nbsp;&nbsp;[Building binary files from assembly files]()
-&nbsp;&nbsp;[The structure of a gas assembly file]()
-&nbsp;&nbsp;[Instructions and opcodes]()
-&nbsp;&nbsp;[The application entry-point and labels]()
-&nbsp;&nbsp;[Compiling our code]()
-&nbsp;&nbsp;[Reading from the process arguments and converting to a numeric value]()
-&nbsp;&nbsp;[Debugging with GDB]()
-[Getting the length of our argument on the command line]()
-&nbsp;&nbsp;[Making things easier to understand using function calls]()
-&nbsp;&nbsp;[Converting a string to a number]()
-&nbsp;&nbsp;[Some new functions]()
-&nbsp;&nbsp;[How the long number is calculated from the string in memory]()
-&nbsp;&nbsp;[Zeroing registers]()
-&nbsp;&nbsp;[Register sizes and layout]()
-&nbsp;&nbsp;[Processing the string]()
-[The actual Fibonacci algorithm]()
-&nbsp;&nbsp;[Creating the stack space for our array]()
-&nbsp;&nbsp;[The Fibonacci logic in assembly]()
-&nbsp;&nbsp;[Setting up our variables]()
-&nbsp;&nbsp;[Array memory allocation]()
-&nbsp;&nbsp;[Variable initialisation]()
-&nbsp;&nbsp;[Indexed memory]()
-&nbsp;&nbsp;[Running the loop to completion]()
-&nbsp;&nbsp;[Calculating the sequence]()
-[Printing our result]()
-[Conclusion]()
-&nbsp;&nbsp;[From here to there - improving the code]()
+- [Intro](#intro)
+  * [Following along at home](#following-along-at-home)
+  * [A beginning](#a-beginning)
+  * [Some starting knowledge](#some-starting-knowledge)
+  * [Overview of the implementation](#overview-of-the-implementation)
+- [Beginning the implementation](#beginning-the-implementation)
+  * [Building binary files from assembly files](#building-binary-files-from-assembly-files)
+  * [The structure of a gas assembly file](#the-structure-of-a-gas-assembly-file)
+  * [Instructions and opcodes](#instructions-and-opcodes)
+  * [The application entry-point and labels](#the-application-entry--point-and-labels)
+  * [Compiling our code](#compiling-our-code)
+  * [Reading from the process arguments and converting to a numeric value](#reading-from-the-process-arguments-and-converting-to-a-numeric-value)
+  * [Debugging with GDB](#debugging-with-gdb)
+- [Getting the length of our argument on the command line](#getting-the-length-of-our-argument-on-the-command-line)
+  * [Making things easier to understand using function calls](#making-things-easier-to-understand-using-function-calls)
+- [Converting a string to a number](#converting-a-string-to-a-number)
+  * [Some new functions](#some-new-functions)
+  * [Zeroing registers](#zeroing-registers)
+  * [Register sizes and layout](#register-sizes-and-layout)
+  * [Processing the string](#processing-the-string)
+- [The actual Fibonacci algorithm](#the-actual-fibonacci-algorithm)
+  * [Creating the stack space for our array](#creating-the-stack-space-for-our-array)
+  * [The Fibonacci logic in assembly](#the-fibonacci-logic-in-assembly)
+  * [Setting up our variables](#setting-up-our-variables)
+  * [Array memory allocation](#array-memory-allocation)
+  * [Variable initialisation](#variable-initialisation)
+  * [Indexed memory](#indexed-memory)
+  * [Running the loop to completion](#running-the-loop-to-completion)
+  * [Calculating the sequence](#calculating-the-sequence)
+- [Printing our result](#printing-our-result)
+  * [Doing things the hard way](#doing-things-the-hard-way)
+- [Conclusion](#conclusion)
+  * [From here to there - improving the code](#from-here-to-there---improving-the-code)
 
 # Intro
 
@@ -56,18 +56,18 @@ Other criteria that may also be considered are:
 - Equation Optimisation
 - Using extended maths operations
 
-# Following along at home
+## Following along at home
 
 The source code for what I describe here can be found in [a repository](https://github.com/wilvk/gas-asm-fib) I have created that contains all the examples described. It also has shell scripts for:
 
 - Running the scripts in a Docker container with all the required tools installed (`docker-shell`)
 - Compiling the examples (`make-app`)
 
-# A beginning
+## A beginning
 
 I found a good blog about different approaches to Fibonacci Equations [here](https://www.geeksforgeeks.org/program-for-nth-fibonacci-number/) and armed with the new knowledge from reading a couple of books on the subject (specifically, [Assembly Language Step-by-Step](https://www.amazon.com/Assembly-Language-Step-Step-Programming/dp/0470497025) and [Professional Assembly Language](https://www.amazon.com.au/Professional-Assembly-Language-Richard-Blum-ebook/dp/B000Q7ZETY)) I set out to implement this.
 
-## Some starting knowledge
+### Some starting knowledge
 
 The basis of the algorithm to use was decided to be a space-optimised method using a dynamic programming approach. This effectively means using an array on the stack to hold our values while giving **O(n)** time and space complexity.
 
@@ -105,7 +105,7 @@ int main ()
 }
 ``` 
 
-# Overview of the implementation
+## Overview of the implementation
 
 The implementation involved the following functionality:
 
@@ -114,9 +114,9 @@ The implementation involved the following functionality:
 - Calculating Fibonacci
 - Printing the long as a string to stdout
 
-# Beginning the implementation
+## Beginning the implementation
 
-Ok, so we have a basis for an algorithm in C code but how can this be implemented in ASM?
+Ok, so at this point we have the basis for an algorithm in assembly based on our C code but how can this be implemented in ASM?
 
 There are numerous formats of Assembly Language including NASM, GAS and MASM among others. I'm working on a Linux box and so MASM was out of the question as it is the Microsoft Assembler.
 
@@ -136,7 +136,7 @@ Once the final value of Fibonacci is determined, a function is called to convert
 
 The application then needs to exit gracefully and return control to the shell.
 
-# Building binary files from assembly files
+## Building binary files from assembly files
 
 We will start with the following assembly code. This gives us a basis for filling out our application:
 
@@ -157,7 +157,7 @@ We will start with the following assembly code. This gives us a basis for fillin
 
 The code above introduces some of the syntax of a GAS assembly file (`.s`). The first thing to note is that comments begin with a hash (`#`) and can be at the start of a line or after an instruction/opcode. An instruction/opcode is essentially an instruction for the CPU to process. Examples of intructions in __fib1.s__ above include `nop`, `movl $1 %eax`, `movl $0, %ebx`, and `int $0x80`.
 
-### Instructions and opcodes
+## Instructions and opcodes
 
 I will use the terms instruction and opcode interchangeably, but they are essentially a mnemonic in assembly language that tells the CPU what to do. Opcodes/instructions can also have one or many operands depending on what the opcode does. Operands are the values that the opcode act upon and specify what the opcode does.
 
@@ -183,7 +183,7 @@ A few extra things to note about the above instructions are:
 - Registers are prefixed with a percentge sign (`%`).
 - A Value starting with a `0x` is a hexadecimal number and includes values 0-9 and a-f.
 
-### The application entry-point and labels
+## The application entry-point and labels
 
 For Linux applications, the `_start:` label is required by the assembler to define the entry point to the binary application. All labels finish with a colon (`:`) to indicate that it is a label. The assembler also requires the entrypoint to be made 'global' so that other binaries, and the operating system knows that the label has been exposed by the binary. This is the reason for the line `.globl _start` preceeding the label `_start` and is used more when working with multiple assembly files that need to be compiled together.
 
@@ -244,7 +244,7 @@ For example:
 
 will build a binary called fib2.
 
-# Reading from the process arguments and converting to a numeric value
+## Reading from the process arguments and converting to a numeric value
 
 If we call our binary from the commandline like:
 
@@ -489,8 +489,6 @@ _start:
     int $0x80           # make it so again
 ```
 
-TODO: explain bytes, words, longs movb, movl, movl
-
 Building and running this from the `docker-shell` we can see that the full first argument is now displayed:
 
 ```
@@ -544,7 +542,7 @@ This gives **50 - 43 = 7** and is what the following lines do:
 Our string length is copied from `ebx` into the `edx` register so that the `int 0x80` call to write to stdout can then be performed to print the correct number of characters to the screen.
 There is also a `push` and `pop` instruction in `fib4.s` that firstly stores a copy of the address of our argument in `edi` then restores it into `ecx`. This is done as `ecx` is used for the address of the string to write to stdout, and the `repne scasb` instruction loop destroys this value in the `edi` register. Using `push` and `pop`, we can preserve the address of the string on the stack from `edi` and restore it into `ecx` when we need to use it later on._
 
-## Making things easier to understand using function calls
+# Making things easier to understand using function calls
 
 Assembly language has the concept of functions that allow for reuse of code. The two instructions invloved with this are `call` and `ret`. What these do is allow jumping to a label in your code with a `call` and then return to the position in the calling code using a `ret`. Each time a `call` is encountered, the current address of the instruction, pointed to by the register `eip` is pushed onto the stack, the stack counter is decremented accordingly and the `eip` register is set to the memory address pointed to by the  new instruction of the label specified by the call instruction.
 
@@ -717,9 +715,7 @@ Jump instructions are very useful for loop type logic such as `for`, `while` and
 
 When the function `long_from_string` is called from the `_start` section, we make the assumption that the address of our string has been placed in the `edi` register, ready for processing. We also assume that the calling function knows that the numeric result will be placed into the `eax` register at completion of the function. It is a convention in assembly language that the result from a function is placed into the `eax` register. For more complex return types, an address that points to an array or struct or some other complex type can be specified in `eax`. This same convention is used in the C language for returning values from functions.
 
-## How the long number is calculated from the string in memory
-
-### Zeroing registers
+## Zeroing registers
 
 At the very beginning of this function, we use `xor` to zero-out the `eax` and `ecx` registers as these are used for calculating our result. Using `xor` is seen as an efficient way of setting a register to zero. An alternative is to use something like `movl $0, $eax`. The `xor` method under older processors used less clock-cycles than `mov`. There is probably not much difference between the two these days.
 
@@ -727,7 +723,7 @@ We then enter our loop, starting at '.top', which points to the next instruction
 
 For example, if the command line were `./fib6 123`, then the `cl` register would now contain the ASCII representation of the character '1'. This ASCII representation is not actually the value 1, but the decimal value 49 which represents the ASCII character '1'. There are many references online for conversions between ASCII representations and their numerical value. There is a [chart here](https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html) for your convenience.
 
-### Register sizes and layout
+## Register sizes and layout
 
 Another thing to note about this instruction is that we have only copied a single byte (8 bits) into `cl`, and that `cl` actually makes up part of the `ecx` register. There are both `cl` and `ch` registers that are a subset of `ecx` on 32 bit CPU architectures, and all 3 are a subset of `rcx` on 64 bit CPU registers.
 
@@ -762,7 +758,7 @@ This type of layout is the same for all of the general purpose registers includi
 
 There is a good diagram and reference of these registers [here](http://flint.cs.yale.edu/cs421/papers/x86-asm/asm.html).
 
-### Processing the string
+## Processing the string
 
 Coming back to our function, we then increment the `edi` pointer to point to the next memory location in our string, ready for processing, but continue processing the value in `cl`.
 
@@ -869,7 +865,7 @@ There are essentially two parts to the logic in this section that can be seen as
 - everything between the start of the function up to `.fib_loop`, which sets up our variables
 - everything between the label `.fib_loop` up to `.fib_done`, which processes the Fibonacci sequence in a loop
 
-### Setting up our variables
+## Setting up our variables
 
 Casting our minds back to the original C source code in [#Some starting knowledge](), we would like to design our assembly code to replicate the C code. The C code is similar in design with two sections where a counter and an array are defined, followed by a loop to calculate the Fibonacci number. The function assumes `eax` is set with the value for the number of iterations, _n_ (plus 2), and returns the result in the register `ebx`.
 
@@ -877,7 +873,7 @@ The counter _i_ is relatively simple and the register `ecx` is used for this pur
 
 The addition of 2 to `eax` is done so that the number of iterations matches what the expected number in the sequence is. Our counter is the count of the index in our array, and not the number of iterations of the sequence. By adding 2 to `eax`, our `ecx` counter can remain our array index and we can compare it to `eax` to get the correct number of iterations. This is similar (but not the same as) the C code where the for loop is initialised to `i=2`.
 
-#### Array memory allocation
+## Array memory allocation
 
 What is less clear is how the array _f_ is allocated and initialised. The array requires local memory on the stack as there can be more values than can fit in the registers. As a side-note, f the C code were to use `malloc()` to create the array, this would be a slightly different implementation and would allocate space on the heap, and not the stack.
 
@@ -899,7 +895,7 @@ This can be inferred from the following instructions:
 
 It is important to note that the `shl` instruction is actually a shift-left of the value in the `ebx` register, which in effect multiplies the value in `ecx` by 2^2, or 4 by shifting all the 1 bits in the register to the left. This could have also been achieved by the instruction `imul $4, $ebx`, but as the multiplication is a power of 2, it takes less cpu cycles if we use `shl`. 
 
-#### Variable initialisation
+## Variable initialisation
 
 Once this is done, we zero our `ecx` counter register:
 
@@ -916,7 +912,7 @@ Then initialise the first two values in the array to 0 and 1 respectively, while
     incl %ecx                     # our counter/iterator should be at 2 now
 ```
 
-#### Indexed memory
+## Indexed memory
 
 The format of `mov` above has not been shown previously as we have mainly been working with registers and pointers for counting strings. The format of `mov` with brackets around the second operand allows us to move, or copy the value of a register into an indexed memory location. This allows us to reference a greater number of memory locations than we could otherwise with a single register. This is mainly used when writing to memory as opposed to just reading from it.
 
@@ -945,7 +941,7 @@ This is closely reflects our C code with the lines:
 
 It is important that the first two values are pre-populated as the loop makes the assumption that the last two values of the Fibonacci sequence already exist.
 
-### Running the loop to completion
+## Running the loop to completion
 
 The logic below shows the heart of our Fibonacci implementation:
 
@@ -963,7 +959,7 @@ The logic below shows the heart of our Fibonacci implementation:
 
 In effect, it repeats the loop for the number of times specified on the coommand line (which we have previously placed in `eax`) and jumps to `.fib_done` if it has been reached, otherwise calculates the next number in the sequence.
 
-#### Calculating the sequence
+## Calculating the sequence
 
 As we have already initialised our array with the values 0 and 1 for `f[0]` and `f[1]` respectively, our loop will always be able to calculate the next number in the sequence. The line `movl -4(%esp, %ecx, 4), %ebx` shows another variation of indexing into memory with the `-4` out the front indicating a second, relative offset to the address within the parenthesis. What this does in effect is get the value 4 bytes down in memory (up the stack) from the current location of (esp + ecx * 4). 
 
@@ -1046,6 +1042,8 @@ Our value in `ebx` is then copied into `eax` ready for operating on.
 The loop then begins where the heart of the transformation occurs. The key instruction here is the line `div %ebx` which both takes a bit of setting up and post-processing. This instruction implicitly takes the value in `eax`, divides it by the value specified in the operand (in our case `ebx`), then places the result in `eax` and the remainder in `edx`. This is why `edx` is `xor`ed at the start of the loop.
 
 As we are only dividing by 10, we can be certain that our result is in the lower byte of `edx` (as 8 bytes can have a value between 0 and 255), and so we move this lower byte `dl` into the indexed stack pointer location `(%esp, %ecx, 1)`. Following this, we decrement our `ecx` counter and compare the quotient of our division to 0. If the quotient equals 0, we know there are no digits to calculate and we can jump to `.done_pl`.
+
+## Doing things the hard way
 
 The five lines after `.jump_pl` involve getting the correct count of the digits processed. 
 
