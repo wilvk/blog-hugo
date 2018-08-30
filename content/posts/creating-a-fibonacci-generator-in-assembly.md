@@ -8,7 +8,7 @@ draft: true
 
 # Intro
 
-Stemming from my interest in Assembly Language, I was in search for a practical example to start exploring this language. I thought I'd write a simple ASM application to compute Fibonacci to a given number of iterations. I defined some criteria and restrictions for this little project and came to the following:
+Stemming from my interest in Assembly Language, I was in search of a practical example to start exploring this subterranean wilderland. I thought I'd write a simple ASM application to compute Fibonacci to a given number of iterations. I defined some criteria and restrictions for this little project and came to the following:
 
 - It must take a value from the command line for the number of iterations
 - It must not use the glibc standard library
@@ -22,9 +22,10 @@ Other criteria that may also be considered are:
 - Equation Optimisation
 - Using extended maths operations
 
-# Following along to home
+# Following along at home
 
-The source code for what I describe here can be found at [a repository](https://github.com/wilvk/gas-asm-fib) I have created that list all the examples described. It also has shell scripts for:
+The source code for what I describe here can be found in [a repository](https://github.com/wilvk/gas-asm-fib) I have created that contains all the examples described. It also has shell scripts for:
+
 - Running the scripts in a Docker container with all the required tools installed (`docker-shell`)
 - Compiling the examples (`make-app`)
 
@@ -34,7 +35,7 @@ I found a good blog about different approaches to Fibonacci Equations [here](htt
 
 ## Some starting knowledge
 
-The basis of the algorithm to use was decided to be a space optimised method using a dynamic programming approach. This effectively means using an array on the stack to hold our values while giving O(n) time and space complexity.
+The basis of the algorithm to use was decided to be a space-optimised method using a dynamic programming approach. This effectively means using an array on the stack to hold our values while giving **O(n)** time and space complexity.
 
 The code used as a basis is shown below:
 
@@ -75,13 +76,15 @@ int main ()
 The implementation involved the following functionality:
 
 - Getting the length of the command line argument
-- Converting the command line argument from a string to a long (unsigned 32 bit number)
+- Converting the command line argument from a string to a long (unsigned 32-bit number)
 - Calculating Fibonacci
 - Printing the long as a string to stdout
 
 # Beginning the implementation
 
-Ok, so I have a basis for an algorithm, but how can this be implemented in ASM? There are numerous formats of Assembly Language including NASM, GAS and MASM among others. I'm working on a Linux box and so MASM was out of the question as it is the Microsoft Assembler.
+Ok, so we have a basis for an algorithm in C code but how can this be implemented in ASM?
+
+There are numerous formats of Assembly Language including NASM, GAS and MASM among others. I'm working on a Linux box and so MASM was out of the question as it is the Microsoft Assembler.
 
 I decided to go with GAS, the GNU Assembler, as it is cross-platform and is a good general purpose assembler. This also gave me the ability to cheat in my implementation (which I didn't), as using `gcc`, a valid C application can be converted into intermediate GAS assembly language.
 
@@ -89,19 +92,19 @@ I decided the number of iterations of Fibonacci would be determined from the com
 
 The Fibonacci algorithm would have to create an array of lenth _n+2_ on the stack based on the user input. Another variable (as the variable _i_ shown above) would be used as a counter.
 
-The first two elements of the array would be pre-populated with 0 and 1 respectively, as all Fibonacci sequences have these numbers and are used when calculating new values. This can be considered a type of 'seed' for our algorithm.
+The first two elements of the array would be pre-populated with 0 and 1 respectively, as at least these two numbers are used when calculating new values. This can be considered a type of 'seed' for our algorithm.
 
 A loop is then started with the counter set to 2 that iterates until the counter is greater than or equal to the number of iterations, _n_, and where the counter is increased by 1 on each iteration.
 
 Inside the loop, for the array position in the stack, and based on the counter value, the _i-1_ value is added to the _i-2_ value on the stack and the result is placed on the stack at the current location allowing it to be used for the next iteration.
 
-Once the final value is determined, a function is called to convert the number into a string and print it to stdout.
+Once the final value of Fibonacci is determined, a function is called to convert the number into a string and print it to stdout.
 
 The application then needs to exit gracefully and return control to the shell.
 
 # Building binary files from assembly files
 
-We will start with the following assembly code. This gives us a basis for filling out our application.
+We will start with the following assembly code. This gives us a basis for filling out our application:
 
 *fib1.s*
 ```asm
@@ -118,7 +121,37 @@ We will start with the following assembly code. This gives us a basis for fillin
 
 ## The structure of a gas assembly file 
 
-TODO: instructions/opcodes, operands, sections, labels, comments, immediates, registers.
+The code above introduces some of the syntax of a GAS assembly file (`.s`). The first thing to note is that comments begin with a hash (`#`) and can be at the start of a line or after an instruction/opcode. An instruction/opcode is essentially an instruction for the CPU to process. Examples of intructions in __fib1.s__ above include `nop`, `movl $1 %eax`, `movl $0, %ebx`, and `int $0x80`.
+
+### Instructions and opcodes
+
+I will use the terms instruction and opcode interchangeably, but they are essentially a mnemonic in assembly language that tells the CPU what to do. Opcodes/instructions can also have one or many operands depending on what the opcode does. Operands are the values that the opcode act upon and specify what the opcode does.
+
+For some context from the example above, we can see the following delineation:
+
+|Full Instruction    | Opcode/instruction | Operand(s) |      Description                      |
+|--------------------|--------------------|------------|---------------------------------------|
+|nop                 |nop                 |            | no-operation                          |
+|movl $1, %eax       |movl                |$1, %eax    | copy the value 0 into the register eax|
+|movl $0, %ebx       |movl                |$0, %ebx    | copy the value 1 into the register ebx|
+|int $0x80           |int                 |$0x80       | call the interrupt numbered 0x80      |
+
+The first `movl` instruction copies a long (4-byte) value of 0 into the register `eax`. The second does the same with 1 and the register `ebx` respectively. There are a few different variations of the `mov` command for copying values to and from registers. These are namely:
+- `movl` - copy a long, 4-byte value (32-bits)
+- `movw` - copy a word, 2-byte value (16-bits)
+- `movb` - copy a byte, 1-byte value (8-bits)
+
+It is important to know what type of `mov` instruction to use as there are times when you will want to move just a single byte, a word, a long (or double-word), or some other length. Larger lengths will usually require a loop or some other method when working on a 32-bit x86 architecture.
+
+A few extra things to note about the above instructions are:
+
+- The `$1` and `$0` operands are called immediate values and are an exact value specified.
+- Registers are prefixed with a percentge sign (`%`).
+- A Value starting with a `0x` is a hexadecimal number and includes values 0-9 and a-f.
+
+### The application entry-point and labels
+
+For Linux applications, the `_start:` label is required by the assembler to define the entry point to the binary application. All labels finish with a colon (`:`) to indicate that it is a label. The assembler also requires the entrypoint to be made 'global' so that other binaries, and the operating system knows that the label has been exposed by the binary. This is the reason for the line `.globl _start` preceeding the label `_start` and is used more when working with multiple assembly files that need to be compiled together.
 
 ## Compiling our code
 
@@ -132,14 +165,14 @@ Firstly we need to make sure our gas assembler is installed. I'm on Fedora, so t
 
 Then we create a small shell script to run the gas assembler (as) and the linker (ld) on the output of the assembler.
 
-Say for example we call our assembly code file fib.s, to run the assembler we would run `as -gstabs -o fib.o fib.s`
+Say for example we call our assembly code file fib1.s, to run the assembler we would run `as -gstabs -o fib.o fib.s`
 
 - `-gstabs` adds debugging info
 - `-o fib.o` specifies our object file
 - `fib.s` is our source code
 
 The object file is a binary with all the symbols and source included, which included the raw machine code to run.
-We then link the resultant object file to convert our object file into a binary application. The linker also converts our symbolic references (such as \_start in our case) to relative numeric references to where the symbols will reside in memory when the binary is run as an application.
+We then link the resultant object file to convert our object file into a binary application. The linker also converts our symbolic references (such as `\_start` in our case) to relative numeric references to where the symbols will reside in memory when the binary is run as an application.
 
 If we were to run `ld -o fib fib.o`, we should now have a new binary application with the permissions 0755 set. If you run the application it will do nothing. But more importantly, it won't segfault, which is a good thing and indicates the application has exited gracefully.
 
@@ -285,15 +318,11 @@ From here, we can step through the remaining instructions, one at a time by ente
 ```
 (gdb) stepi
 6           movl %esp, %ebp     # take a copy of the stack pointer esp into ebp
-
 ...
-
 (gdb) stepi
 (gdb) stepi
 (gdb) stepi
-
 ...
-
 (gdb) stepi
 10          movl $4, %eax       # indicate to int 0x80 that we are doing a write
 ```
