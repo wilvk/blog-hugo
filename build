@@ -1,9 +1,12 @@
 #!/bin/bash
 
-mv ./public/.git ./_git
+set -x
+
+mv -r ./public/.git ./_git
 rm -rf ./public
 rm -rf ./static
-mv _git public/.git
+mv _git public
+mv public/_git public/.git
 hugo
 cd ./public
 git pull
