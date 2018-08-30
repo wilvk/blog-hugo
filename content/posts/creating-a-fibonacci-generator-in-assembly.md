@@ -1,6 +1,6 @@
 ---
 title: "Creating a Fibonacci Generator in Assembly"
-date: 2018-07-18T21:12:38+10:00
+date: 2018-08-30T21:12:38+10:00
 draft: false
 ---
 

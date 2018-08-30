@@ -3,13 +3,12 @@
 set -x
 
 rm -rf ./public
-rm -rf ./static
 git clone https://github.com/wilvk/wilvk.github.io public
 hugo
+cp headshot.jpg ./public/img/headshot.jpg
 cd ./public
-git pull
 git add -A
 git commit -m "build release"
 git push --set-upstream origin master
 cd ..
-
+rm -rf ./public
