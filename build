@@ -2,12 +2,12 @@
 
 set -x
 
-mv -r ./public/.git ./_git
 rm -rf ./public
 rm -rf ./static
-mv _git public
-mv public/_git public/.git
 hugo
+cd ./public
+git remote add origin https://github.com/wilvk/wilvk.github.io
+cd ..
 cd ./public
 git pull
 git add -A
