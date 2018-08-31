@@ -1,12 +1,12 @@
 baseurl = "https://blog.seso.io"
 title = "Will's Blog"
-copyright = "Copyright &copy; 2017 - Willem van Ketwich"
+copyright = "Copyright &copy; 2018 - Willem van Ketwich"
 canonifyurls = true
 theme = "kiera"
 
 paginate = 3
 
-summaryLength = 30
+summaryLength = 20
 enableEmoji = true
 pygmentsCodeFences = true
 

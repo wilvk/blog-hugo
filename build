@@ -3,11 +3,13 @@
 set -x
 
 rm -rf ./public
+rm -rf ./themes/kiera
+git clone https://github.com/avianto/hugo-kiera themes/kiera
 git clone https://github.com/wilvk/wilvk.github.io public
-hugo
-cp headshot.jpg ./public/img/headshot.jpg
+hugo -D
 cd ./public
-git add -A
+git add .
 git commit -m "build release"
 git push --set-upstream origin master
 cd ..
+rm -rf ./public
