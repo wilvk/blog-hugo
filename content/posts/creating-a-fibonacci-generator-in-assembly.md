@@ -959,7 +959,7 @@ In practice this means:
 
 - move the value in `ecx`
 - into the memory location with the value of:
-  - the address pointed to by `esp` + ( the value of `ecx` * 4 )
+  - the address pointed to by `esp` + ( `ecx` * 4 )
 
 The multiplier 4 is used as we are working with long value types that are 4 bytes in length each.
 
@@ -967,7 +967,7 @@ For the first `mov` above, `ecx` is zero and so the value zero is placed into th
 
 Next we increment our counter `ecx` so that it contains 1. The second `mov` then places the value 1 into the next position up in memory in our stack, 4 bytes up from the previous `mov` instruction. Our `ecx` counter is then incremented again.
 
-This is closely reflects our C code with the lines:
+This is closely reflected by our C code with the lines:
 
 ```c
   f[0] = 0;
@@ -1125,4 +1125,5 @@ A follow on blog from this may include:
 - Designing for reuse with multiple files
 
 Until next time, happy coding!
+
 

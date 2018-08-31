@@ -11,4 +11,3 @@ git add -A
 git commit -m "build release"
 git push --set-upstream origin master
 cd ..
-rm -rf ./public
