@@ -36,6 +36,8 @@ If you have your own domain name, this can be integrated into Github Pages by go
 
 The way I set up my blog was to have one repository for the static pages to be delivered by Github Pages, and another for generating the static pages using Hugo. I have a script for generating the site and pushing the changes to the Github Pages site so I don't have to do this manually every time.
 
+![hugo build diagram](https://blog.seso.io/img/hugo_blog.svg)
+
 <diagram>
 
 We can see from the diagram that the build is done on blog-hugo repository, clones the wilvk.github.io repository, builds the full site and pushes the changes back to the wilvk.github.io repository.
