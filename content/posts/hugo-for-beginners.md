@@ -76,7 +76,7 @@ This way there is delineage between the build process and the resultant artefact
 
 # Configuring config.toml
 
-Hugo has built-in support for [Google Analytics](https://analytics.google.com/analytics/web/#/) so you can see pageviews over time, users currently viewing your site and other relevant details of your site.
+Hugo has built-in support for [Google Analytics](https://analytics.google.com/analytics/web/#/) so you can see pageviews over time, users currently viewing your site and other relevant details about your site.
 
 Hugo also has support for [Disqus](https://disqus.com/) so that users can comment on your blogs and you don't have to store the comments in an application - allowing your website to remain stateless.
 
@@ -147,6 +147,6 @@ Some themes require specific config settings in the `config.toml` file. They wil
 
 # Onwards and upwards
 
-These are just a few things I have found while setting up a Hugo blog. For more info, I have found the [Hugo docs](https://gohugo.io/getting-started/usage/) are quite useful.
+These are just a few things I have found while setting up a Hugo blog. For more info, I have found the [Hugo docs](https://gohugo.io/getting-started/usage/) are also quite useful.
 
 Happy blogging!
