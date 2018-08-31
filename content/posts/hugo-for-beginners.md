@@ -1,0 +1,128 @@
+---
+title: "Hugo for Beginners"
+date: 2018-08-31T19:04:23+10:00
+draft: true
+---
+
+I wanted to put together some notes on how to set up a Github Pages blog using the Hugo static pages publishing application as when I went through this process myself, I found it less than intuitive.
+
+Github Pages is a great way to spin up a personal blog, product page or any other type of site that doesn't require stateful application logic to be involved.
+
+The defacto static page generator is considered to be Jekyll, which is a versatile, and extensible framework. However, being a fan of Golang I decided to go with Hugo.
+
+The way Github Pages works is to use a repo with the name `<username/org>.github.io`. In effect this means that a repo at the address `https://github.com/<username/org>/<username/org>.github.io` is created.
+
+For example, my username is `wilvk` and so my Github Pages repository is `wilvk/wilvk.github.io` with the repository address `https://github.com/wilvk/wilvk.github.io` . The corresponding static pages are delivered from the address wilvk.github.io . If you have your own domain name, this can be integrated into Github Pages by going to settings in the repository.
+
+# An overview
+
+The way I set up my blog was to have one repository for the static pages to be delivered by Github Pages, and another for generating the static pages using Hugo. I have a script for generating the site and pushing the changes to the Github Pages site so I don't have to do this manually every time.
+
+<diagram>
+
+We can see from the diagram that the build is done on blog-hugo repository, clones the wilvk.github.io repository, builds the full site and pushes the changes back to the wilvk.github.io repository.
+
+# An automated process
+
+I place the following script in the base of the blog-hugo repository and run it to push the changes to the site:
+
+```
+#!/bin/bash
+
+set -x
+
+rm -rf ./public
+git clone https://github.com/wilvk/wilvk.github.io public
+hugo
+cd ./public
+git add -A
+git commit -m "build release"
+git push --set-upstream origin master
+cd ..
+```
+
+The `set -x` allows me to see any errors that may occur during the build process. Using different themes or various settings can cause Hugo to fail the build process and not push new changes to the static website repository `wilvk.github.io`. Showing the full output enables inspection of this process for any errors. Hugo can also be run with verbose output with `hugo --verbose` for even more detail if required.
+
+The static site is built to the path ./public` and so the first thing the script does is delete the `./public` path.
+Then the `wilvk.github.io` repository is cloned into the base of the `blog-hugo` repository.
+Running `hugo` builds all the static files to the `./public` path.
+The new static website is then 'pushed' bacck up to the repository `wilvk.github.io`.
+
+This way there is delineage between the build process and the resultant artefact, the static website.
+
+# Configuring config.toml
+
+Hugo has built-in support for [Google Analytics](https://analytics.google.com/analytics/web/#/) so you can see pageviews, users currently viewing your site and more.
+
+It also has support for [Disqus](https://disqus.com/) so that users can comment on your blogs which is pretty cool too.
+
+Google Analytics is free from Google and Disqus is also a free service. With IDs from both these services, you can turn your Github Pages into a full blog.
+
+The following is how I have set my blog up:
+
+```
+baseurl = "https://blog.seso.io"
+title = "Will's Blog"
+copyright = "Copyright &copy; 2018 - Willem van Ketwich"
+canonifyurls = true
+theme = "kiera"
+
+## kiera theme settings
+paginate = 3
+summaryLength = 30
+enableEmoji = true
+pygmentsCodeFences = true
+
+## Hugo Built-in Features
+disqusShortname = "wilvk-github-io"
+googleAnalytics = "UA-122351489-2"
+enableRobotsTXT = true
+
+builddrafts = false
+languageCode = "en-US"
+
+[author]
+    name = "Willem van Ketwich"
+    github = "wilvk"
+    linkedin = "willvk"
+    twitter = "wilvk"
+
+[params]
+    tagline = "Just a dude that does stuff.. mostly with computers."
+
+## Main Menu
+[[menu.main]]
+    name = "blog"
+    weight = 10
+    identifier = "blog"
+    url = "/posts/"
+[[menu.main]]
+    name = "about"
+    identifier = "about"
+    weight = 20
+    url = "/about/"
+```
+
+I'll just point out a few things about the config file above. 
+
+Your Google Analytics Id will go in the variable `googleAnalytics`.
+Your Disqus shortname will go in the variable `disqusShortname`.
+
+I am also using a custom domain name and so this is set in the variable `baseurl`. The variable `cannonifyurls` needs to be set to true to enable correct redirects to your custom domain name.
+
+# Skinning/theming your site
+
+If you are just starting out with Hugo (or even if you're not), you may want to change (or even create) a theme for your site.
+
+To do this, the usual procedure is to:
+
+- Clone the theme into the `./themes` path.
+- Edit the `config.toml` file and set the theme to the name of the directory cloned into the `./themes` path.
+
+Some themes require specific config settings in the `config.toml` file. They will usually tell you in their `README` on the specifics of this.
+
+# Onwards and upwards
+
+Anyway, these are just a few things I have found while setting up a Hugo blog. For more info, [Hugo docs](https://gohugo.io/getting-started/usage/) are quite useful.
+
+Happy blogging!
