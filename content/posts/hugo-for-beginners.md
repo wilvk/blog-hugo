@@ -36,15 +36,15 @@ If you have your own domain name, this can be integrated into Github Pages by go
 
 The way I set up my blog was to have one repository for the static pages to be delivered by Github Pages, and another for generating the static pages using Hugo. I have a script for generating the site and pushing the changes to the Github Pages site so I don't have to do this manually every time.
 
+
 ![hugo build diagram](https://blog.seso.io/img/hugo_blog.svg)
 
-<diagram>
 
-We can see from the diagram that the build is done on blog-hugo repository, clones the wilvk.github.io repository, builds the full site and pushes the changes back to the wilvk.github.io repository.
+We can see from the diagram that the build clones the `wilvk/wilvk.github.io` repository inside the `wilvk/blog-hugo` repository to the `./public` path. It then builds the full Hugo site into the `./public` path and pushes the changes back to the `wilvk/wilvk.github.io` repository.
 
 # An automated process
 
-I place the following script in the base of the blog-hugo repository and run it to push the changes to the site:
+I place the following script in the base of the `wilvk/blog-hugo` repository and run it to push the changes to the site:
 
 ```bash
 #!/bin/bash
@@ -131,10 +131,10 @@ languageCode = "en-US"
 
 I'll just point out a few things about the config file above. 
 
-Your Google Analytics ID will go in the variable `googleAnalytics`.
-Your Disqus shortname ID will go in the variable `disqusShortname`.
+- Your Google Analytics ID will go in the variable `googleAnalytics`.
+- Your Disqus shortname ID will go in the variable `disqusShortname`.
 
-I am also using a custom domain name and so this is set in the variable `baseurl`. The variable `cannonifyurls` needs to be set to true to enable correct redirects to your custom domain name.
+I am also using a custom domain name and so this is set in the variable `baseurl`. The variable `cannonifyurls` needs to be set to `true` to enable correct redirects to your custom domain name.
 
 # Skinning/theming your site
 
@@ -145,7 +145,7 @@ To do this, the usual procedure is to:
 - Clone the theme into the `./themes` path.
 - Edit the `config.toml` file and set the theme to the name of the directory cloned into the `./themes` path.
 
-Some themes require specific config settings in the `config.toml` file. They will usually tell you in their `README` on the specifics of this.
+Some themes require specific config settings in the `config.toml` file. They will usually tell you in the `README.md` on the specifics of this.
 
 # Onwards and upwards
 
