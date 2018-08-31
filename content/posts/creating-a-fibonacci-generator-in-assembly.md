@@ -40,7 +40,7 @@ draft: false
 - [Printing our result](#printing-our-result)
   * [Doing things the hard way](#doing-things-the-hard-way)
 - [Conclusion](#conclusion)
-  * [From here to there - improving the code](#from-here-to-there---improving-the-code)
+  * [From here to there](#from-here-to-there)
 
 # Intro
 
@@ -1098,7 +1098,7 @@ There is a bit of arithmetic here as our `ecx` was being decremented by 1 from 1
 
 # Conclusion 
 
-If you have followed along, congratulations! This is a rather lengthy tutorial but you should now at least know some of the basics of assembly language and how processing is done very close to the CPU. This can have all sorts of uses from optimising higher-level code to debugging complex multi-threaded applications and everything in-between.
+If you have followed along, congratulations! This is a rather lengthy tutorial but you should now at least know some of the basics of assembly language and how processing is done very close to the CPU. This can have all sorts of uses from optimising higher-level code to debugging complex multi-threaded applications and everything in-between and beyond.
 
 If you have compiled the _fib7.s_ code, you should be able to see the sequence in the `docker-shell` environment similar to below:
 
@@ -1113,7 +1113,7 @@ root@608eb3f49ac5:/gas-asm-fib# ./fib7 1
 13root@608eb3f49ac5:/gas-asm-fib#
 ```
 
-## From here to there - improving the code
+## From here to there
 
 This is by no means the ultimate Fibonacci sequence generator (or even a sequence generator at all - it only prints the last value in the sequence, after all), and there are many tricks and tips to making this faster, more robust and more extensible both in design and application.
 
