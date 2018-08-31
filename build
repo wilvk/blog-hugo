@@ -4,7 +4,7 @@ set -x
 
 rm -rf ./public
 rm -rf ./themes/kiera
-git clone https://github.com/avianto/hugo-kiera themes/kiera
+git clone https://github.com/wilvk/hugo-kiera themes/kiera
 git clone https://github.com/wilvk/wilvk.github.io public
 hugo -D
 cd ./public
