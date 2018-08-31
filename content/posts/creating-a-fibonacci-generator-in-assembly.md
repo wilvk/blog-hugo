@@ -13,7 +13,9 @@ draft: false
   * [Overview of the implementation](#overview-of-the-implementation)
 - [Beginning the implementation](#beginning-the-implementation)
   * [Building binary files from assembly files](#building-binary-files-from-assembly-files)
-  * [The structure of a gas assembly file](#the-structure-of-a-gas-assembly-file)
+  * [The structure of a GAS assembly file](#the-structure-of-a-gas-assembly-file)
+  * [Sections](#sections)
+  * [Comments](#comments)
   * [Instructions and opcodes](#instructions-and-opcodes)
   * [The application entry-point and labels](#the-application-entry--point-and-labels)
   * [Compiling our code](#compiling-our-code)
@@ -63,7 +65,7 @@ The source code for what I describe here can be found in [a repository](https://
 
 I found a good blog about different approaches to Fibonacci Equations [here](https://www.geeksforgeeks.org/program-for-nth-fibonacci-number/) and armed with the new knowledge from reading a couple of books on the subject (specifically, [Assembly Language Step-by-Step](https://www.amazon.com/Assembly-Language-Step-Step-Programming/dp/0470497025) and [Professional Assembly Language](https://www.amazon.com.au/Professional-Assembly-Language-Richard-Blum-ebook/dp/B000Q7ZETY)) I set out to implement this.
 
-### Some starting knowledge
+## Some starting knowledge
 
 The basis of the algorithm to use was decided to be a space-optimised method using a dynamic programming approach. This effectively means using an array on the stack to hold our values while giving **O(n)** time and space complexity.
 
@@ -149,26 +151,40 @@ We will start with the following assembly code. This gives us a basis for fillin
     int $0x80
 ```
 
-## The structure of a gas assembly file 
+## The structure of a GAS assembly file 
 
-The code above introduces some of the syntax of a GAS assembly file (`.s`). The first thing to note is that comments begin with a hash (`#`) and can be at the start of a line or after an instruction/opcode. 
+## Sections
+
+In the code above, the line `.section .text` indicates that the lines preceeding it will be part of the 'text' section. The text section is a specific section in the compiled binary that contains all the assembly language instructions converted to machine code. The machine code is the binary representation of the assembly language instructions and is one of the main tasks of the assembler. By default in a Linux application there are also sections called `.data` and `.bss` that refer to initialised variables and uninitialised variables respectively. We won't delve into these types of variables but it is good to know they exist for more advanced development in assembly code.
+
+## Comments
+
+The code above introduces some of the syntax of a GAS assembly file (`.s`). Comments begin with a hash (`#`) and can be at the start of a line or after an instruction/opcode. 
 
 ## Instructions and opcodes
 
-An instruction/opcode is essentially an instruction for the CPU to process. Examples of intructions in __fib1.s__ above include `nop`, `movl $1 %eax`, `movl $0, %ebx`, and `int $0x80`.
+An instruction/opcode is essentially an instruction for the CPU to process. Examples of intructions in __fib1.s__ above include:
+
+- `nop`
+- `movl $1 %eax`
+- `movl $0, %ebx`
+- `int $0x80`.
 
 I will use the terms instruction and opcode interchangeably, but they are essentially a mnemonic in assembly language that tells the CPU what to do. Opcodes/instructions can also have one or many operands depending on what the opcode does. Operands are the values that the opcode act upon and specify what the opcode does.
 
 For some context from the example above, we can see the following delineation:
 
-|Full Instruction    | Opcode/instruction | Operand(s) |      Description                      |
-|--------------------|--------------------|------------|---------------------------------------|
-|nop                 |nop                 |            | no-operation                          |
-|movl $1, %eax       |movl                |$1, %eax    | copy the value 0 into the register eax|
-|movl $0, %ebx       |movl                |$0, %ebx    | copy the value 1 into the register ebx|
-|int $0x80           |int                 |$0x80       | call the interrupt numbered 0x80      |
+|Line          | Opcode | Operand 1  | Operand 2 |      Description          |
+|--------------|--------|------------|-----------|---------------------------|
+|nop           |nop     |    -       |   -       |no-operation               |
+|movl $1, %eax |movl    |   $1       |  %eax     |copy 0 into register eax   |
+|movl $0, %ebx |movl    |   $0       |  %ebx     |copy 1 into register ebx   |
+|int $0x80     |int     |   $0x80    |   -       |call interrupt number 0x80 |
 
-The first `movl` instruction copies a long (4-byte) value of 0 into the register `eax`. The second does the same with 1 and the register `ebx` respectively. There are a few different variations of the `mov` command for copying values to and from registers. These are namely:
+The first `movl` instruction copies a long (4-byte) value of 0 into the register `eax`. The second does the same with 1 and the register `ebx` respectively. There are a few different variations of the `mov` command for copying values to and from registers.
+
+These are namely:
+
 - `movl` - copy a long, 4-byte value (32-bits)
 - `movw` - copy a word, 2-byte value (16-bits)
 - `movb` - copy a byte, 1-byte value (8-bits)
@@ -177,9 +193,9 @@ It is important to know what type of `mov` instruction to use as there are times
 
 A few extra things to note about the above instructions are:
 
-- The `$1` and `$0` operands are called immediate values and are an exact value specified.
+- The `$1` and `$0` operands are called immediate values and are an exact value, as specified by the `$` prefix.
 - Registers are prefixed with a percentge sign (`%`).
-- A Value starting with a `0x` is a hexadecimal number and includes values 0-9 and a-f.
+- A value starting with a `0x` is a hexadecimal number and includes values 0-9 and a-f.
 
 ## The application entry-point and labels
 
@@ -187,15 +203,15 @@ For Linux applications, the `_start:` label is required by the assembler to defi
 
 ## Compiling our code
 
-We're working backwards a bit here as we've implemented our entrypoint (\_start) and our syscall to exit first. The syscall using `eax=1` and `ebx=0` with `int 0x80` allows our program to exit gracefully. As noted by the comment, we shall fill in the logic from the middle as we progress.
+We're working backwards a bit here as we've implemented our entrypoint (`_start`) and our syscall to exit first. The syscall using `eax=1` and `ebx=0` with `int 0x80` allows our program to exit gracefully. As noted by the comment, we shall fill in the logic from the middle as we progress.
 
 Ok, so we've got a framework of GAS assembly to build on, but how do we convert this into an application?
 
 Well, it's easy. I'm glad you asked.
 
-Firstly we need to make sure our gas assembler is installed. I'm on Fedora, so the command is `sudo dnf install binutils`. From the supplementary [repository](https://github.com/wilvk/gas-asm-fib), the `docker-shell` application can spin you up an environment with the required tools already installed.
+Firstly we need to make sure our GAS assembler is installed. I'm on Fedora, so the command is `sudo dnf install binutils`. From the supplementary [repository](https://github.com/wilvk/gas-asm-fib), the `docker-shell` application can spin you up an environment with the required tools already installed.
 
-Then we create a small shell script to run the gas assembler (as) and the linker (ld) on the output of the assembler.
+Then we create a small shell script to run the GAS assembler (as) and the linker (ld) on the output of the assembler.
 
 Say for example we call our assembly code file fib1.s, to run the assembler we would run `as -gstabs -o fib.o fib.s`
 
@@ -254,17 +270,18 @@ The stack is upside down in memory (with the last addition to the stack at the l
 
 The stack is composed as follows:
 
-|Stack    |Data                                                                                |  Notes                                   |
-|---------|------------------------------------------------------------------------------------|------------------------------------------|
-|   ...   |                                                                                    |                                          |
-|ESP + n+8| < pointer to second environment variable >                                         |                                          |
-|ESP + n+4| < pointer to first environment variable >                                          |                                          |
-|ESP + n  | < pointer to last string argument >                                                |                                          |
-|  ...    |                                                                                    |                                          |   
-|ESP + 12 | < pointer to second string argument >                                              |                                          |
-|ESP + 8  | < pointer to a string that contains the first argument >                           |                                          |
-|ESP + 4  | < pointer to a string containing the name of the application >                     |                                          |
-|ESP + 0  | < number of arguments on command line >                                            | <- current position of Stack Pointer ESP |
+|Stack    |Data                                                                |
+|---------|--------------------------------------------------------------------|
+|   ...   |                                                                    |
+|ESP + n+8| < pointer to second environment variable >                         |
+|ESP + n+4| < pointer to first environment variable >                          |
+|ESP + n  | < pointer to last string argument >                                |
+|  ...    |                                                                    |
+|ESP + 12 | < pointer to second string argument >                              |
+|ESP + 8  | < pointer to a string that contains the first argument >           |
+|ESP + 4  | < pointer to a string containing the name of the application >     |
+|ESP + 0  | < number of arguments on command line >                            |
+|   ...   |                                                                    |
 
 We know that we are just after the first string argument so we can predict that the pointer to the first string argument will be 2 places up the stack from the current value of ESP. We are using 32 bit locations here, where every pointer is 4 bytes ( 4 x 8 bytes = 32 bits ).
 
@@ -325,7 +342,7 @@ For example:
 ```
 
 For this example, if we enter `b 5`, a breakpoint will be set at line 5, ready to be executed.
-Line 5 is a no-operation (or noop), which means that it is a filler instruction and doesn't actually do anything but take up a CPU clock cycle. Older versions of gdb require this proceeding `_start`, and so I have left it in for these examples. 
+Line 5 is a no-operation (or noop), which means that it is a filler instruction and doesn't actually do anything but take up a CPU clock cycle. Older versions of GDB require this proceeding `_start`, and so I have left it in for these examples. 
 
 ```
 (gdb) b 5
@@ -739,16 +756,34 @@ The following is a diagram of how these fit together:
     <td colspan="1" align="center">bits 0-7</td>
   </tr>
   <tr>
-    <td colspan="8" align="center">rcx</td>
+    <td colspan="1" align="center">--rcx---</td>
+    <td colspan="1" align="center">--rcx---</td>
+    <td colspan="1" align="center">--rcx---</td>
+    <td colspan="1" align="center">--rcx---</td>
+    <td colspan="1" align="center">--rcx---</td>
+    <td colspan="1" align="center">--rcx---</td>
+    <td colspan="1" align="center">--rcx---</td>
+    <td colspan="1" align="center">--rcx---</td>
   </tr>
   <tr>
-    <td colspan="4" align="center">-</td>
-    <td colspan="4" align="center">ecx</td>
+    <td colspan="1" align="center"></td>
+    <td colspan="1" align="center"></td>
+    <td colspan="1" align="center"></td>
+    <td colspan="1" align="center"></td>
+    <td colspan="1" align="center">--ecx---</td>
+    <td colspan="1" align="center">--ecx---</td>
+    <td colspan="1" align="center">--ecx---</td>
+    <td colspan="1" align="center">--ecx---</td>
   </tr>
   <tr>
-    <td colspan="6" align="center">-</td>
-    <td colspan="1" align="center">cl</td>
-    <td colspan="1" align="center">ch</td>
+    <td colspan="1" align="center"></td>
+    <td colspan="1" align="center"></td>
+    <td colspan="1" align="center"></td>
+    <td colspan="1" align="center"></td>
+    <td colspan="1" align="center"></td>
+    <td colspan="1" align="center"></td>
+    <td colspan="1" align="center">--ch----</td>
+    <td colspan="1" align="center">--cl----</td>
   </tr>
 </table>
 
@@ -831,6 +866,7 @@ fibonacci:
 ```
 
 The first thing to note is that the comments as the top of the function specify `input`, `processing` and `output`. I find this a good habbit for functions as it makes explicit:
+
 - what the function expects
 - what the function does
 - what is expected at completion of the function
@@ -860,6 +896,7 @@ After the first instructions, we can modify the stack pointer as we like and all
 ## The Fibonacci logic in assembly
 
 There are essentially two parts to the logic in this section that can be seen as:
+
 - everything between the start of the function up to `.fib_loop`, which sets up our variables
 - everything between the label `.fib_loop` up to `.fib_done`, which processes the Fibonacci sequence in a loop
 
@@ -959,7 +996,9 @@ In effect, it repeats the loop for the number of times specified on the coommand
 
 ## Calculating the sequence
 
-As we have already initialised our array with the values 0 and 1 for `f[0]` and `f[1]` respectively, our loop will always be able to calculate the next number in the sequence. The line `movl -4(%esp, %ecx, 4), %ebx` shows another variation of indexing into memory with the `-4` out the front indicating a second, relative offset to the address within the parenthesis. What this does in effect is get the value 4 bytes down in memory (up the stack) from the current location of (esp + ecx * 4). 
+As we have already initialised our array with the values 0 and 1 for `f[0]` and `f[1]` respectively, our loop will always be able to calculate the next number in the sequence. The line `movl -4(%esp, %ecx, 4), %ebx` shows another variation of indexing into memory with the `-4` out the front indicating a second, relative offset to the address within the parenthesis. What this does in effect is get the value 4 bytes down in memory (up the stack) from the current location of (esp + ecx * 4); effectively:
+
+&nbsp;&nbsp; ( esp + ( ecx * 4 ) ) - 4
 
 This corresponds to the value in our C code of `f[i-1]`. The value in memory is placed into the `ebx` register for calculating the next value in the sequence.
 
@@ -1079,9 +1118,11 @@ root@608eb3f49ac5:/gas-asm-fib# ./fib7 1
 This is by no means the ultimate Fibonacci sequence generator (or even a sequence generator at all - it only prints the last value in the sequence, after all), and there are many tricks and tips to making this faster, more robust and more extensible both in design and application.
 
 A follow on blog from this may include:
+
 - Optimising calculations using an alternative Fibonacci alogrithm implementation with the corresponding performance comparison
 - Optimising calculations using the FPU math coprocessor, MMX, XMM, or SIMD instructions
 - Handling of a higher range of numbers
 - Designing for reuse with multiple files
 
 Until next time, happy coding!
+

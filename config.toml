@@ -1,77 +1,41 @@
-## Basic Configuration
+baseurl = "https://blog.seso.io"
+title = "Will's Blog"
+copyright = "Copyright &copy; 2017 - Willem van Ketwich"
+canonifyurls = true
+theme = "kiera"
 
-baseURL = "https://blog.seso.io/"
-builddrafts = false
-canonifyurls = false
-languageCode = "en-US"
+paginate = 3
 
-contentdir = "content"
-layoutdir = "layouts"
-publishdir = "public"
-
-author = "Willem van Ketwich"
-title = "Willem van Ketwich"
-
-theme = "bleak"
+summaryLength = 30
+enableEmoji = true
+pygmentsCodeFences = true
 
 ## Hugo Built-in Features
 disqusShortname = "wilvk-github-io"
 googleAnalytics = "UA-122351489-2"
 enableRobotsTXT = true
 
-## Site Settings
+builddrafts = false
+languageCode = "en-US"
+
+[author]
+    name = "Willem van Ketwich"
+    github = "wilvk"
+    linkedin = "willvk"
+    twitter = "wilvk"
+
 [params]
-#author = "Willem van Ketwich"
-intro = "Software Dude"
-description = "I'm just a guy who does stuff. Mostly with computers."
-authorimage = "headshot.jpg"
-dateformat = "Jan 2, 2006"
-themeColor = "theme-base-08"
-portrait = "img/headshot.jpg"
-#avatar = "img/headshot.png"
-
-## Site Meta Settings
-[params.meta]
-description = "Simple minimalist theme"
-keywords = "minimalist,blog,goa,hugo,developer"
-
-## Social Accounts
-[params.social]
-github = "wilvk"
-linkedin = "willvk"
-twitter = "wilvk"
-stackoverflow = "512965"
-email = "willvk[at]gmail.com"
-
-## Extras
-[params.extra]
-copyright = "© 2018 - Willem van Ketwich"
-poweredby = false
-highlightjs = true
+    tagline = "Just a dude that does stuff.. mostly with computers."
 
 ## Main Menu
 [[menu.main]]
     name = "blog"
-    weight = 100
+    weight = 10
     identifier = "blog"
     url = "/posts/"
 [[menu.main]]
     name = "about"
     identifier = "about"
-    weight = 200
+    weight = 20
     url = "/about/"
 
-
- [params.author]
-    firstName = "Willem"
-    lastName = "van Ketwich"
-    gender = "male"
-    userName = "wilvk"
-#    image = "//www.gravatar.com/avatar/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.png"
-    website = "http://blog.seso.io"
-    twitter = "wilvk"
-    github = "wilvk"
-#    facebook = "xxxxxxxxx"
-#    linkedin = "xxxxxxxxx"
-#    gplus = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-#    gravatarHash = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
