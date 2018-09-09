@@ -177,8 +177,8 @@ For some context from the example above, we can see the following delineation:
 |Line          | Opcode | Operand 1  | Operand 2 |      Description          |
 |--------------|--------|------------|-----------|---------------------------|
 |nop           |nop     |    -       |   -       |no-operation               |
-|movl $1, %eax |movl    |   $1       |  %eax     |copy 0 into register eax   |
-|movl $0, %ebx |movl    |   $0       |  %ebx     |copy 1 into register ebx   |
+|movl $1, %eax |movl    |   $1       |  %eax     |copy 1 into register eax   |
+|movl $0, %ebx |movl    |   $0       |  %ebx     |copy 0 into register ebx   |
 |int $0x80     |int     |   $0x80    |   -       |call interrupt number 0x80 |
 
 The first `movl` instruction copies a long (4-byte) value of 0 into the register `eax`. The second does the same with 1 and the register `ebx` respectively. There are a few different variations of the `mov` command for copying values to and from registers.
