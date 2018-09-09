@@ -232,7 +232,7 @@ The linker has other features (which I won't discuss here) that make your life e
 We will be targetting the 32 bit x86 architecture to begin with as it is easier to understand. The following is a bash script for building the binary (also in the supplementary repo as `make-app`).
 
 _make-app_
-```
+```bash
 #!/bin/bash
 
 if [ -z "$1" ]; then
@@ -506,7 +506,7 @@ _start:
 
 Building and running this from the `docker-shell` we can see that the full first argument is now displayed:
 
-```
+```bash
 root@8ec496c15833:/gas-asm-fib# ./make-app fib3
 root@8ec496c15833:/gas-asm-fib# ./fib3 testing
 testingroot@8ec496c15833:/gas-asm-fib#
