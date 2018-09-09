@@ -455,7 +455,7 @@ Up to this point, we should have an app that can read and print the first four c
 
 Using our `docker-shell` environment, the following should work:
 
-```bash
+```
 root@9a172ec363ca:/gas-asm-fib# ./make-app fib2
 root@9a172ec363ca:/gas-asm-fib# ./fib2 test
 testroot@9a172ec363ca:/gas-asm-fib#
