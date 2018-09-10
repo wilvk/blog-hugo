@@ -8,7 +8,9 @@ I wanted to put together some notes on how to set up a [Github Pages](https://pa
 
 Github Pages is a great way to spin up a personal blog, product page or any other type of site that doesn't require stateful application logic to be involved.
 
-The defacto static page generator is considered to be Jekyll, which is a versatile, and extensible framework. However, being a fan of Golang I decided to go with Hugo.
+The defacto static page generator is considered to be Jekyll, which is a versatile, and extensible framework. However, being a fan of Golang I decided to go with the more gopher-friendly option, Hugo.
+
+# Using Github Pages
 
 The way Github Pages works is to use a repo with the format:
 
