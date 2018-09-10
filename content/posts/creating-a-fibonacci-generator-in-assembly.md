@@ -1097,7 +1097,7 @@ The five lines after `.jump_pl` involve getting the correct count of the digits 
 By subtracting our result with the `sub` instruction then using `neg` to convert the negative number to a positive one, we will have the actual 
  count of digits to print and can place it in the `edx` register for the syscall.
 
-There is a bit of arithmetic here as our `ecx` was being decremented by 1 from 10 for each digit, and so the actual count is **-1 * ( count - 10 )**. This is a rather rountabout way of doing this calculation and it would have actually been simpler to just count up. However this way afforded me the opportunity to introduce the `neg` instruction which takes a 2's compliment of the value in the specified register and is essentially multiplying the register by -1.
+There is a bit of arithmetic here as our `ecx` was being decremented by 1 from 10 for each digit, and so the actual count is **-1 * ( count - 10 )**. This is a rather roundabout way of doing this calculation and it would have actually been simpler to just count up. However this way afforded me the opportunity to introduce the `neg` instruction which takes a 2's compliment of the value in the specified register and is essentially multiplying the register by -1.
 
 # Conclusion 
 
