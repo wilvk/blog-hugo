@@ -357,13 +357,13 @@ To run the binary up to the breakpoint, we can enter `r` or `run`. This will run
 (gdb) r
 Starting program: /gas-asm-fib/fib2 test
 
-Breakpoint 1, \_start () at fib2.s:5
+Breakpoint 1, _start () at fib2.s:5
 5           nop
 (gdb)
 
 ```
 
-From here, we can step through the remaining instructions, one at a time by entering 'stepi', or just `si`, which will run the current instruction and list the next instruction to be run. There is also the `step` instruction which is used more for high-level languages and steps over groups of instructions for each line of code; but for assembly, we can be more certain that each instruction will get hit if we use `stepi`.
+From here, we can step through the remaining instructions, one at a time by entering `stepi`, or just `si`, which will run the current instruction and list the next instruction to be run. There is also the `step` instruction which is used more for high-level languages and steps over groups of instructions for each line of code; but for assembly, we can be more certain that each instruction will get hit if we use `stepi`.
 
 ```
 (gdb) stepi
@@ -375,7 +375,7 @@ From here, we can step through the remaining instructions, one at a time by ente
 ...
 (gdb) stepi
 10          movl $4, %eax       # indicate to int 0x80 that we are doing a write
-```
+```_
 
 Entering `stepi` several times up to line 10, we shoud have the address of the first argument in the register ecx. The preceeding instruction `mov`es, or copies the decimal value 4 into the register `eax`.
 
@@ -545,7 +545,7 @@ For example, if we were to call from the commandline:
 
 `$ ./fib3 testing`
 
-and then we inspect our registers after stepping past `repne scasb`, we should see a value in `ecx` that is *50 - ( len('testing\0') - 1 )*. Which effectively equals 43. As `repne scasb` includes the byte it is searching for in the count, we need to subtract 1 from the length of our string. We then subtract the result in `ecx` from our original maximum length of 50 to find the actual length of the string that we want to print.
+and then we inspect our registers after stepping past `repne scasb`, we should see a value in `ecx` that is **50 - ( len('testing\0') - 1)** which effectively equals 43. As `repne scasb` includes the byte it is searching for in the count, we need to subtract 1 from the length of our string. We then subtract the result in `ecx` from our original maximum length of 50 to find the actual length of the string that we want to print.
 
 This gives **50 - 43 = 7** and is what the following lines do:
 
