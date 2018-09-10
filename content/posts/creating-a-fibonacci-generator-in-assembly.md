@@ -163,7 +163,7 @@ The code above introduces some of the syntax of a GAS assembly file (`.s`). Comm
 
 ## Instructions and opcodes
 
-An instruction/opcode is essentially an instruction for the CPU to process. Examples of intructions in __fib1.s__ above include:
+An instruction/opcode is essentially an instruction for the CPU to process. Examples of instructions in __fib1.s__ above include:
 
 - `nop`
 - `movl $1 %eax`
@@ -1007,7 +1007,7 @@ This corresponds to the value in our C code of `f[i-1]`. The value in memory is 
 
 The same is true of the line `movl -8(%esp, %ecx, 4), %edx`, however it represents the value `f[i-2]` in the array and is placed into the `edx` register.
 
-The format of these `mov` instructions can be summarised as:
+The format of these `mov` instructions can be summarized as:
 
 &nbsp;&nbsp; **relative\_offset(absolute\_offset, index, size)**
 
@@ -1080,7 +1080,7 @@ Our value in `ebx` is then copied into `eax` ready for operating on.
 
 The loop then begins where the heart of the transformation occurs. The key instruction here is the line `div %ebx` which both takes a bit of setting up and post-processing. This instruction implicitly takes the value in `eax`, divides it by the value specified in the operand (in our case `ebx`), then places the result in `eax` and the remainder in `edx`. This is why `edx` is `xor`ed at the start of the loop.
 
-As we are only dividing by 10, we can be certain that our result is in the lower byte of `edx` (as 8 bytes can have a value between 0 and 255), and so we move this lower byte `dl` into the indexed stack pointer location `(%esp, %ecx, 1)`. Following this, we decrement our `ecx` counter and compare the quotient of our division to 0. If the quotient equals 0, we know there are no digits to calculate and we can jump to `.done_pl`.
+As we are only dividing by 10, we can be certain that our result is in the lower byte of `edx` (as 8 bytes can have a value between 0 and 255), and so we move this lower byte `dl` into the indexed stack pointer location `(%esp, %ecx, 1)`. Following this, we decrement our `ecx` counter and compare the quotient of our division to 0. If the quotient equals 0, we know there are no digits to calculate, and we can jump to `.done_pl`.
 
 ## Doing things the hard way
 
