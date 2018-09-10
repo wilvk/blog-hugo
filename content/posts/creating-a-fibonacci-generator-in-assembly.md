@@ -181,7 +181,7 @@ For some context from the example above, we can see the following delineation:
 |movl $0, %ebx |movl    |   $0       |  %ebx     |copy 0 into register ebx   |
 |int $0x80     |int     |   $0x80    |   -       |call interrupt number 0x80 |
 
-The first `movl` instruction copies a long (4-byte) value of 0 into the register `eax`. The second does the same with 1 and the register `ebx` respectively. There are a few different variations of the `mov` command for copying values to and from registers.
+The first `movl` instruction copies a long (4-byte) value of 1 into the register `eax`. The second does the same with 0 and the register `ebx` respectively. There are a few different variations of the `mov` command for copying values to and from registers.
 
 These are namely:
 
@@ -220,9 +220,9 @@ Say for example we call our assembly code file fib1.s, to run the assembler we w
 - `fib.s` is our source code
 
 The object file is a binary with all the symbols and source included, which included the raw machine code to run.
-We then link the resultant object file to convert our object file into a binary application. The linker also converts our symbolic references (such as `\_start` in our case) to relative numeric references to where the symbols will reside in memory when the binary is run as an application.
+We then link the resultant object file to convert our object file into a binary application. The linker also converts our symbolic references (such as `_start` in our case) to relative numeric references to where the symbols will reside in memory when the binary is run as an application.
 
-If we were to run `ld -o fib fib.o`, we should now have a new binary application with the permissions 0755 set. If you run the application it will do nothing. But more importantly, it won't segfault, which is a good thing and indicates the application has exited gracefully.
+If we were to run `ld -o fib fib.o`, we should now have a new binary application with the permissions `0755` set. If you run the application it will do nothing. But more importantly, it won't segfault, which is a good thing and indicates the application has exited gracefully.
 
 - `-o fib` specifies the output application name.
 - `fib.o` specifies the object file to use.
@@ -248,7 +248,7 @@ ld -m elf_i386 -o $app_name $app_name.o
 
 ```
 
-Makefiles are the status-quo for building assembly files, but I'm more used to working with bash scripts so the preceeding is a script that can be used to compile a single assembly file into a binary targetting 32 bit x86, and as we are working with a small number of files, we do not need some of te more advanced features of make anyway.
+Makefiles are the status-quo for building assembly files, but I'm more used to working with bash scripts so the preceeding is a script that can be used to compile a single assembly file into a binary targetting 32 bit x86, and as we are working with a small number of files, we do not need some of the more advanced features of make anyway.
 
 If a name is passed on the commandline, it will attempt to compile the corresponding .s file.
 
@@ -357,13 +357,13 @@ To run the binary up to the breakpoint, we can enter `r` or `run`. This will run
 (gdb) r
 Starting program: /gas-asm-fib/fib2 test
 
-Breakpoint 1, _start () at fib2.s:5
+Breakpoint 1, \_start () at fib2.s:5
 5           nop
 (gdb)
 
 ```
 
-From here, we can step through the remaining instructions, one at a time by entering 'stepi', which will run the current instruction and list the next instruction to be run. There is also the `step` instruction which is used more for high-level languages and steps over groups of instructions for each line of code; but for assembly, we can be more certain that each instruction will get hit if we use `stepi`.
+From here, we can step through the remaining instructions, one at a time by entering 'stepi', or just `si`, which will run the current instruction and list the next instruction to be run. There is also the `step` instruction which is used more for high-level languages and steps over groups of instructions for each line of code; but for assembly, we can be more certain that each instruction will get hit if we use `stepi`.
 
 ```
 (gdb) stepi
@@ -377,7 +377,7 @@ From here, we can step through the remaining instructions, one at a time by ente
 10          movl $4, %eax       # indicate to int 0x80 that we are doing a write
 ```
 
-Entering `stepi` several times up to line 10, we shoud have the address of the first argument in the register ecx. The preceeding instruction `mov`es, or copes the decimal value 4 into the register `eax`.
+Entering `stepi` several times up to line 10, we shoud have the address of the first argument in the register ecx. The preceeding instruction `mov`es, or copies the decimal value 4 into the register `eax`.
 
 To see what all the values of the registers are, we can enter `info registers` or just `info reg`:
 
@@ -431,11 +431,11 @@ and will output something similar to the following:
 (gdb)
 ```
 
-Many other formats can be printed including (c)har (d)ecimal and (t)binary among others. For more information on this, enter `help x` from the GDB REPL.
+Many other formats can be printed including \(c\)har (d)ecimal and (t)binary among others. For more information on this, enter `help x` from the GDB REPL.
 
 We can clearly see our first command line argument here, "test" followed by some environment variables.
 
-The remainder of the application prints the first 4 characters of the string pointed to by the address in `ecx`, then exits gracefully. The parenthesis around the register indicates we are interested in examining the address pointed to by the register and not the value of the register itself. From the GDB REPL, when referencing registers, you may have noticed that they are referenced with a dollar sign (`$`) instead of the percentage sign (`$`) used in our assembly code. This is a small but important difference to note.
+The remainder of the application prints the first 4 characters of the string pointed to by the address in `ecx`, then exits gracefully. The parenthesis around the register indicates we are interested in examining the address pointed to by the register and not the value of the register itself. From the GDB REPL, when referencing registers, you may have noticed that they are referenced with a dollar sign (`$`) instead of the percentage sign (`%`) used in our assembly code. This is a small but important difference to note.
 
 To run the app to completion enter `continue` or just `c`. 
 
@@ -543,7 +543,7 @@ For example, if we were to call from the commandline:
 
 `$ ./fib3 testing`
 
-and then we inspect our registers after stepping past `repne scasb`, we should see a value in `ecx` that is *50 - ( len('testing\0') - 1 )*. Which effectively equals 42. As `repne scasb` includes the byte it is searching for in the count, we need to subtract 1 from the length of our string. We then subtract the result in `ecx` from our original maximum length of 50 to find the actual length of the string that we want to print.
+and then we inspect our registers after stepping past `repne scasb`, we should see a value in `ecx` that is *50 - ( len('testing\0') - 1 )*. Which effectively equals 43. As `repne scasb` includes the byte it is searching for in the count, we need to subtract 1 from the length of our string. We then subtract the result in `ecx` from our original maximum length of 50 to find the actual length of the string that we want to print.
 
 This gives **50 - 43 = 7** and is what the following lines do:
 
@@ -616,12 +616,12 @@ exit:
 
 ```
 
-We can see here that we still have the label `_start` but we also have the additional labels of:
+We can see here that we still have the label `\_start` but we also have the additional labels of:
 - get_string_length
 - print_string
 - exit
 
-This helps greatly for the readability of our code. We can see that all the calls are done from the `_start` label and each section of code concludes with a `ret` instruction, except for the `exit` label, which exits our application.
+This helps greatly for the readability of our code. We can see that all the calls are done from the `\_start` label and each section of code concludes with a `ret` instruction, except for the `exit` label, which exits our application.
 
 When using labels and functions, it helps to add comments at the start of the section of code indicating what the expected state of any registers and memory should be, what is actually done by the code and what is expected to be returned by the code. The comments above are very brief, but we will see later greater use of this approach.
 
@@ -629,7 +629,7 @@ Another thing to note is that breaking our code into small, reusable chunks like
 
 # Converting a string to a number
 
-Now that we can read arguments from the command line and print them to the screen (sdout), we want to actually start using the command line argument to specify the number of iterations for our Fibonacci sequence. This involves reading the string from the command line and converting it to a number. The input from the command line will be in ASCII format, and so a numeric value in a string is not an actual numeric value for use in our application - hence the conversion.
+Now that we can read arguments from the command line and print them to the screen (stdout), we want to actually start using the command line argument to specify the number of iterations for our Fibonacci sequence. This involves reading the string from the command line and converting it to a number. The input from the command line will be in ASCII format, and so a numeric value in a string is not an actual numeric value for use in our application - hence the conversion.
 
 _fib5.s_
 ```asm
@@ -729,7 +729,7 @@ From a visual inspection of this function, we can see that there are some `cmp` 
 
 Jump instructions are very useful for loop type logic such as `for`, `while` and `do` loops, and even conditional statements like `if` and `case` that you may be familiar with from other languages. They can, however have performance impacts for performance-critical sections of code under some circumstances.
 
-When the function `long_from_string` is called from the `_start` section, we make the assumption that the address of our string has been placed in the `edi` register, ready for processing. We also assume that the calling function knows that the numeric result will be placed into the `eax` register at completion of the function. It is a convention in assembly language that the result from a function is placed into the `eax` register. For more complex return types, an address that points to an array or struct or some other complex type can be specified in `eax`. This same convention is used in the C language for returning values from functions.
+When the function `long_from_string` is called from the `\_start` section, we make the assumption that the address of our string has been placed in the `edi` register, ready for processing. We also assume that the calling function knows that the numeric result will be placed into the `eax` register at completion of the function. It is a convention in assembly language that the result from a function is placed into the `eax` register. For more complex return types, an address that points to an array or struct or some other complex type can be specified in `eax`. This same convention is used in the C language for returning values from functions.
 
 ## Zeroing registers
 
@@ -999,7 +999,7 @@ In effect, it repeats the loop for the number of times specified on the coommand
 
 As we have already initialised our array with the values 0 and 1 for `f[0]` and `f[1]` respectively, our loop will always be able to calculate the next number in the sequence. The line `movl -4(%esp, %ecx, 4), %ebx` shows another variation of indexing into memory with the `-4` out the front indicating a second, relative offset to the address within the parenthesis. What this does in effect is get the value 4 bytes down in memory (up the stack) from the current location of (esp + ecx * 4); effectively:
 
-&nbsp;&nbsp; ( esp + ( ecx * 4 ) ) - 4
+&nbsp;&nbsp; **( esp + ( ecx * 4 ) ) - 4**
 
 This corresponds to the value in our C code of `f[i-1]`. The value in memory is placed into the `ebx` register for calculating the next value in the sequence.
 
