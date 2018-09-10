@@ -275,8 +275,8 @@ The stack is composed as follows:
 |   ...   |                                                                    |
 |ESP + n+8| < pointer to second environment variable >                         |
 |ESP + n+4| < pointer to first environment variable >                          |
-|ESP + n  | < pointer to last string argument >                                |
-|ESP + n-4| < 0x00 value (NULL) indicating end of command line arguments >     |
+|ESP + n  | < 0x00 value (NULL) indicating end of command line arguments >     |
+|ESP + n-4| < pointer to last string argument >                                |
 |  ...    |                                                                    |
 |ESP + 12 | < pointer to second string argument >                              |
 |ESP + 8  | < pointer to a string that contains the first argument >           |
