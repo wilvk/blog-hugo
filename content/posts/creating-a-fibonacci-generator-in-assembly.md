@@ -528,12 +528,14 @@ The following is a table of what registers need to be set and what they do:
 |`edi`|A pointer to the start of our sting array|
 
 The register `ecx` is considered the defacto count register on the x86 architecture and `repne scasb` implicitly uses this register to iterate, starting from the address in the `edi` register until either:
+
 - it finds a byte in memory specified in the lower byte of the `eax` register (in our case `0x00`)
 - the `ecx` register reaches 0
 
 The opcode `cld` sets a flag for the count direction as downward.
 
 And so `repne scasb` iterates, doing the following:
+
 - starting at the address `edi`
 - decrementing `ecx` by 1
 - incrementing `edi` 
