@@ -375,7 +375,7 @@ From here, we can step through the remaining instructions, one at a time by ente
 ...
 (gdb) stepi
 10          movl $4, %eax       # indicate to int 0x80 that we are doing a write
-```_
+```
 
 Entering `stepi` several times up to line 10, we shoud have the address of the first argument in the register ecx. The preceeding instruction `mov`es, or copies the decimal value 4 into the register `eax`.
 
