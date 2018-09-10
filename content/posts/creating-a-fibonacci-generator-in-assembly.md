@@ -1120,7 +1120,7 @@ This is by no means the ultimate Fibonacci sequence generator (or even a sequenc
 A follow on blog from this may include:
 
 - Optimising calculations using an alternative Fibonacci alogrithm implementation with the corresponding performance comparison
-- Optimising calculations using the FPU math coprocessor, MMX, XMM, or SIMD instructions
+- Optimising calculations using the FPU math coprocessor, or SIMD instructions like MMX, XMM, AVX.
 - Handling of a higher range of numbers
 - Designing for reuse with multiple files
 
