@@ -406,7 +406,7 @@ This shows us that the value of ebp is `0xffffd8c8` which corresponds to an addr
 
 We can see there is also the register `eip` with the value `0x804805a` at a much lower value. This is the extended instruction pointer that points to the current instruction that our application is running. The application's instructions reside in an area of memory referenced in our assembly code as the `.text` section. 
 
-Ry convention on Linux, the stack is at the top of memory and our intructions are close to the bottom of memory. The way this is done is by virtual paging so it appears to the application that it has all of physical memory, but it is only mapped pages that appear, so it is just an illusion until the application needs to read or write from a memory address. The size of virtual memory is all of the addressable memory space, can be many times larger than the physical memory space, and appears to the application that it is exclusively owned by the application.
+By convention on Linux, the stack is at the top of memory and our intructions are close to the bottom of memory. The way this is done is by virtual paging so it appears to the application that it has all of physical memory, but it is only mapped pages that appear, so it is just an illusion until the application needs to read or write from a memory address. The size of virtual memory is all of the addressable memory space, can be many times larger than the physical memory space, and appears to the application that it is exclusively owned by the application.
 
 Coming back to the `ecx` register, we can eXamine what is in memory at the address referenced by `ecx` using the `x/` notation.
 
