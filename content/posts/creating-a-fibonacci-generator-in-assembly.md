@@ -138,7 +138,7 @@ The application then needs to exit gracefully and return control to the shell.
 
 We will start with the following assembly code. This gives us a basis for filling out our application:
 
-*fib1.s*
+_fib1.s_
 ```asm
 # framework
 .section .text
@@ -456,7 +456,7 @@ Up to this point, we should have an app that can read and print the first four c
 
 Using our `docker-shell` environment, the following should work:
 
-```
+```bash
 root@9a172ec363ca:/gas-asm-fib# ./make-app fib2
 root@9a172ec363ca:/gas-asm-fib# ./fib2 test
 testroot@9a172ec363ca:/gas-asm-fib#
@@ -558,7 +558,7 @@ This gives **50 - 43 = 7** and is what the following lines do:
 ```
  
 Our string length is copied from `ebx` into the `edx` register so that the `int 0x80` call to write to stdout can then be performed to print the correct number of characters to the screen.
-There is also a `push` and `pop` instruction in `fib3.s` that firstly stores a copy of the address of our argument in `edi` then restores it into `ecx`. This is done as `ecx` is used for the address of the string to write to stdout, and the `repne scasb` instruction loop destroys this value in the `edi` register. Using `push` and `pop`, we can preserve the address of the string on the stack from `edi` and restore it into `ecx` when we need to use it later on._
+There is also a `push` and `pop` instruction in `fib3.s` that firstly stores a copy of the address of our argument in `edi` then restores it into `ecx`. This is done as `ecx` is used for the address of the string to write to stdout, and the `repne scasb` instruction loop destroys this value in the `edi` register. Using `push` and `pop`, we can preserve the address of the string on the stack from `edi` and restore it into `ecx` when we need to use it later on.
 
 # Making things easier to understand using function calls
 
@@ -618,12 +618,12 @@ exit:
 
 ```
 
-We can see here that we still have the label `\_start` but we also have the additional labels of:
+We can see here that we still have the label `_start` but we also have the additional labels of:
 - get_string_length
 - print_string
 - exit
 
-This helps greatly for the readability of our code. We can see that all the calls are done from the `\_start` label and each section of code concludes with a `ret` instruction, except for the `exit` label, which exits our application.
+This helps greatly for the readability of our code. We can see that all the calls are done from the `_start` label and each section of code concludes with a `ret` instruction, except for the `exit` label, which exits our application.
 
 When using labels and functions, it helps to add comments at the start of the section of code indicating what the expected state of any registers and memory should be, what is actually done by the code and what is expected to be returned by the code. The comments above are very brief, but we will see later greater use of this approach.
 
@@ -731,7 +731,7 @@ From a visual inspection of this function, we can see that there are some `cmp` 
 
 Jump instructions are very useful for loop type logic such as `for`, `while` and `do` loops, and even conditional statements like `if` and `case` that you may be familiar with from other languages. They can, however have performance impacts for performance-critical sections of code under some circumstances.
 
-When the function `long_from_string` is called from the `\_start` section, we make the assumption that the address of our string has been placed in the `edi` register, ready for processing. We also assume that the calling function knows that the numeric result will be placed into the `eax` register at completion of the function. It is a convention in assembly language that the result from a function is placed into the `eax` register. For more complex return types, an address that points to an array or struct or some other complex type can be specified in `eax`. This same convention is used in the C language for returning values from functions.
+When the function `long_from_string` is called from the `_start` section, we make the assumption that the address of our string has been placed in the `edi` register, ready for processing. We also assume that the calling function knows that the numeric result will be placed into the `eax` register at completion of the function. It is a convention in assembly language that the result from a function is placed into the `eax` register. For more complex return types, an address that points to an array or struct or some other complex type can be specified in `eax`. This same convention is used in the C language for returning values from functions.
 
 ## Zeroing registers
 
@@ -905,7 +905,7 @@ There are essentially two parts to the logic in this section that can be seen as
 
 ## Setting up our variables
 
-Casting our minds back to the original C source code in [#Some starting knowledge](), we would like to design our assembly code to replicate the C code. The C code is similar in design with two sections where a counter and an array are defined, followed by a loop to calculate the Fibonacci number. The function assumes `eax` is set with the value for the number of iterations, _n_ (plus 2), and returns the result in the register `ebx`.
+Casting our minds back to the original C source code in [Some starting knowledge](#some-starting-knowledge), we would like to design our assembly code to replicate the C code. The C code is similar in design with two sections where a counter and an array are defined, followed by a loop to calculate the Fibonacci number. The function assumes `eax` is set with the value for the number of iterations, _n_ (plus 2), and returns the result in the register `ebx`.
 
 The counter _i_ is relatively simple and the register `ecx` is used for this purpose.
 
@@ -1019,6 +1019,7 @@ The register `ecx` can thus be seen as our index into the array throughout this 
 
 The final piece in the puzzle for putting together our program is almost the reciprocal for one of the functions we created earlier, namely `get_long_from_string`. The following is the function `print_long`, from _fib7.s_ which takes an unsigned long, converts it to a string then prints the string to stdout.
 
+_fib7.s_
 ```asm
 # print a 32-bit long integer
 # input: ebx contains the long value we wish to print
@@ -1128,5 +1129,3 @@ A follow on blog from this may include:
 - Designing for reuse with multiple files
 
 Until next time, happy coding!
-
-
