@@ -22,7 +22,9 @@ IntelliJ|?|F7|F8|Shift-F8|F9|?
 
 # Conclusions:
 
-It would appear that start and stop keys are ill-defined - at least in terms of keyboard shortcuts. The main reason these are missing is that there was slim-to-no information on these online. I just assume everyone is using the start/stop icons that most IDEs provide instead of doing this in an input-consistent way. It speaks volumes to the psychology behind clicking a button to start debugging as opposed to pressing a key combination. It’s still seen as that ‘entertaining’ part where the developer ‘clicks the button’ to take a ride on luck before discovering the turmoil that lay within their own paradigm of code logic.
+It would appear that start and stop keys are ill-defined - at least in terms of keyboard shortcuts. The main reason these are missing is that there was slim-to-no information on these online. I just assume everyone is using the start/stop icons that most IDEs provide instead of doing this in an input-consistent way.
+
+It speaks volumes to the psychology behind clicking a button to start debugging as opposed to pressing a key combination. It’s still seen as that ‘entertaining’ part where the developer ‘clicks the button’ to take a ride on luck before discovering the turmoil that lay within their own paradigm of code logic.
 
 Looking at the table above, there are only a few things that can be derived by the current state of play in the IDE space:
 
