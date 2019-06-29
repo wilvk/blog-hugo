@@ -16,7 +16,7 @@ I’m working on (yet and tiresomely) another IDE for Vim and other editors, and
 |---|---|---|---|---|---|---|
 Eclipse|?|F5|F6|F7|F8|F12|?
 Visual Studio|?|F11|F10|Shift-F11|F5|Shift-F5|
-Android Studio|Shift-F9|F7|F8|Shift-F8|Alt-F9/F9|?
+Android Studio|Shift-F9|F7|F8|Shift-F8|Alt-F9|F9
 Netbeans 8.0|Ctrl-F5|F7|F8|Ctrl-F7|F5|Shift-F5
 IntelliJ|?|F7|F8|Shift-F8|F9|?
 
