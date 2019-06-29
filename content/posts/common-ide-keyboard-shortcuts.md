@@ -10,7 +10,7 @@ categories = []
 
 I’m working on (yet and tiresomely) another IDE for Vim and other editors, and thought that it would be useful to survey the ‘lay of the land’ in the space of keyboard shorcuts in existing IDEs. Below are the results of a 20 minute Googling on the subject.
 
-# The Sensis
+# The Representative Sample
 
 |Editor|Start Debugging|Step Into|Step Over|Step Out/Step Return|Continue/Pause/Resume|Stop|
 |---|---|---|---|---|---|---|
