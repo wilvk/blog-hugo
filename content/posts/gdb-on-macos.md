@@ -8,7 +8,9 @@ categories = []
 
 GDB, or the GNU Debugger has been around for years. It was first written by Richard Stallman in 1986 and has a long heritage on Unix, Linux and other Operating Systems. I’ve started using it recently for debugging applications in assembly from my MacBook Pro.
 
-I wanted to be able to debug both local MacOS binary applications as well as remotely debug Linux applications in Docker containers. This is not as simple as it seems as the format of binaries used on MacOS and Linux are different - MacOS uses the MachO binary format and Linux uses the ELF binary format. This on its own isn’t a problem, but it turns out that different versions of GDB are needed to interpret the different binary formats. Part of the reason for this, currently has been Apple’s move away from GDB for low-level debugging on MacOS in favour of LLVM, where since Mac OS X version 10.4 (Maverick) applications like Eclipse which rely on GDB started to fail.
+I wanted to be able to debug both local MacOS binary applications as well as remotely debug Linux applications in Docker containers. This is not as simple as it seems as the format of binaries used on MacOS and Linux are different - MacOS uses the MachO binary format and Linux uses the ELF binary format. This on its own isn’t a problem, but it turns out that different versions of GDB are needed to interpret the different binary formats.
+
+Adding to the confusion, Apple has been moving away from GDB for low-level debugging on MacOS in favour of LLVM, where since Mac OS X version 10.4 (Maverick) applications like Eclipse which rely on GDB started to fail.
 
 # My Use-Cases
 
