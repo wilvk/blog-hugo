@@ -34,4 +34,4 @@ Looking at the table above, there are only a few things that can be derived by t
 - F5 or F9 are common for continuing the debugging process once started - I find this super confusing, to be honest.
 - As previously mentioned, start and stop are ill-defined from a debugging perspective and is probably more due to the psychology involved with a click vs a keyboard shortcut than anything else (IMHO).
 
-Anyway, this was a fun little survey in the area of popular IDEs and is by no means an exhaustive; but more a way of getting an understanding for what is being used out there. Happy keyboarding!
+Anyway, this was a fun little survey in the area of popular IDEs and is by no means exhaustive; but more a way of getting an understanding for what is being used out there. Happy keyboarding!
