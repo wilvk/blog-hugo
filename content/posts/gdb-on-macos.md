@@ -24,7 +24,7 @@ In addition, since GDB vesion 8.2 in conjunction with MacOS X Mojave 10.14, the 
 
 So, this should get you most of the way towards debugging a MacOS MachO binary locally, but what about if we want to remotely debug a Linux binary in a Docker container from our Mac?
 
-# Remote debugging linux applications from MacOS
+# Remote debugging Linux applications from MacOS
 
 Well, it turns out that remote targets needs to be enabled in the build of gdb we install via brew. There is a great blog post on this [here](http://tomszilagyi.github.io/2018/03/Remote-gdb-with-stl-pp). The post also goes through the process of remote debugging via an exposed port, which is a useful reference.
 
