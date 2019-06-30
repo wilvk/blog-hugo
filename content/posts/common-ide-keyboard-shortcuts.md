@@ -1,5 +1,5 @@
 +++
-title = "Common Ide Keyboard Shortcuts"
+title = "Common IDE Keyboard Shortcuts"
 date = 2019-06-29T22:56:30+10:00
 draft = false
 tags = []
