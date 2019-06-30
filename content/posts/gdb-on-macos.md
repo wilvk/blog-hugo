@@ -43,7 +43,7 @@ brew unlink gdb && brew link gdb
 ## For local MacOS debugging we want to run:
 
 ```
-brew unlink gdb_tim && brew link –overwrite gdb_tim
+brew unlink gdb_tim && brew link gdb_tim
 ```
 
 I hope this is useful to someone out there who was as lost as I was encountering this.
