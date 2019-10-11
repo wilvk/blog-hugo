@@ -118,7 +118,7 @@ or as:
 
 This approach is less neat but more explicit of what is happening.
 
-There is also a helper module in Python 3 called hexlify that takes a byte array and converts this to a string array:
+There is also a helper module in Python 3 called `hexlify` that takes a byte array and converts this to a string array:
 
 ```python
 >>> import binascii
@@ -128,7 +128,7 @@ b'4141412d424242'
 '4141412d424242'
 ```
 
-and it's compliment unhexlify, which takes a string, not a byte array, and outputs a byte array.
+and it's compliment `unhexlify`, which takes a string, not a byte array, and outputs a byte array.
 
 ```python
 >>> binascii.unhexlify('4141412d424242')
@@ -137,19 +137,27 @@ b'AAA-BBB'
 'AAA-BBB'
 ```
 
-If we want to go the other way, and convert a hex-string or byte array to its string representation there are also many ways to do this.
+If we want to go the other way, and convert a hex-string or byte array to its string representation there are also many ways to do this. I'll quickly go through these ways:
 
-TODO:
+given a hex string:
 
-- reverse process
-- jumping steps
-- table of conversions
+```python
+hex_string = '1234ABCD'
+byte_array = b'1234ABCD'
+```
 
-note: a string representation of a series of hex values may not be printable, and may not even convert neatly to an encoding such a utf-8.  in many cases, this is not an issue as the string is a binary representation of something else anyway and is not dissimilar to a fixed-length array of characters without a null-terminator - but I digress.
+From a byte array to string, we can use `byte_array.decode()`
 
-conversion between hex and integers for calculation of long numbers.
+From a string of hex to a byte array of characters, we can use `bytes.fromhex(hex_string)`
 
-as a final step, we may want to use this hex string representation as an integer value. this is probably the most straightforwad step, where we just cast our string to an int() and define that it is of base 16, for example:
+From a string of hex to a string of characters, we can use `bytes.fromhex(hex_string).decode()`
+
+Note that the last `.decode()` will fail as there are bytes that cannot be converted back to a character representation. 
+A string representation of a series of hex values may not be printable, and may not even convert neatly to an encoding such a utf-8. In many cases, this is not an issue as the string is a binary representation of something else anyway and is not dissimilar to a fixed-length array of characters without a null-terminator - but I digress. This is partly why base64 is commonly used across the wire.
+
+## Conversion between hex and integers for calculation of long numbers.
+
+As a final step, we may want to use this hex string representation as an integer value. This is probably the most straightforwad step, where we just cast our string to an int() and define that it is of base 16, for example:
 
 ```python
 >>> int('4141412d424242', 16)
@@ -158,6 +166,8 @@ as a final step, we may want to use this hex string representation as an integer
 
 ## Number base conversions
 
+Numbers in python can be represented many ways. A standard number in Python uses a base of 10, such that 10 is the number ten. Putting a 0x out the front makes that number now a hex number, like shown below. If we have a hexadecimal value as a string that we want to convert to a decimal, we can use the `int('hex', 16)` approach below. 
+
 ```python
 >>> int('A', 16)
 10
@@ -165,15 +175,15 @@ as a final step, we may want to use this hex string representation as an integer
 16
 ```
 
-There are many uses for these steps, and the preceding would likely be part of the process of reading a signature for a message that has been signed using an ECDSA type encryption. 
-
 ## Hex characters in a string, in a byte array, etc.
+
+Values in a string can also be represented by their hexadecimal equivalent by escaping the value with '\x', as shown.
 
 ```python
  string = '\x4a\x82\xfd\xfe\xff\x00'
 ```
 
-There is a contnuum of data types when handling data between a website and it's use and analysis:
+There is a continuum of data types when handling data between a website and it's use and analysis:
 
 ## Decoding:
 
@@ -182,12 +192,13 @@ There is a contnuum of data types when handling data between a website and it's 
 - non-localization-encoded binary string
 - byte array of characters
 - string of hexadecimal values (0-9, a-f)
+- hexadecimal representation
 - integer representation
-
 
 ## Encoding (the reverse process):
 
 - integer representation
+- hexadecimal representation
 - string of hexadecimal values (0-9, a-f)
 - byte array of characters
 - non-localization-encoded binary string
