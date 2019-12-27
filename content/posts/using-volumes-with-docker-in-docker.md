@@ -16,15 +16,17 @@ For example:
 docker run -it -d -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock jenkins-docker
 ```
 
-Where /var/run/docker.sock is the socket on the host.
+Where `/var/run/docker.sock` is the socket on the host.
 
-A major downside of this approach is that the socket used inside the container does not have access to the same filesystem that the host has. This limits the volumes that can be mounted inside the docker container for the build process to only those from the host. The result is that any volumes that need to be mounted to the inner container need to be mounted to the jenkins-docker container first. This can be quite cumbersome in a build pipeline when the user creating and running the build does not have control over mounts of the build server.
+A major downside of this approach is that the socket used inside the container does not have access to the same filesystem that the host has. This limits the volumes that can be mounted inside the docker container for the build process to only those from the host. The result is that any volumes that need to be mounted to the inner container need to be mounted to the build server container (e.g. jenkins-docker) first.
+
+This can be quite cumbersome in a build pipeline when the user creating and running the build does not have control over mounts of the build server.
 
 The workaround I have found is to create a volume inside the build server container as part of the build pipeline, copy the required files into the volume, then attach the volume to the container that is doing the build.
 
 I will illustrate with an example from https://github.com/tide-org/tide that runs on Shippable inside a build server container using DIND:
 
-The steps I followed were:
+### The steps to implement this are:
 
 There was a requirement for another repository in the build process, so this was cloned into the workspace.
 
@@ -32,19 +34,19 @@ There was a requirement for another repository in the build process, so this was
 git clone https://github.com/tide-org/tide-plugins $SHIPPABLE_BUILD_DIR/plugins
 ```
 
-A temporary temporary volume is created to hold the application that I want inside my DIND container:
+A temporary volume `temp-shippable-volume` is created to hold the application inside the DIND container:
 
 ```bash
 docker volume create temp-shippable-volume
 ```
 
-A temporary container is then created to mount the temp-shippable-volume volume to:
+A temporary container is then created to mount the `temp-shippable-volume` volume to:
 
 ```bash
 docker container create --name temp-shippable-container -v temp-shippable-volume:/app busybox
 ```
 
-The required files from the workspace are then copied into the temp-shippable-colume volume:
+The required files from the workspace are then copied into the `temp-shippable-volume` volume:
 
 ```bash
 docker cp $SHIPPABLE_BUILD_DIR temp-shippable-container:/app
@@ -56,7 +58,7 @@ The temp container is then removed:
 docker rm temp-shippable-container
 ```
 
-A listing of volumes in the container is done to verify the temp-shippable-volume is there:
+A listing of volumes in the container verifies the `temp-shippable-volume` is present:
 
 ```bash
 docker volume ls
@@ -68,7 +70,10 @@ An image is created and tagged from the Docker file:
 docker build -t shippable-python - < tests/docker/Dockerfile
 ```
 
-The docker image build in the previous step is run with the temp-shippable-volume mounted to the correct location (-v). An environment variable is set for the tests (-e). The working directory is set inside the build container (-w) and a command line is run (sh -c "..."):
+The docker image build in the previous step is run with the `temp-shippable-volume` mounted to the correct location `(-v)`.
+An environment variable is set for the tests `(-e)`.
+The working directory is set inside the build container `(-w)` and;
+A command line is run inside the DIND container `(sh -c "...")`:
 
 ```bash
 docker run --rm \
