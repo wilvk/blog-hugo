@@ -29,7 +29,8 @@ were showing the ubiquitous:
 ```
 The type or namespace cannot be found (are you missing a using directive or an assembly reference?)
 ```
-https://stackoverflow.com/questions/2721351/the-type-or-namespace-cannot-be-found-are-you-missing-a-using-directive-or-an-a
+
+<image of vim>
 
 ## investigation
 
@@ -58,6 +59,8 @@ Stepping back from the issue a bit and thinking about all the parts in the chain
 Looking around in the source code I could see that there were references to a packaged mono, but not dotnet core. I then searched online as there may have been a dotnet version of omnisharp-roslyn that just hadn't installed. It turns out that omnisharp-roslyn only targets mono. This confused me a bit but reading further, this is the only way that full compatibility with both .net fx and .net core can currently be achieved. (add ref)
 
 Reading the docs, I could see there was a setting called `g:OmniSharp_server_use_mono` - my previous assumption was that this was a toggle between mono and dotnet core.  Reading the docs closer I could see that it toggles between the packaged and system installed mono versions. A rookie mistake in the new, open source .net world.
+
+<diagram>
 
 ## solution
 
