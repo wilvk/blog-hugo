@@ -87,6 +87,10 @@ brew uninstall --force mono
 
 Boom. All sorted and back in business.
 
+![a working omnisharp-vim install](https://blog.seso.io/img/fixed_vim.png)
+A working omnisharp-vim install
+
+
 ## understanding
 
 There are quite a lot of variations of .Net now. It's an entire ecosystem of different flavours - similar to the Java ecosystem (although not as diverse). What I understand now is that these flavors consist of:
