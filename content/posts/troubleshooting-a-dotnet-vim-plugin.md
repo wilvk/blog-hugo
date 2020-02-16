@@ -38,7 +38,7 @@ I ran the build locally with `dotnet build` and it built as expected. So what wa
 
 Firstly, I looked at the *omnisharp-vim* code to determine how it works.
 
-The plugin has two options - stdio and http for sending messages from the debugger to Vim. The plugin called it from the command line and the output json is consumed by the plugin to define features of the code.
+The plugin has two options - stdio and http for sending messages from the Language Server to Vim. The plugin called it from the command line and the output json is consumed by the plugin to define features of the code.
 
 I decided to blow away all the *omnisharp-vim* files in my `~/.vim/bundle/omnisharp-vim` path as well as the `~/.cache/omnisharp-roslyn` path.
 
