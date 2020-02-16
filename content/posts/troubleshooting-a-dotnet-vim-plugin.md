@@ -19,9 +19,9 @@ The project was a dotnet core mvc application and a few of the relevant librarie
 Libraries like:
 
 ```csharp
-using microsoft.extensions.hosting;
-using microsoft.extensions.logging;
-using microsoft.aspnetcore.http;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
 ```
 
 were showing the ubiquitous:
