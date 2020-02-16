@@ -88,6 +88,7 @@ Boom. All sorted and back in business.
 ## understanding
 
 - dotnet core
+- dotnet-core sdk
 - mono
 - mono without asp.net
 - .net framework
