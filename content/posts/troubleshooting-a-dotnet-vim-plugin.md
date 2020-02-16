@@ -1,7 +1,7 @@
 +++
 title = "Troubleshooting a Dotnet Vim Plugin"
 date = 2020-02-16T17:34:02+11:00
-draft = true
+draft = false
 tags = []
 categories = []
 +++
@@ -62,11 +62,11 @@ Stepping back from the issue a bit and thinking about all the parts in the chain
 
 Looking around in the source code I could see that there were references to a packaged version of Mono, but not dotnet core. Initially I thought that this was because there may be licencing or other things preventing dotnet core being packaged as well. 
 
-I then searched online as it  may have been that a dotnet core version of `omnisharp-roslyn` existed that just hadn't installedfor some reason. To my surprise, it turns out that `omnisharp-roslyn` only targets Mono. <link> This confused me a bit but reading further, this is the only way that full compatibility with both .net framework and dotnet core can currently be achieved.
+I then searched online as it  may have been that a dotnet core version of `omnisharp-roslyn` existed that just hadn't installedfor some reason. To my surprise, it turns out that `omnisharp-roslyn` only targets Mono, as mentioned [here](https://github.com/OmniSharp/omnisharp-roslyn/issues/1489).  This confused me a bit but reading further, this is the only way that full compatibility with both .net framework and dotnet core can currently be achieved.
 
 Reading the docs, I could see there was a setting called `g:OmniSharp_server_use_mono` - my previous assumption was that this was a toggle between Mono and dotnet core.  Reading the docs closer I could see that it toggles between the packaged and system-installed versions of Mono, and not between Mono and dotnet core. A rookie mistake in the new, open source .net world.
 
-<diagram>
+![connection between omnisharp-vim and mono](https://blog.seso.io/img/omnisharp.png)
 
 ## solution
 
@@ -87,16 +87,23 @@ Boom. All sorted and back in business.
 
 ## understanding
 
+There are quite a lot of variations of .Net now. It's an entire ecosystem of different flavours - similar in some ways to the Linux Distro ecosystem (although not as diverse). What I understand now is that these flavors consist of:
+
 - dotnet core
-- dotnet-core sdk
-- mono
-- mono without asp.net
-- .net framework
+- dotnet-core-sdk
+- Mono
+- Mono without asp.net
+- Legacy .Net Framework
+- and others
 
-- different ways of installing - brew, download, vscode
-- different locations of installation
+There are also a variety of ways these can be downloaded and installed onto a computer, placing copies in different locations in the filesystem, including through:
 
-- wide surface area for error
+- Brew
+- Direct download
+- Plugins (such as omnisharp-vim)
+- IDEs (such as VS Code and Visual Studio for Mac)
+
+This all adds to increasing the surface area for error and frustration in the troubleshooting process.
 
 ## learnings
 
@@ -113,9 +120,3 @@ __The code never lies__ - Getting to the bottom of the problem required understa
 __Have patience__ - It took me about a day to figure all this out but through perseverence, there comes a solution.
 
 *Happy vimming!*
-
-# TODO:
-
-Link to omnisharp-vim only targeting Mono
-Diagram of vim - omnisharp-vim - omnisharp-roslyn - Mono
-Finish understanding
