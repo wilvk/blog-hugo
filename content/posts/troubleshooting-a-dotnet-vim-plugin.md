@@ -54,15 +54,15 @@ Looking in the path `/usr/local/share/dotnet/packs/Microsoft.AspNetCore.App.Ref/
 
 ## assumptions
 
-The plugin *omnisharp-vim* installs a package called [omnisharp-roslyn](https://github.com/OmniSharp/omnisharp-roslyn) that is used to communicate with the debugger and uses .net roslyn workspaces for defining object types and other things in code.
+The plugin *omnisharp-vim* installs a package called [omnisharp-roslyn](https://github.com/OmniSharp/omnisharp-roslyn) that is used to communicate with the Language Server and uses .Net Roslyn workspaces for defining object types and other things in code.
 
 Stepping back from the issue a bit and thinking about all the parts in the chain, I decided to look into how *omnisharp-roslyn* actually worked.
 
 Looking around in the source code I could see that there were references to a packaged version of Mono, but not dotnet core. Initially I thought that this was because there may be licencing or other things preventing dotnet core being packaged as well. 
 
-I then searched online as it may have been that a dotnet core version of *omnisharp-roslyn* existed that just hadn't installed for some reason. To my surprise, it turns out that *omnisharp-roslyn* only targets Mono, as mentioned [here](https://github.com/OmniSharp/omnisharp-roslyn/issues/1489).  This confused me a bit but reading further, this is the only way that full compatibility with both .net framework and dotnet core can currently be achieved.
+I then searched online as it may have been that a dotnet core version of *omnisharp-roslyn* existed that just hadn't installed for some reason. To my surprise, it turns out that *omnisharp-roslyn* only targets Mono, as mentioned [here](https://github.com/OmniSharp/omnisharp-roslyn/issues/1489).  This confused me a bit but reading further, this is the only way that full compatibility with both .Net Framework and dotnet core can currently be achieved.
 
-Reading the docs, I could see there was a setting called `g:OmniSharp_server_use_mono` - my previous assumption was that this was a toggle between Mono and dotnet core.  Reading the docs closer I could see that it toggles between the packaged and system-installed versions of Mono, and not between Mono and dotnet core. A rookie mistake in the new, open source .net world.
+Reading the docs, I could see there was a setting called `g:OmniSharp_server_use_mono` - my previous assumption was that this was a toggle between Mono and dotnet core.  Reading the docs closer I could see that it toggles between the packaged and system-installed versions of Mono, and not between Mono and dotnet core. A rookie mistake in the new, open source .Net world.
 
 ![connection between omnisharp-vim and mono](https://blog.seso.io/img/omnisharp.png)
 
@@ -85,7 +85,7 @@ Boom. All sorted and back in business.
 
 ## understanding
 
-There are quite a lot of variations of .Net now. It's an entire ecosystem of different flavours - similar in some ways to the Linux Distro ecosystem (although not as diverse). What I understand now is that these flavors consist of:
+There are quite a lot of variations of .Net now. It's an entire ecosystem of different flavours - similar to the Java ecosystem (although not as diverse). What I understand now is that these flavors consist of:
 
 - dotnet core
 - dotnet-core-sdk
@@ -102,7 +102,7 @@ There are also a variety of ways these can be downloaded and installed onto a co
 - IDEs (such as VS Code and Visual Studio for Mac)
 - and others
 
-This all adds to increasing the surface area for error and frustration in the troubleshooting process.
+This all adds to increasing the number of variations and complexity that can lead to error and frustration in the troubleshooting process.
 
 ## learnings
 
