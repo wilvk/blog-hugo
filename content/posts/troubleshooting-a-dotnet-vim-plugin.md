@@ -85,6 +85,18 @@ brew uninstall --force mono
 
 Boom. All sorted and back in business.
 
+## understanding
+
+- dotnet core
+- mono
+- mono without asp.net
+- .net framework
+
+- different ways of installing - brew, download, vscode
+- different locations of installation
+
+- wide surface area for error
+
 ## learnings
 
 This highlighted to me a few things around:
@@ -95,6 +107,14 @@ __Check your assumptions__ - At one stage through this process I was thinking th
 
 __Read closely__ - Read the docs carefully - going back to the omnisharp-vim docs it clearly states that it must be run on mono. I must have skimmed over this in my initial research of the problem. The problem was that the version I was using didn't have the asp.net libraries.
 
+__The code never lies__ - Getting to the bottom of the problem required understanding what was possible with the plugin and what was not.
+
 __Have patience__ - It took me about a day to figure all this out but through perseverence, there comes a solution.
 
 *Happy vimming!*
+
+# TODO:
+
+Link to omnisharp-vim only targeting Mono
+Diagram of vim - omnisharp-vim - omnisharp-roslyn - Mono
+Finish understanding
