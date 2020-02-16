@@ -54,7 +54,7 @@ Looking in the path `/usr/local/share/dotnet/packs/Microsoft.AspNetCore.App.Ref/
 
 ## assumptions
 
-The plugin *omnisharp-vim* installs a package called [omnisharp-roslyn](https://github.com/OmniSharp/omnisharp-roslyn) that is used to communicate with the debugger and uses .net roslyn workspaces for defining type safety and other things in code.
+The plugin *omnisharp-vim* installs a package called [omnisharp-roslyn](https://github.com/OmniSharp/omnisharp-roslyn) that is used to communicate with the debugger and uses .net roslyn workspaces for defining object types and other things in code.
 
 Stepping back from the issue a bit and thinking about all the parts in the chain, I decided to look into how *omnisharp-roslyn* actually worked.
 
