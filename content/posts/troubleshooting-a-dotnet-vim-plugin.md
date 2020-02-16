@@ -46,7 +46,7 @@ No luck - the same issue occurred.
 
 I began to think that it may have been the version of dotnet core on my laptop so uninstalled all the dotnet components using the dotnet sdk uninstall tool. Then removing all files from `/usr/local/share/dotnet`, as well as deleting `/usr/local/bin/dotnet`, and all references to it in my environment.
 
-I reinstalled the [dotnet-sdk](https://formulae.brew.sh/cask/dotnet-sdk) from brew.
+I reinstalled the [dotnet-sdk](https://formulae.brew.sh/cask/dotnet-sdk) from Brew.
 
 The same references were still not being resolved. I couldn't figure it out.
 
@@ -75,7 +75,7 @@ I was quite perplexed until I read a couple of github issues for the plugin:
 - https://github.com/OmniSharp/omnisharp-roslyn/issues/1693
 - https://github.com/OmniSharp/omnisharp-vim/issues/556
 
-and realised that there was another system-wide Mono version being referenced by brew. Doing a system-wide search using on any file with Mono in it (`find / -name "*mono*"`) showed me there was a Mono brew cellar still present.
+and realised that there was another system-wide Mono version being referenced by Brew. Doing a system-wide search on any file with the name mono in it (`find / -name "*mono*"`) showed me there was a Mono Brew cellar still present.
 
 ```
 brew uninstall --force mono
