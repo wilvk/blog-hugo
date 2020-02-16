@@ -60,7 +60,7 @@ Stepping back from the issue a bit and thinking about all the parts in the chain
 
 Looking around in the source code I could see that there were references to a packaged version of Mono, but not dotnet core. Initially I thought that this was because there may be licencing or other things preventing dotnet core being packaged as well. 
 
-I then searched online as it may have been that a dotnet core version of *omnisharp-roslyn* existed that just hadn't installedfor some reason. To my surprise, it turns out that *omnisharp-roslyn* only targets Mono, as mentioned [here](https://github.com/OmniSharp/omnisharp-roslyn/issues/1489).  This confused me a bit but reading further, this is the only way that full compatibility with both .net framework and dotnet core can currently be achieved.
+I then searched online as it may have been that a dotnet core version of *omnisharp-roslyn* existed that just hadn't installed for some reason. To my surprise, it turns out that *omnisharp-roslyn* only targets Mono, as mentioned [here](https://github.com/OmniSharp/omnisharp-roslyn/issues/1489).  This confused me a bit but reading further, this is the only way that full compatibility with both .net framework and dotnet core can currently be achieved.
 
 Reading the docs, I could see there was a setting called `g:OmniSharp_server_use_mono` - my previous assumption was that this was a toggle between Mono and dotnet core.  Reading the docs closer I could see that it toggles between the packaged and system-installed versions of Mono, and not between Mono and dotnet core. A rookie mistake in the new, open source .net world.
 
