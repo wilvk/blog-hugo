@@ -1,5 +1,5 @@
 +++
-title = "Troubleshooting a Dotnet Vim Plugin"
+title = "Troubleshooting a Vim dotnet Plugin"
 date = 2020-02-16T17:34:02+11:00
 draft = false
 tags = []
@@ -15,8 +15,6 @@ I was trying to get C# working in Vim. I found a package online called [omnishar
 After installing the plugin in my `.vimrc` file, I opened a project file. The syntax highlighting was there, although there was a small problem. Some of the imports wouldn't import:
 
 The project was a dotnet core mvc application and a few of the relevant libraries weren't showing.
-
-<image>
 
 Libraries like:
 
@@ -102,6 +100,7 @@ There are also a variety of ways these can be downloaded and installed onto a co
 - Direct download
 - Plugins (such as omnisharp-vim)
 - IDEs (such as VS Code and Visual Studio for Mac)
+- and others
 
 This all adds to increasing the surface area for error and frustration in the troubleshooting process.
 
@@ -114,8 +113,6 @@ __Name your assumptions__  - My initial assumption was that as it was a dotnet c
 __Check your assumptions__ - At one stage through this process I was thinking that the Omnisharp-vim plugin was broken (which is is, but not in the way I thought). I tried running the plugin on another laptop and it worked. This gave me the confidence to continue troubleshooting and fully understand and resolve the issue.
 
 __Read closely__ - Read the docs carefully - going back to the omnisharp-vim docs it clearly states that it must be run on mono. I must have skimmed over this in my initial research of the problem. The problem was that the version I was using didn't have the asp.net libraries.
-
-__The code never lies__ - Getting to the bottom of the problem required understanding what was possible with the plugin and what was not.
 
 __Have patience__ - It took me about a day to figure all this out but through perseverence, there comes a solution.
 
