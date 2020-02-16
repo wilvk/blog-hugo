@@ -13,3 +13,5 @@ hugo -D server
 to build and upload:
 
 ./build
+
+images go in ./static/img/ and land on https://blog.seso.io/img/
