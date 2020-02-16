@@ -30,6 +30,9 @@ were showing the ubiquitous:
 The type or namespace cannot be found (are you missing a using directive or an assembly reference?)
 ```
 
+![a broken omnisharp-vim install](https://blog.seso.io/img/broken_vim.png)
+A broken omnisharp-vim install
+
 ## investigation
 
 This was strange to me as I was of the impression that once dotnet core was installed, all the dependencies should be there too. This was my first incorrect assumption that would turn into a rabbit hole of investigation.
@@ -65,6 +68,7 @@ I then searched online as it may have been that a dotnet core version of *omnish
 Reading the docs, I could see there was a setting called `g:OmniSharp_server_use_mono` - my previous assumption was that this was a toggle between Mono and dotnet core.  Reading the docs closer I could see that it toggles between the packaged and system-installed versions of Mono, and not between Mono and dotnet core. A rookie mistake in the new, open source .Net world.
 
 ![connection between omnisharp-vim and mono](https://blog.seso.io/img/omnisharp.png)
+Connection between omnisharp-vim and Mono
 
 ## solution
 
