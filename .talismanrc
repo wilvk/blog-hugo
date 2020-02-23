@@ -1,0 +1,5 @@
+fileignoreconfig:
+- filename: themes/kiera
+  checksum: 03be0aa3f3c62ead1d8f160a126b995491824e635e43c2b7d34380b22b49ac00
+  ignore_detectors: []
+scopeconfig: []
