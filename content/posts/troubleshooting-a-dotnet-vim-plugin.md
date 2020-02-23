@@ -31,8 +31,7 @@ were showing the ubiquitous:
 The type or namespace cannot be found (are you missing a using directive or an assembly reference?)
 ```
 
-![a broken omnisharp-vim install](https://blog.seso.io/img/broken_vim.png)
-A broken omnisharp-vim install
+<div style="float: left; width: 50%; padding: 20px;"><img src="https://blog.seso.io/img/broken_vim.png"/></div>
 
 ## investigation
 
@@ -88,28 +87,26 @@ brew uninstall --force mono
 
 Boom. All sorted and back in business.
 
-![a working omnisharp-vim install](https://blog.seso.io/img/fixed_vim.png)
-A working omnisharp-vim install
-
+<div style="float: right; width: 50%; padding: 20px;"><img src="https://blog.seso.io/img/fixed_vim.png"/></div>
 
 ## understanding
 
 There are quite a lot of variations of .Net now. It's an entire ecosystem of different flavours - similar to the Java ecosystem (although not as diverse). What I understand now is that these flavors consist of:
 
-- dotnet core
-- dotnet-core-sdk
-- Mono
-- Mono without asp.net
-- Legacy .Net Framework
-- and others
+  - dotnet core
+  - dotnet-core-sdk
+  - Mono
+  - Mono without asp.net
+  - Legacy .Net Framework
+  - and others
 
 There are also a variety of ways these can be downloaded and installed onto a computer, placing copies in different locations in the filesystem, including through:
 
-- Brew
-- Direct download
-- Plugins (such as omnisharp-vim)
-- IDEs (such as VS Code and Visual Studio for Mac)
-- and others
+  - Brew
+  - Direct download
+  - Plugins (such as omnisharp-vim)
+  - IDEs (such as VS Code and Visual Studio for Mac)
+  - and others
 
 This all adds to increasing the number of variations and complexity that can lead to error and frustration in the troubleshooting process.
 
