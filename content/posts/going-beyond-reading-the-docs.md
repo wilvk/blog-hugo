@@ -56,8 +56,8 @@ Sometimes, however, the problem space is so large, or it takes so long to get fe
 
 It turned out the the `dotnet-buildtools-prereqs-docker` repo had a `Dockerfile` of exactly what I was after and the binaries could be built after configuring the docker container the same way.
 
-It's a useful skill, indeed, to have the perseverence and resourcefulness to not blindly accept what is presented at face value; as often things can be either incorrect or incomplete.
-
 # Going forward
+
+It's a useful skill, indeed, to have the perseverence and resourcefulness to not blindly accept what is presented at face value; as often things can be either incorrect or incomplete.
 
 In investigating all this, it made me also realise that the ecosystem of dotnet core has had many changes in it's brief history on github, and while being trailblazing as it is, it's left many dark alleys and quagmires in it's path - but that's a story for another day.
