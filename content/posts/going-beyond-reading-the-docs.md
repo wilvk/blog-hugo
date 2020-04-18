@@ -38,6 +38,10 @@ https://github.com/dotnet/dotnet-docker/blob/nightly
 
 https://github.com/dotnet/docker-tools
 
+- A set of build tools to build reference version of historical dotnet core packages
+
+https://github.com/dotnet/source-build-reference-packages
+
 - A set of build tools for setting up and running the build pipelines
 
 https://github.com/dotnet/buildtools
