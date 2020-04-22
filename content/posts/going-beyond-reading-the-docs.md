@@ -50,11 +50,11 @@ https://github.com/dotnet/buildtools
 
 https://github.com/dotnet/versions
 
-Doing a Google search around keywords to do this build didn't give much information as to how to set up the toolchain (or maybe my Google-fu was off). But I found that by stepping back, and not blindly driving forwards, then looking at the context that the document existed in heelped greatly in resolving the issue.
-
 - A new set of build tools to supersede `buildtools`
 
 https://github.com/dotnet/arcade
+
+Doing a Google search around keywords to do this build didn't give much information as to how to set up the toolchain (or maybe my Google-fu was off). But I found that by stepping back, and not blindly driving forwards, then looking at the context that the document existed in heelped greatly in resolving the issue.
 
 # Light at the end of the tunnel
 
