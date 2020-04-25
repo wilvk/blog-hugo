@@ -100,7 +100,7 @@ In the column `JIT` we can see that our two methods in our application have been
 
 From `dumpmt`, we can see the value `EEClass` which is the address of the descriptor for the object `console.Program`.
 
-If we then run `dumpobj` on this address we can see more info about this class.
+If we then run `dumpclass` on this address we can see more info about this class.
 
 ```
 (lldb) dumpclass 00007FFF7CF81DC0
