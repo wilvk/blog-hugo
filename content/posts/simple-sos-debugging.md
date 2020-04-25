@@ -10,7 +10,7 @@ categories = []
 
 The following is based on the docker images and dotnet core application located at the repository [here](https://github.com/wilvk/dotnet-sos)
 
-## Getting started::
+## Getting started:
 
 To begin with, start up the docker container:
 
@@ -18,7 +18,7 @@ To begin with, start up the docker container:
 make llvm
 ```
 
-Then when in the container, buiild the solution and start the lldb debugger
+Then when in the container, build the solution and start the lldb debugger
 
 ```
 make d-build-debug
@@ -96,7 +96,7 @@ MethodDesc Table
 
 In the column `JIT` we can see that our two methods in our application have been JITT-ed at runtime, whereas other methods that are part of this object have not been.
 
-### tracing an object back to it's ancestors
+## Tracing an object back to it's ancestors
 
 From `dumpmt`, we can see the value `EEClass` which is the address of the descriptor for the object `console.Program`.
 
@@ -193,7 +193,7 @@ System.Object:
 
 ```
 
-### Inspecting other objects:
+### Inspecting other components:
 
 
 From our `dumpmt` of `console.Program` earlier, we can use the `Module Address` to get more details about our application's assembly loaded into memory:
@@ -228,3 +228,5 @@ ClassLoader:        0000000000721890
   00007fff7cf3db98    /work/source/own/test_debug/bin/Debug/netcoreapp3.1/test_debug.dll
 
 ```
+
+Well, that was fun. I hope you enjoyed following along!
