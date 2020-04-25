@@ -219,7 +219,7 @@ MetaData start address:  00007FFFF7E3F2CC (1540 bytes)
 
 Then using the `Assembly` address, we can dump the assembly details:
 
-``
+```
 (lldb) dumpassembly 0000000000691510
 Parent Domain:      000000000062d820
 Name:               /work/source/own/test_debug/bin/Debug/netcoreapp3.1/test_debug.dll
