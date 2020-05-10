@@ -52,7 +52,7 @@ We then need to determine where in our IL code the same breakpoint would be.
 
 We start with the `.pdb` file that is generated when the application is built in Debug mode.
 
-Using `dotnetcore/metadata-tools/src/mdv` we can generate an output of all the symbols and mappings in our application.
+Using `dotnet/metadata-tools/src/mdv` we can generate an output of all the symbols and mappings in our application.
 
 ## Document
 
@@ -166,7 +166,7 @@ Method 'GetTicksElapsed' (#28) (0x06000002)
 
 ### An alternative approach from the pdb output to IL
 
-_An alternative way of cross-referencing between the two would be to check the `CustomDebuggingInformation` in the pdb output, that gives us the offset directly.
+_An alternative way of cross-referencing between the two would be to check the `CustomDebugInformation` in the pdb output, that gives us the offset directly.
 In the PDB output, the method number we found before could then be used to find the offset of our method in the dll metadata._
 
 ```txt
