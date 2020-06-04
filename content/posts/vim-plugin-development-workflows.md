@@ -32,21 +32,21 @@ This can become quite tedious if you are doing many changes and want to keep syn
 
 An alternative approach I have found is, after creating your plugin's repository, to:
 
-- Clone the plugin repository to your source path as you normally would:
+Clone the plugin repository to your source path as you normally would:
 
 ```bash
 $ cd ~/source/wilvk
 $ git clone https://github.com/wilvk/NERDTreeWindowResizer
 ```
 
-- Then, make a symbolic link to your plugin source code in the `~/.vim/bundle` path.
+Then, make a symbolic link to your plugin source code in the `~/.vim/bundle` path.
 
 ```bash
 $ cd ~/.vim/bundle
 $ ln -s ~/source/wilvk/NERDTreeWindowResizer ~/.vim/bundle/NERDTreeWindowResizer
 ```
 
-- Back in the plugin source path, we need to make changes to our local repository remotes:
+Back in the plugin source path, we need to make changes to our local repository remotes:
 
 Firstly, we change to our source code path and see what our current remotes are with `git remote -v`:
 
