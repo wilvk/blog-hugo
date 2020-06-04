@@ -36,11 +36,19 @@ Ok, so it needs sdk `3.0.100`. Let's look at our sdk source tag:
 
 ```bash
 root@85bd9fba8925:/app/sdk# git branch -vva
-* (HEAD detached at v3.1.201)                                                       71a6432 Update branding to 3.1.201 servicing (#10782)     master                                                                            77b5b6b [origin/master] Update dependencies from https:/
-/github.com/dotnet/aspnetcore build 20200423.13 (#11404)                                                                                      remotes/origin/HEAD                                                               -> origin/master
-  remotes/origin/ViktorHofer-VSTest-verbosity                                       6b05bc2 Change test assumption to minimum                 remotes/origin/ViktorHofer-vstest-verbosity                                       9c50d39 Change VSTest invocation verbosity to minimal
-  remotes/origin/conflicting-transitive-content-fix                                 e2b610a Fix transitive content conflicts                  remotes/origin/darc-master-10da8ea1-a2de-458e-ba17-131541dfc7db                   64d8c02 Update dependencies from https://github.com/dotn
-et/aspnetcore build 20200423.18
+  * (HEAD detached at v3.1.201)
+      71a6432 Update branding to 3.1.201 servicing (#10782)
+  master
+      77b5b6b [origin/master] Update dependencies from https://github.com/dotnet/aspnetcore build 20200423.13 (#11404)
+  remotes/origin/HEAD -> origin/master
+  remotes/origin/ViktorHofer-VSTest-verbosity
+      6b05bc2 Change test assumption to minimum
+  remotes/origin/ViktorHofer-vstest-verbosity
+      9c50d39 Change VSTest invocation verbosity to minimal
+  remotes/origin/conflicting-transitive-content-fix
+      e2b610a Fix transitive content conflicts
+  remotes/origin/darc-master-10da8ea1-a2de-458e-ba17-131541dfc7db
+      64d8c02 Update dependencies from https://github.com/dotnet/aspnetcore build 20200423.18
 ```
 
 Ah, we're on sdk `v3.1.201`.
