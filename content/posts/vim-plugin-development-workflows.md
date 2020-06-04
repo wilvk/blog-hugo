@@ -12,7 +12,7 @@ When developing a new plugin with Vim, it is useful to be able to develop locall
 
 ## Pushing to a remote repo and refreshing the local plugin
 
-A naïve approach to this is to create a Git repository for your plugin, add it as a Vundle plugin in your `.vimrc`file and do development in a separate copy of the repository.
+A naïve approach to this is to create a Git repository for your plugin, add it as a Vundle plugin in your `.vimrc` file and do development in a separate copy of the repository.
 
 e.g.
 
