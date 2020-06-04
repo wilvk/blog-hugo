@@ -107,7 +107,9 @@ v5.0.100-preview.2.20176.4
 v5.0.100-preview.3.20216.1
 ```
 
-Hmmm.. where's `3.0.100`? I guess `v3.0.103` might have to do. Will this work? Let's check. (And what happened to v4? Too close in numbering to Dotnet Framework v4.5 maybe?)
+Hmmm.. where's `3.0.100`? I guess `v3.0.103` might have to do. Will this work? Let's check.
+
+(And what happened to v4? Too close in numbering to Dotnet Framework v4.5 maybe?)
 
 ```bash
 root@85bd9fba8925:/app/sdk# git checkout v3.0.103
@@ -245,11 +247,13 @@ t.csproj.
     Tests succeeded: /app/diagnostics/artifacts/bin/DotnetTrace.UnitTests/Debug/netcoreapp3.0/DotnetTrace.UnitTests.dll [netcoreapp3.0|x64]
   Tests succeeded: /app/diagnostics/artifacts/bin/DotnetCounters.UnitTests/Debug/netcoreapp3.0/DotnetCounters.UnitTests.dll [netcoreapp3.0|x64]
   Tests succeeded: /app/diagnostics/artifacts/bin/EventPipe.UnitTests/Debug/netcoreapp3.0/EventPipe.UnitTests.dll [netcoreapp3.0|x64]
-XUnit : error : Tests failed: /app/diagnostics/artifacts/TestResults/Debug/SOS.UnitTests_netcoreapp2.0_x64.html [netcoreapp2.0|x64] [/app/diagnostics/src/SOS/SOS.UnitTests/SOS.UnitTests.csproj]
+XUnit : error : Tests failed: /app/diagnostics/artifacts/TestResults/Debug/SOS.UnitTests_netcoreapp2.0_x64.html [netcoreapp2.0|x64] ...
+  [/app/diagnostics/src/SOS/SOS.UnitTests/SOS.UnitTests.csproj]
 
 Build FAILED.
 
-XUnit : error : Tests failed: /app/diagnostics/artifacts/TestResults/Debug/SOS.UnitTests_netcoreapp2.0_x64.html [netcoreapp2.0|x64] [/app/diagnostics/src/SOS/SOS.UnitTests/SOS.UnitTests.csproj]
+XUnit : error : Tests failed: /app/diagnostics/artifacts/TestResults/Debug/SOS.UnitTests_netcoreapp2.0_x64.html ...
+  [netcoreapp2.0|x64] [/app/diagnostics/src/SOS/SOS.UnitTests/SOS.UnitTests.csproj]
     0 Warning(s)
     1 Error(s)
 
@@ -307,7 +311,8 @@ Well, that's strange. Where is it?
 Let's have a look at our build log for a hint:
 
 ```bash
-dotnet-install: Extracting zip from https://dotnetcli.azureedge.net/dotnet/Runtime/1.1.2/dotnet-ubuntu.16.04-x64.1.1.2.tar.gz               dotnet-install: Adding to current process PATH: `/app/sdk/.dotnet_cli`. Note: This change will be visible only when sourcing script.
+dotnet-install: Extracting zip from https://dotnetcli.azureedge.net/dotnet/Runtime/1.1.2/dotnet-ubuntu.16.04-x64.1.1.2.tar.gz
+dotnet-install: Adding to current process PATH: `/app/sdk/.dotnet_cli`. Note: This change will be visible only when sourcing script.
 dotnet-install: Installation finished successfully.
 ```
 
@@ -338,11 +343,13 @@ root@85bd9fba8925:/app/diagnostics# ./build.sh --test
 
   Tests succeeded: /app/diagnostics/artifacts/bin/DotnetCounters.UnitTests/Debug/netcoreapp3.0/DotnetCounters.UnitTests.dll [netcoreapp3.0|x64]
   Tests succeeded: /app/diagnostics/artifacts/bin/EventPipe.UnitTests/Debug/netcoreapp3.0/EventPipe.UnitTests.dll [netcoreapp3.0|x64]
-XUnit : error : Tests failed: /app/diagnostics/artifacts/TestResults/Debug/SOS.UnitTests_netcoreapp2.0_x64.html [netcoreapp2.0|x64] [/app/diagnostics/src/SOS/SOS.UnitTests/SOS.UnitTests.csproj]
+XUnit : error : Tests failed: /app/diagnostics/artifacts/TestResults/Debug/SOS.UnitTests_netcoreapp2.0_x64.html [netcoreapp2.0|x64] ...
+  [/app/diagnostics/src/SOS/SOS.UnitTests/SOS.UnitTests.csproj]
 
 Build FAILED.
 
-XUnit : error : Tests failed: /app/diagnostics/artifacts/TestResults/Debug/SOS.UnitTests_netcoreapp2.0_x64.html [netcoreapp2.0|x64] [/app/diagnostics/src/SOS/SOS.UnitTests/SOS.UnitTests.csproj]
+XUnit : error : Tests failed: /app/diagnostics/artifacts/TestResults/Debug/SOS.UnitTests_netcoreapp2.0_x64.html [netcoreapp2.0|x64]
+  [/app/diagnostics/src/SOS/SOS.UnitTests/SOS.UnitTests.csproj]
     0 Warning(s)
     1 Error(s)
 
@@ -359,30 +366,29 @@ root@85bd9fba8925:/app/diagnostics# cat /app/diagnostics/artifacts/TestResults/D
 
 ...
 
-
         00:00.390: [40m[32minfo[39m[22m[49m: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
         00:00.390:       Executing endpoint '/ HTTP: GET'
         00:00.395: Connecting to pipe SOSRunner.37508.WebApp3
-        Running Process: /app/diagnostics/.dotnet/dotnet /app/diagnostics/artifacts/bin/dotnet-dump/Debug/netcoreapp2.1/publish/dotnet-dump.
-dll collect --process-id 37656 --output /app/diagnostics/artifacts/tmp/Debug/dumps/ProjectK/3.0.0/netcoreapp3.0/WebApp3.Heap.dmp
+        Running Process: /app/diagnostics/.dotnet/dotnet /app/diagnostics/artifacts/bin/dotnet-dump/Debug/netcoreapp2.1/publish/dotnet-dump.dll ...
+           collect --process-id 37656 --output /app/diagnostics/artifacts/tmp/Debug/dumps/ProjectK/3.0.0/netcoreapp3.0/WebApp3.Heap.dmp
         Working Directory:
         {
-            00:00.219: Writing minidump with heap to /app/diagnostics/artifacts/tmp/Debug/dumps/ProjectK/3.0.0/netcoreapp3.0/WebApp3.Heap.dm
-p
-        00:03.947: Writing minidump with heap to file /app/diagnostics/artifacts/tmp/Debug/dumps/ProjectK/3.0.0/netcoreapp3.0/WebApp3.Heap.d
-mp
+            00:00.219: Writing minidump with heap to /app/diagnostics/artifacts/tmp/Debug/dumps/ProjectK/3.0.0/netcoreapp3.0/WebApp3.Heap.dmp
+        00:03.947: Writing minidump with heap to file /app/diagnostics/artifacts/tmp/Debug/dumps/ProjectK/3.0.0/netcoreapp3.0/WebApp3.Heap.dmp
         00:03.947: Written 188710912 bytes (46072 pages) to core file
             00:03.550: Complete
         }
         Exit code: 0 ( 00:03.560 elapsed)
         }
         Killing process: 00:03.961: Kill() was called
-    }                                                                                                                                           Exit code: 137 ( 00:03.975 elapsed)
+    }
+    Exit code: 137 ( 00:03.975 elapsed)
 
-}                                                                                                                                           SOSRunner processing SOS.WebApp3
-{                                                                                                                                           System.IO.FileNotFoundException: Native debugger path not set or does not exist:
-   at SOSRunner.StartDebugger(TestInformation information, DebuggerAction action) in /app/diagnostics/src/SOS/SOS.UnitTests/SOSRunner.cs:lin
-e 413
+}
+   SOSRunner processing SOS.WebApp3
+{
+   System.IO.FileNotFoundException: Native debugger path not set or does not exist:
+   at SOSRunner.StartDebugger(TestInformation information, DebuggerAction action) in /app/diagnostics/src/SOS/SOS.UnitTests/SOSRunner.cs:line 413
 
 ...
 
@@ -391,8 +397,8 @@ e 413
 It looks like one of the tests is running a process:
 
 ```bash
-/app/diagnostics/.dotnet/dotnet /app/diagnostics/artifacts/bin/dotnet-dump/Debug/netcoreapp2.1/publish/dotnet-dump.
-dll collect --process-id 37656 --output /app/diagnostics/artifacts/tmp/Debug/dumps/ProjectK/3.0.0/netcoreapp3.0/WebApp3.Heap.dmp
+/app/diagnostics/.dotnet/dotnet /app/diagnostics/artifacts/bin/dotnet-dump/Debug/netcoreapp2.1/publish/dotnet-dump.dll ...
+collect --process-id 37656 --output /app/diagnostics/artifacts/tmp/Debug/dumps/ProjectK/3.0.0/netcoreapp3.0/WebApp3.Heap.dmp
 ```
 
 So firstly, let's try running that single project's tests:
@@ -425,8 +431,7 @@ A total of 1 test files matched the specified pattern.
     at SOS.LLDBPluginTests(TestConfiguration config) in /app/diagnostics/src/SOS/SOS.UnitTests/SOS.cs:line 245
  }
 
-
-                                                                                                                                              X SOS.LLDBPluginTests(config: projectk.sdk.prebuilt.2.1.14) [6ms]
+X SOS.LLDBPluginTests(config: projectk.sdk.prebuilt.2.1.14) [6ms]
   Error Message:
    System.ArgumentException : LLDB_PATH environment variable not set
   Stack Trace:
@@ -469,8 +474,8 @@ root@85bd9fba8925:/app/diagnostics/src/SOS/SOS.UnitTests# cat -n SOS.cs
 ...
 
    244              // Get lldb path
-   245              arguments.AppendFormat("--lldb {0} ", Environment.GetEnvironmentVariable("LLDB_PATH") ?? throw new ArgumentException("LL
-DB_PATH environment variable not set"));
+   245              arguments.AppendFormat("--lldb {0} ", Environment.GetEnvironmentVariable("LLDB_PATH") ?? ...
+       throw new ArgumentException("LLDB_PATH environment variable not set"));
 
 ...
 
@@ -482,7 +487,9 @@ Does it just need to be set? Let's try.
 
 root@85bd9fba8925:/app/diagnostics/src/SOS/SOS.UnitTests# export LLDB_PATH
 
-root@85bd9fba8925:/app/diagnostics/src/SOS/SOS.UnitTests# dotnet test                                                                       Test run for /app/diagnostics/artifacts/bin/SOS.UnitTests/Debug/netcoreapp2.0/SOS.UnitTests.dll(.NETCoreApp,Version=v2.0)                   Microsoft (R) Test Execution Command Line Tool Version 16.3.0
+root@85bd9fba8925:/app/diagnostics/src/SOS/SOS.UnitTests# dotnet test
+Test run for /app/diagnostics/artifacts/bin/SOS.UnitTests/Debug/netcoreapp2.0/SOS.UnitTests.dll(.NETCoreApp,Version=v2.0)
+Microsoft (R) Test Execution Command Line Tool Version 16.3.0
 Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Starting test execution, please wait...
@@ -492,16 +499,23 @@ Starting test execution, please wait...
   X SOS.LLDBPluginTests(config: projectk.sdk.prebuilt.2.1.14) [52ms]
   Error Message:
    System.Exception : Process returned exit code 2, expected 0
-Command Line: /usr/bin/python /app/diagnostics/src/SOS/lldbplugin.tests/test_libsosplugin.py --lldb  --host "/app/diagnostics/.dotnet/dotnet --fx-version 2.1.14 " --plugin /app/diagnostics/artifacts/bin/Linux.x64.Debug/libsosplugin.so --logfiledir /app/diagnostics/artifacts/TestResults/Debug/sos.unittests_2020_05_29_01_35_52_2983/2.1.14 --assembly /app/diagnostics/artifacts/bin/TestDebuggee/Debug/netcoreapp2.1/TestDebuggee.dll
+Command Line: /usr/bin/python /app/diagnostics/src/SOS/lldbplugin.tests/test_libsosplugin.py --lldb
+--host "/app/diagnostics/.dotnet/dotnet --fx-version 2.1.14 " --plugin /app/diagnostics/artifacts/bin/Linux.x64.Debug/libsosplugin.so
+--logfiledir /app/diagnostics/artifacts/TestResults/Debug/sos.unittests_2020_05_29_01_35_52_2983/2.1.14
+--assembly /app/diagnostics/artifacts/bin/TestDebuggee/Debug/netcoreapp2.1/TestDebuggee.dll
 Working Directory: /app/diagnostics/src/SOS/lldbplugin.tests
   Stack Trace:
-     at Microsoft.Diagnostics.TestHelpers.ProcessRunner.InternalWaitForExit(Task`1 startProcessTask, Task stdOutTask, Task stdErrTask) in /app/diagnostics/src/Microsoft.Diagnostics.TestHelpers/ProcessRunner.cs:line 436
+     at Microsoft.Diagnostics.TestHelpers.ProcessRunner.InternalWaitForExit(Task`1 startProcessTask, Task stdOutTask, Task stdErrTask) in
+     /app/diagnostics/src/Microsoft.Diagnostics.TestHelpers/ProcessRunner.cs:line 436
    at SOS.LLDBPluginTests(TestConfiguration config) in /app/diagnostics/src/SOS/SOS.UnitTests/SOS.cs:line 286
 --- End of stack trace from previous location where exception was thrown ---
   Standard Output Messages:
  Starting SOS.LLDBPluginTests
  {
-     Running Process: /usr/bin/python /app/diagnostics/src/SOS/lldbplugin.tests/test_libsosplugin.py --lldb  --host "/app/diagnostics/.dotnet/dotnet --fx-version 2.1.14 " --plugin /app/diagnostics/artifacts/bin/Linux.x64.Debug/libsosplugin.so --logfiledir /app/diagnostics/artifacts/TestResults/Debug/sos.unittests_2020_05_29_01_35_52_2983/2.1.14 --assembly /app/diagnostics/artifacts/bin/TestDebuggee/Debug/netcoreapp2.1/TestDebuggee.dll
+     Running Process: /usr/bin/python /app/diagnostics/src/SOS/lldbplugin.tests/test_libsosplugin.py --lldb
+     --host "/app/diagnostics/.dotnet/dotnet --fx-version 2.1.14 " --plugin /app/diagnostics/artifacts/bin/Linux.x64.Debug/libsosplugin.so
+     --logfiledir /app/diagnostics/artifacts/TestResults/Debug/sos.unittests_2020_05_29_01_35_52_2983/2.1.14 --assembly
+     /app/diagnostics/artifacts/bin/TestDebuggee/Debug/netcoreapp2.1/TestDebuggee.dll
      Working Directory: /app/diagnostics/src/SOS/lldbplugin.tests
      Additional Environment Variables: COMPlus_LogFacility=0xffffffbf, COMPlus_LogLevel=6, COMPlus_StressLog=1, COMPlus_StressLogSize=65536
      {
@@ -515,9 +529,13 @@ Working Directory: /app/diagnostics/src/SOS/lldbplugin.tests
      Exit code: 2 ( 00:00.036 elapsed)
 
  System.Exception: Process returned exit code 2, expected 0
- Command Line: /usr/bin/python /app/diagnostics/src/SOS/lldbplugin.tests/test_libsosplugin.py --lldb  --host "/app/diagnostics/.dotnet/dotnet --fx-version 2.1.14 " --plugin /app/diagnostics/artifacts/bin/Linux.x64.Debug/libsosplugin.so --logfiledir /app/diagnostics/artifacts/TestResults/Debug/sos.unittests_2020_05_29_01_35_52_2983/2.1.14 --assembly /app/diagnostics/artifacts/bin/TestDebuggee/Debug/netcoreapp2.1/TestDebuggee.dll
+ Command Line: /usr/bin/python /app/diagnostics/src/SOS/lldbplugin.tests/test_libsosplugin.py --lldb
+ --host "/app/diagnostics/.dotnet/dotnet --fx-version 2.1.14 " --plugin /app/diagnostics/artifacts/bin/Linux.x64.Debug/libsosplugin.so --logfiledir
+ /app/diagnostics/artifacts/TestResults/Debug/sos.unittests_2020_05_29_01_35_52_2983/2.1.14 --assembly
+ /app/diagnostics/artifacts/bin/TestDebuggee/Debug/netcoreapp2.1/TestDebuggee.dll
  Working Directory: /app/diagnostics/src/SOS/lldbplugin.tests
-    at Microsoft.Diagnostics.TestHelpers.ProcessRunner.InternalWaitForExit(Task`1 startProcessTask, Task stdOutTask, Task stdErrTask) in /app/diagnostics/src/Microsoft.Diagnostics.TestHelpers/ProcessRunner.cs:line 436
+    at Microsoft.Diagnostics.TestHelpers.ProcessRunner.InternalWaitForExit(Task`1 startProcessTask, Task stdOutTask, Task stdErrTask)
+    in /app/diagnostics/src/Microsoft.Diagnostics.TestHelpers/ProcessRunner.cs:line 436
     at SOS.LLDBPluginTests(TestConfiguration config) in /app/diagnostics/src/SOS/SOS.UnitTests/SOS.cs:line 286
  }
 
@@ -541,7 +559,9 @@ Total tests: 47
    286              await processRunner.WaitForExit();
 ```
 
-So, this looks like a bit of a dead-end and we should probably install lldb and see if that resolves it. But, what version of lldb should we install? Let's try the default version (lldb-8).
+So, this looks like a bit of a dead-end and we should probably install lldb and see if that resolves it.
+
+But, what version of lldb should we install? Let's try the default version (lldb-8).
 
 ```bash
 root@85bd9fba8925:/app/diagnostics/src/SOS/SOS.UnitTests# apt-get update -y && apt-get install -y llvm-8 lldb-8
@@ -571,20 +591,24 @@ Processing triggers for libc-bin (2.23-0ubuntu11) ...
 Cool. So let's try again:
 
 ```bash
-root@85bd9fba8925:/app/diagnostics/src/SOS/SOS.UnitTests# export LLDB_PATH=/usr/bin/lldb-8                                                  root@85bd9fba8925:/app/diagnostics/src/SOS/SOS.UnitTests# dotnet test
+root@85bd9fba8925:/app/diagnostics/src/SOS/SOS.UnitTests# export LLDB_PATH=/usr/bin/lldb-8
+root@85bd9fba8925:/app/diagnostics/src/SOS/SOS.UnitTests# dotnet test
 Test run for /app/diagnostics/artifacts/bin/SOS.UnitTests/Debug/netcoreapp2.0/SOS.UnitTests.dll(.NETCoreApp,Version=v2.0)
-Microsoft (R) Test Execution Command Line Tool Version 16.3.0                                                                               Copyright (c) Microsoft Corporation.  All rights reserved.
-                                                                                                                                            Starting test execution, please wait...
-                                                                                                                                            A total of 1 test files matched the specified pattern.
-                                                                                                                                            [xUnit.net 00:05:29.24]     SOS.StackAndOtherTests(config: projectk.cli.5.0.0-alpha.1.19564.1) [FAIL]
-                                                                                                                                              X SOS.StackAndOtherTests(config: projectk.cli.5.0.0-alpha.1.19564.1) [39s 342ms]
+Microsoft (R) Test Execution Command Line Tool Version 16.3.0
+Copyright (c) Microsoft Corporation.  All rights reserved.
+
+Starting test execution, please waitA total of 1 test files matched the specified pattern[xUnit.net 00:05:29.24]
+  SOS.StackAndOtherTests(config: projectk.cli.5.0.0-alpha.1.19564.1)
+  [FAIL X SOS.StackAndOtherTests(config: projectk.cli.5.0.0-alpha.1.19564.1) [39s 342ms]
   Error Message:
    Microsoft.Diagnostics.TestHelpers.TestStepException : The Build Debuggee test step failed.
 Original Error: Process returned exit code 1, expected 0
 Command Line: /app/diagnostics/.dotnet/dotnet restore --configfile /app/diagnostics/artifacts/Debuggees/embedded/SymbolTestApp/NuGet.config
---packages "/root/.nuget/packages" /p:RuntimeFrameworkVersion=3.0.0 /p:BuildProjectFramework=netcoreapp3.0 /p:DebugType=embedded            Working Directory: /app/diagnostics/artifacts/Debuggees/embedded/SymbolTestApp
+--packages "/root/.nuget/packages" /p:RuntimeFrameworkVersion=3.0.0 /p:BuildProjectFramework=netcoreapp3.0 /p:DebugType=embedded
+Working Directory: /app/diagnostics/artifacts/Debuggees/embedded/SymbolTestApp
    at Microsoft.Diagnostics.TestHelpers.ProcessRunner.InternalWaitForExit(Task`1 startProcessTask, Task stdOutTask, Task stdErrTask) in /app
-/diagnostics/src/Microsoft.Diagnostics.TestHelpers/ProcessRunner.cs:line 436                                                                   at Microsoft.Diagnostics.TestHelpers.DotNetBuildDebuggeeTestStep.Restore(String extraArgs, ITestOutputHelper output) in /app/diagnostics/
+/diagnostics/src/Microsoft.Diagnostics.TestHelpers/ProcessRunner.cs:line 436
+at Microsoft.Diagnostics.TestHelpers.DotNetBuildDebuggeeTestStep.Restore(String extraArgs, ITestOutputHelper output) in /app/diagnostics/
 src/Microsoft.Diagnostics.TestHelpers/DotNetBuildDebuggeeTestStep.cs:line 208
 
 ```
@@ -600,9 +624,7 @@ src/Microsoft.Diagnostics.TestHelpers/DotNetBuildDebuggeeTestStep.cs:line 208
  System.IO.FileNotFoundException: Native debugger path not set or does not exist:
     at SOSRunner.StartDebugger(TestInformation information, DebuggerAction action) in /app/diagnostics/src/SOS/SOS.UnitTests/SOSRunner.cs:line 413
 
-
-                                                                                                                                            [xUnit.net 00:08:44.29]     SOS.WebApp [FAIL]
-                                                                                                                                              X SOS.WebApp [1ms]
+[xUnit.net 00:08:44.29]     SOS.WebApp [FAIL X SOS.WebApp [1ms]
   Error Message:
    System.InvalidOperationException : The test method expected 1 parameter value, but 0 parameter values were provided.
 
@@ -617,5 +639,4 @@ Total tests: 47
 
 Ok, so only 6 out of 47 failed this time. That's some progress.
 
-
-But why did the 6 fail? I'll look at that in the next blog post.
+But why did the 6 fail? We'll look at that in the another blog post.
