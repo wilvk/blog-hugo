@@ -201,7 +201,7 @@ Then looking at our line of code again:
 We could almost guess at what the IL is doing:
 
 - loading the value at location 0 for an operation
-- loading argument 1 from the method for an operation
+- loading argument 0 from the method for an operation
 - performing a subtraction on the two loaded values
 - storing the result in location 1
 
