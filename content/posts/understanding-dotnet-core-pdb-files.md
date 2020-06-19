@@ -80,7 +80,7 @@ As the former is more error-prone and complex, we'll opt for the latter approach
 
 Using the `MethodDebugInformation` secion, we can scan it for all methods that are for Document #1 and that have a sequence point for line 21.
 
-We find that method `#2` has a sequence point for line `21`:
+We find that method `#2` has a sequence point for line `21` and Document `#1`:
 
 ```txt
 2: #b5
@@ -122,7 +122,7 @@ The sequence points are in our pdb `#Blob` output and can be seen as:
   b5 (SequencePoints): 02-00-00-01-13-05-01-00-26-02-04-0E-00-25-02-00-04-00-0D-02-00-04-00-01-02-7D
 ```
 
-The IL code above also tells us the IL offset in this method for line 21 is `IL_000F`. And as the next IL offest is `IL_0013`, we can determine that line 21 includes the IL code between `IL_000F` and `IL_0012`.
+The IL sequence point mappings above also tell us the IL offset in this method for line 21 is `IL_000F`. And as the next IL offest is `IL_0013`, we can determine that line 21 includes the IL code between `IL_000F` and `IL_0012`.
 
 ## Finding the actual IL for our line of code.
 
@@ -138,7 +138,7 @@ Method (0x06, 0x1C):
 3: '.ctor' (#201)           void () (#6)           0x000020C1  nil                    nil                0x00001886 (PrivateScope, Public, HideBySig, SpecialName, RTSpecialName)  0               0                 nil         nil (ModuleRef)
 ```
 
-This tells us that method `#2` is called `GetTicksElapsed` and we can find the IL code for it by reference to `#28`. Looking further down where the Method IL is shows us the IL code we are after.
+This tells us that method `#2` is called `GetTicksElapsed` and we can find the IL code for it by reference to `#28`. Looking further down where the `Method` IL is shows us the IL code we are after.
 
 ```txt
 Method 'GetTicksElapsed' (#28) (0x06000002)
@@ -178,8 +178,8 @@ CustomDebugInformation (index: 0x37, size: 12):
 2: 0x06000002 (MethodDef)  EnC Local Slot Map (#3)  01-0D-01-3A-00-16-01 (#d0)
 ```
 
-_This tells us that our offset for method `#2` is `0x06000002`.
-Then, in our generated dll output, we can find the method that has an offset of `0x06000002` to find our IL code._
+_This tells us that our offset for method `#2` is as address offest `0x06000002`.
+Then, in our generated dll output, we can find the method that has an address offset of `0x06000002` to find our IL code._
 
 ## Interpreting the IL
 
@@ -208,5 +208,3 @@ We could almost guess at what the IL is doing:
 This seems to match up pretty well with what we would expect and gives us some certainty that this is correct.
 
 The next part is to use the method offset and the method's IL offset to set a breakpoint in our running application.
-
-For that we will use `clrmd` and will be the topic of another post.
