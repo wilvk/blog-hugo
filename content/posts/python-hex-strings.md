@@ -29,7 +29,7 @@ Going into the Python REPL and doing something like the following:
 
 ... returns a string. We can tell as there are single quotes around the result - with nothing else.
 
-What if we wanted to base64 encode this string ('AAA-BBB')? 
+What if we wanted to base64 encode this string ('AAA-BBB')?
 
 Trying the following fails:
 
@@ -48,14 +48,14 @@ The reason being that the `b64encode` method expects a byte array to be present.
 
 There are several ways to achieve this.
 
-The easiest is to put a 'b' out the front of our string to tell the interpreter that this string should be used as an array of bytes, like so:
+The easiest is to put a `b` out the front of our string to tell the interpreter that this string should be used as an array of bytes, like so:
 
 ```python
 >>> base64.b64encode(b'AAA-BBB')
 b'QUFBLUJCQg=='
 ```
 
-Notice that the result is also an array of bytes, with the 'b' at the front of the string.
+Notice that the result is also an array of bytes, with the `b` at the front of the string.
 
 To confirm this, we can get the type of the result and display it's name:
 
@@ -65,7 +65,7 @@ To confirm this, we can get the type of the result and display it's name:
 'bytes'
 ```
 
-Using the 'b' at the start is ok if we are using a string that has been hard-coded; but in most instances we would need to convert a string to a byte array programatically.
+Using the `b` at the start is ok if we are using a string that has been hard-coded; but in most instances we would need to convert a string to a byte array programatically.
 
 For this, there is the `.encode()` string method. As an example, consider the following:
 
@@ -87,7 +87,7 @@ That works as expected. Great. But... *what if we need to convert back from a by
 
 So now we're brushed-up on strings and bytes, let's delve into strings and byte arrays of hex values. This is where it gets a bit trickier.
 
-If we start again with our original string 'AAA-BBB' and we want to convert that to it's hexadecimal representation, it turns out there are a few ways to do this.
+If we start again with our original string `AAA-BBB` and we want to convert that to it's hexadecimal representation, it turns out there are a few ways to do this.
 
 The simplest way is to call `.encode()` on the string, and then `.hex()` on the byte array. The result is a string of hexadecimal values.
 
@@ -100,9 +100,9 @@ The simplest way is to call `.encode()` on the string, and then `.hex()` on the 
 '4141412d424242'
 ```
 
-We can see here '41' repeated and '42' repeated as the ASCII values 'A' and 'B' respectively, with a '2d' in the middle, the hyphen (-). I find the hex-string representation of a string of bytes very useful for working with. Given the string is not too long, it is useful for inspecting and understanding any patterns in the bytes you are working with. When working with forms of cryptography that depend on numbers (and most does to some extend), this is especially useful.
+We can see here `41` repeated and `42` repeated as the ASCII values `A` and `B` respectively, with a `2d` in the middle, the hyphen (-). I find the hex-string representation of a string of bytes very useful for working with. Given the string is not too long, it is useful for inspecting and understanding any patterns in the bytes you are working with. When working with forms of cryptography that depend on numbers (and most does to some extent), this is especially useful.
 
-Another way to get a hex-string is to iterate all the characters of the string, convert them to ordinals then convert them to hex strings then remove all the '0x''s at the start and join them back together:
+Another way to get a hex-string is to iterate all the characters of the string, convert them to ordinals then convert them to hex strings then remove all the `0x`'s at the start and join them back together:
 
 ```python
 >>> ''.join(hex(ord(c))[2:] for c in 'AAA-BBB')
@@ -152,12 +152,13 @@ From a string of hex to a byte array of characters, we can use `bytes.fromhex(he
 
 From a string of hex to a string of characters, we can use `bytes.fromhex(hex_string).decode()`
 
-Note that the last `.decode()` will fail as there are bytes that cannot be converted back to a character representation. 
-A string representation of a series of hex values may not be printable, and may not even convert neatly to an encoding such a utf-8. In many cases, this is not an issue as the string is a binary representation of something else anyway and is not dissimilar to a fixed-length array of characters without a null-terminator - but I digress. This is partly why base64 is commonly used across the wire.
+Note that the last `.decode()` will fail as there are bytes that cannot be converted back to a character representation.
+
+A string representation of a series of hex values may not be printable, and may not even convert neatly to an encoding such a `utf-8`. In many cases, this is not an issue as the string is a binary representation of something else anyway and is not dissimilar to a fixed-length array of characters without a null-terminator - but I digress. This is partly why base64 is commonly used across the wire.
 
 ## Conversion between hex and integers for calculation of long numbers.
 
-As a final step, we may want to use this hex string representation as an integer value. This is probably the most straightforwad step, where we just cast our string to an int() and define that it is of base 16, for example:
+As a final step, we may want to use this hex string representation as an integer value. This is probably the most straightforwad step, where we just cast our string to an `int()` and define that it is of base `16`, for example:
 
 ```python
 >>> int('4141412d424242', 16)
@@ -166,7 +167,7 @@ As a final step, we may want to use this hex string representation as an integer
 
 ## Number base conversions
 
-Numbers in python can be represented many ways. A standard number in Python uses a base of 10, such that 10 is the number ten. Putting a 0x out the front makes that number now a hex number, like shown below. If we have a hexadecimal value as a string that we want to convert to a decimal, we can use the `int('hex', 16)` approach below. 
+Numbers in Python can be represented many ways. A standard number in Python uses a base of `10`, such that `10` is the number ten. Putting a `0x` out the front makes that number now a hex number, like shown below. If we have a hexadecimal value as a string that we want to convert to a decimal, we can use the `int('hex', 16)` approach below.
 
 ```python
 >>> int('A', 16)
@@ -177,7 +178,7 @@ Numbers in python can be represented many ways. A standard number in Python uses
 
 ## Hex characters in a string, in a byte array, etc.
 
-Values in a string can also be represented by their hexadecimal equivalent by escaping the value with '\x', as shown.
+Values in a string can also be represented by their hexadecimal equivalent by escaping the value with `\x`, as shown.
 
 ```python
  string = '\x4a\x82\xfd\xfe\xff\x00'
@@ -210,4 +211,3 @@ There is a continuum of data types when handling data between a website and it's
 https://stackoverflow.com/questions/9641440/convert-from-ascii-string-encoded-in-hex-to-plain-ascii
 
 https://stackoverflow.com/questions/35536670/how-to-convert-ascii-to-hex-in-python/35536716
-
