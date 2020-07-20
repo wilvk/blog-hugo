@@ -10,7 +10,7 @@ categories = []
 
 SoS is an acronym for Son Of Strike, and is the prededessor of Strike, which previously interacted with the original .NET CLR called 'Lightning". There is a back story to why SoS is called what it is [here](https://stackoverflow.com/a/3573049/512965), but it is essentially a low-level debugger for .NET and dotnet core frameworks.
 
-Under .NET, it integrated with WinDbg for debugging .NET applications. Under dotnet core, is integrated into LLDB. LLDB is a low-level debugger that is part of the LLVM framework. It is open-source and is available in the [diagnostics repository](https://github.com/dotnet/diagnostics).
+Under the .NET Framework, it integrated with WinDbg for debugging .NET applications. Under dotnet core, it is integrated into LLDB. LLDB is a low-level debugger that is part of the [LLVM framework](https://llvm.org/). SoS for LLVM is open-source and is available in the [diagnostics repository](https://github.com/dotnet/diagnostics).
 
 In dotnet core, all debugging is abstracted through the Data Access Component (DAC) via 2(?) different interfaces:
 - ICorDebug
