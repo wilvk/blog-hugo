@@ -1,7 +1,7 @@
 ---
 title: "Going Beyond Reading the Docs"
 date: 2020-04-18T14:02:20+10:00
-draft: false
+draft: true
 ---
 
 # Starting at the start
