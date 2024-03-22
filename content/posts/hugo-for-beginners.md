@@ -39,7 +39,7 @@ If you have your own domain name, this can be integrated into Github Pages by go
 The way I set up my blog was to have one repository for the static pages to be delivered by Github Pages, and another for generating the static pages using Hugo. I have a script for generating the site and pushing the changes to the Github Pages site so I don't have to do this manually every time.
 
 
-![hugo build diagram](https://blog.seso.io/img/hugo_blog.svg)
+![hugo build diagram](http://me.wvk.au/img/hugo_blog.svg)
 
 
 We can see from the diagram that the build clones the `wilvk/wilvk.github.io` repository inside the `wilvk/blog-hugo` repository to the `./public` path. It then builds the full Hugo site into the `./public` path and pushes the changes back to the `wilvk/wilvk.github.io` repository.
@@ -89,7 +89,7 @@ Google Analytics is free from Google and Disqus is also a free service. With IDs
 The following is how I have set up my `config.toml` file:
 
 ```
-baseurl = "https://blog.seso.io"
+baseurl = "http://me.wvk.au"
 title = "Will's Blog"
 copyright = "Copyright &copy; 2018 - Willem van Ketwich"
 canonifyurls = true

@@ -16,7 +16,7 @@ Adding to the confusion, Apple has been moving away from GDB for low-level debug
 
 I essentially have 2 use-cases I need to be able to debug for:
 
-![gdb use cases](https://blog.seso.io/img/gdb.drawio.png)
+![gdb use cases](http://me.wvk.au/img/gdb.drawio.png)
 
 # Installing GDB to debug MachO binaries locally:
 

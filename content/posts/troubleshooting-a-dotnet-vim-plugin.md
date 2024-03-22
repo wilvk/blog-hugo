@@ -31,7 +31,7 @@ were showing the ubiquitous:
 The type or namespace cannot be found (are you missing a using directive or an assembly reference?)
 ```
 
-<div style="float: left; width: 50%; padding: 20px;"><img src="https://blog.seso.io/img/broken_vim.png"/></div>
+<div style="float: left; width: 50%; padding: 20px;"><img src="http://me.wvk.au/img/broken_vim.png"/></div>
 
 ## investigation
 
@@ -67,7 +67,7 @@ I then searched online as it may have been that a *dotnet core* version of *omni
 
 Reading the docs, I could see there was a setting called `g:OmniSharp_server_use_mono` - my previous assumption was that this was a toggle between Mono and *dotnet core*.  Reading the docs closer I could see that it toggles between the packaged and system-installed versions of Mono, and not between Mono and *dotnet core*. A rookie mistake in the new, open source .Net world.
 
-![connection between omnisharp-vim and mono](https://blog.seso.io/img/omnisharp.png)
+![connection between omnisharp-vim and mono](http://me.wvk.au/img/omnisharp.png)
 Connection between omnisharp-vim and Mono
 
 ## solution
@@ -87,7 +87,7 @@ brew uninstall --force mono
 
 Boom. All sorted and back in business.
 
-<div style="float: right; width: 50%; padding: 20px;"><img src="https://blog.seso.io/img/fixed_vim.png"/></div>
+<div style="float: right; width: 50%; padding: 20px;"><img src="http://me.wvk.au/img/fixed_vim.png"/></div>
 
 ## understanding
 

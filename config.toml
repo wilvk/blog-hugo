@@ -1,8 +1,8 @@
-baseurl = "https://blog.seso.io"
+baseurl = "http://me.wvk.au"
 title = "Will's Blog"
 copyright = "Copyright &copy; 2018 - Willem van Ketwich"
 canonifyurls = true
-theme = "kiera"
+theme = "minimal"
 
 paginate = 3
 
@@ -38,4 +38,3 @@ languageCode = "en-US"
     identifier = "about"
     weight = 20
     url = "/about/"
-

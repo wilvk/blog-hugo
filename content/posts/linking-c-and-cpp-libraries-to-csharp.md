@@ -38,22 +38,22 @@ For compiling the binaries:
 
 Linking to a C library is very straightforward.
 
-![c to c lib](https://blog.seso.io/img/c_c_lib.png)
+![c to c lib](http://me.wvk.au/img/c_c_lib.png)
 
 ## A C Application to a C++ Library
-![c to c++ lib](https://blog.seso.io/img/c_cpp_lib.png)
+![c to c++ lib](http://me.wvk.au/img/c_cpp_lib.png)
 
 ## A C++ Application to a C Library
-![c++ to c lib](https://blog.seso.io/img/cpp_c_lib.png)
+![c++ to c lib](http://me.wvk.au/img/cpp_c_lib.png)
 
 ## A C++ Application to a C++ Library
-![c++ to c++ lib](https://blog.seso.io/img/cpp_cpp_lib.png)
+![c++ to c++ lib](http://me.wvk.au/img/cpp_cpp_lib.png)
 
 ## A C# Application to a C Library
-![c# to c lib](https://blog.seso.io/img/cs_c_lib.png)
+![c# to c lib](http://me.wvk.au/img/cs_c_lib.png)
 
 ## A C# Application to a C++ Library
-![c# to c++ lib](https://blog.seso.io/img/cs_cpp_lib.png)
+![c# to c++ lib](http://me.wvk.au/img/cs_cpp_lib.png)
 
 # Discussion:
 
