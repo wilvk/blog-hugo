@@ -2,7 +2,7 @@ baseurl = "http://me.wvk.au"
 title = "Will's Blog"
 copyright = "Copyright &copy; 2018 - Willem van Ketwich"
 canonifyurls = true
-theme = "beautiful"
+theme = "lightbi"
 
 paginate = 3
 
