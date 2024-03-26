@@ -6,6 +6,9 @@ rm -rf ./public
 #rm -rf ./themes/kiera
 #git clone https://github.com/wilvk/hugo-kiera themes/kiera
 git clone https://github.com/wilvk/wilvk.github.io public
+cd ./public
+find . ! -name .git -delete
+cd ..
 hugo
 cd ./public
 git add .
