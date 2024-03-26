@@ -3,8 +3,8 @@
 set -x
 
 rm -rf ./public
-rm -rf ./themes/kiera
-git clone https://github.com/wilvk/hugo-kiera themes/kiera
+#rm -rf ./themes/kiera
+#git clone https://github.com/wilvk/hugo-kiera themes/kiera
 git clone https://github.com/wilvk/wilvk.github.io public
 hugo
 cd ./public
