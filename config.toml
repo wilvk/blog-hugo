@@ -4,28 +4,26 @@ copyright = "Copyright &copy; 2018 - Willem van Ketwich"
 canonifyurls = true
 theme = "lightbi"
 
-paginate = 3
+pagination.pagerSize = 3
 
 summaryLength = 20
 enableEmoji = true
 pygmentsCodeFences = true
 
 ## Hugo Built-in Features
-disqusShortname = "wilvk-github-io"
+#disqusShortname = "wilvk-github-io"
 googleAnalytics = "UA-122351489-2"
 enableRobotsTXT = true
 
 builddrafts = false
 languageCode = "en-US"
 
-[author]
-    name = "Willem van Ketwich"
-    github = "wilvk"
-    linkedin = "willvk"
-    twitter = "wilvk"
-
 [params]
     tagline = "Just a dude that does stuff.. mostly with computers."
+    author.name = "Willem van Ketwich"
+    author.github = "wilvk"
+    author.linkedin = "willvk"
+    author.twitter = "wilvk"
 
 ## Main Menu
 [[menu.main]]
